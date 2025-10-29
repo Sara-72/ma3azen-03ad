@@ -1,0 +1,66 @@
+:host {
+  display: block; /* Allows setting width/height */
+  min-height: 100vh; /* Ensures the component takes up full viewport height */
+  width: 100%;
+
+}
+
+.home-page-container {
+
+
+  width:100%;
+  background-image: url('/assets/images/home-bg2.jpg');
+
+
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+
+
+
+}
+
+.content{
+  max-width: 1000px;
+  width: 50%;
+  margin: 0 auto;
+
+}
+
+.u-logo{
+  width:100px;
+  height:100px;
+}
+
+.btn{
+  background-color: var(--primary-color);
+
+  transition: 0.5s;
+  -webkit-transition: 0.5s;
+  -moz-transition: 0.5s;
+  -ms-transition: 0.5s;
+  -o-transition: 0.5s;
+}
+
+.btn:hover{
+  background-color: var(--secondary-color);
+}
+
+.social-icons i{
+  font-size: 30px;
+}
+
+.social-icons img{
+  filter: hue-rotate(0deg);
+  width:25px;
+  height:25px;
+  cursor: pointer;
+  transition: 0.5s;
+  -webkit-transition: filter 0.5s ease;
+  -moz-transition: 0.5s;
+  -ms-transition: 0.5s;
+  -o-transition: 0.5s;
+}
+
+
