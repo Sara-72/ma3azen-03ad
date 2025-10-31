@@ -1,0 +1,50 @@
+
+nav{
+  background-color: var(--primary-color);
+  color :white;
+}
+
+.navbar-nav .nav-link {
+  transition: color 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+
+  color: var(--third-color)!important;
+
+}
+
+
+.right-nav{
+  margin-right:16rem ;
+}
+
+.left-container{
+
+  margin-right:15rem;
+
+}
+
+.left-container ul li {
+
+  list-style: none;
+
+}
+
+/* .left-container ul li a{
+  white-space: nowrap;
+  overflow: hidden;
+
+
+  text-overflow: ellipsis;
+} */
+
+
+.u-logo {
+  width: 60px;
+  height: 60px;
+}
+
+button{
+  margin-right:15rem;
+}

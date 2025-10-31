@@ -1,1 +1,45 @@
-<p>header works!</p>
+<nav class="navbar navbar-expand-lg p-3 justify-content-center align-items-center">
+
+
+  <img src="assets/images/Hurghada-University.png" alt="University Logo" class="u-logo">
+
+  <button
+    class="navbar-toggler bg-white"
+    type="button"
+    data-bs-toggle="collapse"
+    data-bs-target="#navbarNav"
+    aria-controls="navbarNav"
+    aria-expanded="false"
+    aria-label="Toggle navigation"
+  >
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="right-nav navbar-nav justify-content-center align-items-center mb-2 mb-lg-0">
+      <li class="nav-item">
+        <a class="nav-link text-white mx-4 fw-medium" [routerLink]="['/']" routerLinkActive="active">عن النظام</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white mx-4 fw-medium" [routerLink]="['/']" routerLinkActive="active">مميزات النظام</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-white mx-4 fw-medium" [routerLink]="['/']" routerLinkActive="active">الدعم الفني</a>
+      </li>
+
+    </ul>
+
+    <div class="left-container d-flex flex-row justify-content-center align-items-center ms-auto">
+      <ul class="left-nav navbar-nav justify-content-center align-items-center mb-2 mb-lg-0">
+      <li class="nav-item">
+        <a class="nav-link me-5" [routerLink]="['/']" routerLinkActive="active"><i class="ph ph-user-circle fs-1 text-white-50"></i></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link me-5" [routerLink]="['/']" routerLinkActive="active"><i class="ph ph-sign-out fs-3 text-danger me-2"></i></a>
+      </li>
+      </ul>
+    </div>
+
+  </div>
+
+</nav>
