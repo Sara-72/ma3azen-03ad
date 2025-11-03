@@ -11,7 +11,9 @@
 
   <div class="button mt-3">
 
-  <a class="btn text-white fw-medium p-3 fs-5" href="#" role="button">سجل الدخول</a>
+  <a (click)="goToLogin(); $event.preventDefault()"
+  routerLink="/login"
+  class="btn text-white fw-medium p-3 fs-5" role="button" href="#">سجل الدخول</a>
 
   </div>
 
