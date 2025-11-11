@@ -16,7 +16,7 @@ nav{
 
 
 .right-nav{
-  margin-right:16rem ;
+  margin-right:20rem ;
 }
 
 .left-container{
@@ -30,14 +30,6 @@ nav{
   list-style: none;
 
 }
-
-/* .left-container ul li a{
-  white-space: nowrap;
-  overflow: hidden;
-
-
-  text-overflow: ellipsis;
-} */
 
 
 .u-logo {
