@@ -53,6 +53,7 @@ interface LoginForm {
   styleUrl: './login-page.component.css'
 })
 export class LoginPageComponent {
+  
   isSubmitting = signal(false);
   message = signal<{ text: string; type: 'success' | 'error' } | null>(null);
 

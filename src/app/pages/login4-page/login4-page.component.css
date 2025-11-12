@@ -49,6 +49,7 @@ label{
   -ms-transition: 0.5s;
   -o-transition: 0.5s;
   display:block;
+  width:100%;
 }
 
 .btn:hover{

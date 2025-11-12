@@ -68,7 +68,7 @@
                 @if (loginForm.get('password')?.getError('required')) {
                   <span class="text-danger">من فضلك أدخل كلمة السر</span>
                 } @else if (loginForm.get('password')?.getError('invalidPassword')) {
-                  <!-- FIX: Added safe navigation operator (?.) before accessing .message -->
+
                   <span>{{ loginForm.get('password')?.getError('invalidPassword')?.message }}</span>
                 }
               </div>
@@ -94,7 +94,7 @@
         <div class="form-check d-flex flex-row mt-2" id="collegeGroup">
 
           <label class="block text-sm font-bold text-gray-700 mb-2">
-              اختر الكلية: <span [class.text-red-500]="isInvalid('college')" class="font-normal text-xs"></span>
+            اختر الكلية   :&nbsp;&nbsp;&nbsp;<span [class.text-red-500]="isInvalid('college')" class="font-normal text-xs"></span>
             </label>
 
               <input id="college-education" class="form-check-input ms-1" type="radio" name="college" formControlName="college" value="education"
@@ -167,7 +167,7 @@
             [class.bg-red-100]="message()!.type === 'error'"
             [class.text-red-800]="message()!.type === 'error'"
           >
-            <!-- Using the non-null assertion operator (!) to satisfy the strict template checker -->
+
             {{ message()!.text }}
           </div>
         }
