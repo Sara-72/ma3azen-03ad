@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit , signal, computed, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit , signal, computed, effect,inject } from '@angular/core';
 import {
   ReactiveFormsModule,
   FormGroup,
@@ -11,6 +11,8 @@ import {
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../../components/footer/footer.component';
+import { Employee1Component } from '../employee/employee1/employee1.component';
+import { Ameen1Component } from '../ameen/ameen1/ameen1.component';
 
 function passwordValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value || '';
@@ -47,18 +49,20 @@ interface LoginForm {
   selector: 'app-login-page',
   imports: [
     FooterComponent ,CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    Employee1Component
   ],
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.css'
 })
 export class LoginPageComponent {
-  
+
   isSubmitting = signal(false);
   message = signal<{ text: string; type: 'success' | 'error' } | null>(null);
 
   // Form Group initialization using FormBuilder
   private fb = new FormBuilder();
+  private router = inject(Router);
 
   loginForm: FormGroup<LoginForm> = this.fb.group({
     email: this.fb.nonNullable.control('', [
@@ -110,6 +114,7 @@ export class LoginPageComponent {
 
     this.isSubmitting.set(true);
     console.log('Form Submitted!', this.loginForm.value);
+    this.router.navigate(['/employee1']);
 
     // Simulate API call delay
     setTimeout(() => {

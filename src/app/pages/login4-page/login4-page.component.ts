@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit , signal, computed, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit , signal, computed, effect,inject } from '@angular/core';
 import {
   ReactiveFormsModule,
   FormGroup,
@@ -11,6 +11,7 @@ import {
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../../components/footer/footer.component';
+import { Modeer1Component } from '../modeer/modeer1/modeer1.component';
 
 function passwordValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value || '';
@@ -46,7 +47,7 @@ interface LoginForm {
   selector: 'app-login4-page',
   imports: [
     FooterComponent,CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,Modeer1Component
   ],
   templateUrl: './login4-page.component.html',
   styleUrl: './login4-page.component.css'
@@ -58,6 +59,7 @@ export class Login4PageComponent {
 
     // Form Group initialization using FormBuilder
     private fb = new FormBuilder();
+    private router = inject(Router);
 
     loginForm: FormGroup<LoginForm> = this.fb.group({
       email: this.fb.nonNullable.control('', [
@@ -109,6 +111,7 @@ export class Login4PageComponent {
 
       this.isSubmitting.set(true);
       console.log('Form Submitted!', this.loginForm.value);
+      this.router.navigate(['/modeer1']);
 
       // Simulate API call delay
       setTimeout(() => {
@@ -124,7 +127,7 @@ export class Login4PageComponent {
         });
       }, 1500);
     }
-  
+
 
 
 }

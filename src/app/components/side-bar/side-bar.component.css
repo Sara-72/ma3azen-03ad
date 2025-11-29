@@ -1,0 +1,47 @@
+.side-bar{
+  width:20%;
+
+}
+
+.side-element1 a{
+  color:var(--primary-color);
+  text-decoration: none;
+}
+
+
+.side-element1{
+  color:var(--primary-color);
+  border-color:var(--primary-color) !important;
+  background-color:rgb(248, 248, 248);
+}
+
+.side-element-r a{
+  color:var(--black-color);
+  text-decoration: none;
+  transition:0.5s ;
+  -webkit-transition:0.5s ;
+  -moz-transition:0.5s ;
+  -ms-transition:0.5s ;
+  -o-transition:0.5s ;
+}
+
+
+.side-element-r{
+  color:var(--primary-color);
+  border-color:var(--black-color) !important;
+  cursor:pointer;
+  transition: 3s;
+  -webkit-transition: 0.5s;
+  -moz-transition: 0.5s;
+  -ms-transition: 0.5s;
+  -o-transition: 0.5s;
+
+}
+
+.side-element-r:hover{
+    border-color:var(--secondary-color) !important;
+}
+
+.side-element-r:hover a{
+  color:var(--secondary-color);
+}

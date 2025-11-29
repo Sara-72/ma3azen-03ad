@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit , signal, computed, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit , signal, computed, effect,inject } from '@angular/core';
 import {
   ReactiveFormsModule,
   FormGroup,
@@ -11,7 +11,7 @@ import {
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../../components/footer/footer.component';
-
+import { Ameen3Component } from '../ameen/ameen3/ameen3.component';
 
 
 function passwordValidator(control: AbstractControl): ValidationErrors | null {
@@ -48,7 +48,8 @@ interface LoginForm {
   selector: 'app-login3-page',
   imports: [
     FooterComponent,CommonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    Ameen3Component
   ],
   templateUrl: './login3-page.component.html',
   styleUrl: './login3-page.component.css'
@@ -60,6 +61,8 @@ export class Login3PageComponent {
 
   // Form Group initialization using FormBuilder
   private fb = new FormBuilder();
+  private router = inject(Router);
+
 
   loginForm: FormGroup<LoginForm> = this.fb.group({
     email: this.fb.nonNullable.control('', [
@@ -102,15 +105,18 @@ export class Login3PageComponent {
     if (this.loginForm.invalid) {
       // Mark all fields as touched to display errors immediately
       this.loginForm.markAllAsTouched();
+
       this.message.set({
         text: 'Form contains validation errors. Please correct them.',
         type: 'error',
       });
       return;
+
     }
 
     this.isSubmitting.set(true);
     console.log('Form Submitted!', this.loginForm.value);
+    this.router.navigate(['/ameen3']);
 
     // Simulate API call delay
     setTimeout(() => {

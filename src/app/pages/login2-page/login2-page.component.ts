@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit , signal, computed, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit , signal, computed, effect,inject } from '@angular/core';
 import {
   ReactiveFormsModule,
   FormGroup,
@@ -11,6 +11,7 @@ import {
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../../components/footer/footer.component';
+import { EmployeeMa5azen1Component } from '../employee_ma5azen/employee-ma5azen1/employee-ma5azen1.component';
 
 
 
@@ -48,7 +49,7 @@ interface LoginForm {
   selector: 'app-login2-page',
   imports: [
       FooterComponent ,CommonModule,
-      ReactiveFormsModule
+      ReactiveFormsModule,EmployeeMa5azen1Component
   ],
   templateUrl: './login2-page.component.html',
   styleUrl: './login2-page.component.css'
@@ -60,6 +61,7 @@ export class Login2PageComponent {
 
   // Form Group initialization using FormBuilder
   private fb = new FormBuilder();
+  private router = inject(Router);
 
   loginForm: FormGroup<LoginForm> = this.fb.group({
     email: this.fb.nonNullable.control('', [
@@ -111,6 +113,7 @@ export class Login2PageComponent {
 
     this.isSubmitting.set(true);
     console.log('Form Submitted!', this.loginForm.value);
+    this.router.navigate(['/employee_makhazen1']);
 
     // Simulate API call delay
     setTimeout(() => {
