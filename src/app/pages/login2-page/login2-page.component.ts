@@ -113,7 +113,7 @@ export class Login2PageComponent {
 
     this.isSubmitting.set(true);
     console.log('Form Submitted!', this.loginForm.value);
-    this.router.navigate(['/employee_makhazen1']);
+    this.router.navigate(['/employee_ma3azen1']);
 
     // Simulate API call delay
     setTimeout(() => {

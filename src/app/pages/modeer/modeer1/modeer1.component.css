@@ -1,0 +1,86 @@
+.side-bar{
+  width:20%;
+
+}
+
+.side-element1 a{
+  color:var(--primary-color);
+  text-decoration: none;
+}
+
+
+.side-element1{
+  color:var(--primary-color);
+  border-color:var(--primary-color) !important;
+  background-color:rgb(248, 248, 248);
+}
+
+.side-element-r a{
+  color:var(--black-color);
+  text-decoration: none;
+  transition:0.5s ;
+  -webkit-transition:0.5s ;
+  -moz-transition:0.5s ;
+  -ms-transition:0.5s ;
+  -o-transition:0.5s ;
+}
+
+
+.side-element-r{
+  color:var(--primary-color);
+  border-color:var(--black-color) !important;
+  cursor:pointer;
+  transition: 3s;
+  -webkit-transition: 0.5s;
+  -moz-transition: 0.5s;
+  -ms-transition: 0.5s;
+  -o-transition: 0.5s;
+
+}
+
+.side-element-r:hover{
+    border-color:var(--secondary-color) !important;
+}
+
+.side-element-r:hover a{
+  color:var(--secondary-color);
+}
+
+
+
+/******************************************************/
+
+
+
+.table-container {
+
+  width: 100%;
+  max-width: 600px; /* Adjust as needed */
+  margin: 20px auto;
+}
+
+table {
+  /* Set the table to take full width of its container */
+  width: 100%;
+  border-collapse: collapse; /* Essential for clean borders */
+  border: 1px solid #000; /* Main outer border */
+}
+
+th, td {
+  /* Style for all header and data cells */
+  border: 2px solid #000;
+  padding: 10px;
+  text-align: center; /* Center text alignment */
+  height: 85px;
+  vertical-align: top; /* Start content at the top of the large cells */
+  box-sizing: border-box;
+}
+
+th {
+  /* Style specifically for table headers */
+  background-color: #f8f8f8;
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #333;
+}
+

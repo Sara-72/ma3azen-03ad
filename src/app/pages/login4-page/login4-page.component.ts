@@ -47,7 +47,8 @@ interface LoginForm {
   selector: 'app-login4-page',
   imports: [
     FooterComponent,CommonModule,
-    ReactiveFormsModule,Modeer1Component
+    ReactiveFormsModule,
+    Modeer1Component
   ],
   templateUrl: './login4-page.component.html',
   styleUrl: './login4-page.component.css'

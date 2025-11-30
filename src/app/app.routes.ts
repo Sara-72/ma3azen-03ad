@@ -10,6 +10,13 @@ import { AboutComponent } from './pages/about/about.component';
 import { Ameen1Component } from './pages/ameen/ameen1/ameen1.component';
 import { Ameen2Component } from './pages/ameen/ameen2/ameen2.component';
 import { Ameen3Component } from './pages/ameen/ameen3/ameen3.component';
+import { Modeer1Component } from './pages/modeer/modeer1/modeer1.component';
+import { Modeer2Component } from './pages/modeer/modeer2/modeer2.component';
+import { Employee1Component } from './pages/employee/employee1/employee1.component';
+import { Employee2Component } from './pages/employee/employee2/employee2.component';
+import { EmployeeMa5azen1Component } from './pages/employee_ma5azen/employee-ma5azen1/employee-ma5azen1.component';
+import { EmployeeMa5azen2Component } from './pages/employee_ma5azen/employee-ma5azen2/employee-ma5azen2.component';
+import { EmployeeMa5azen3Component } from './pages/employee_ma5azen/employee-ma5azen3/employee-ma5azen3.component';
 
 export const routes: Routes = [
 
@@ -22,7 +29,18 @@ export const routes: Routes = [
   { path: 'about', component: AboutComponent, title: 'about'},
   { path: 'ameen1', component: Ameen1Component, title: 'ameen1'},
   { path: 'ameen2', component: Ameen2Component, title: 'ameen2'},
-  { path: 'ameen3', component: Ameen3Component, title: 'ameen3'}
+  { path: 'ameen3', component: Ameen3Component, title: 'ameen3'},
+  { path: 'modeer1', component: Modeer1Component, title: 'modeer1'},
+  { path: 'modeer2', component: Modeer2Component, title: 'modeer2'},
+  { path: 'employee1', component: Employee1Component, title: 'employee1'},
+  { path: 'employee2', component: Employee1Component, title: 'employee2'},
+  { path: 'employee_ma3azen1', component: EmployeeMa5azen1Component, title: 'employee_ma3azen1'},
+  { path: 'employee_ma3azen2', component: EmployeeMa5azen2Component, title: 'employee_ma3azen2'},
+  { path: 'employee_ma3azen3', component: EmployeeMa5azen3Component, title: 'employee_ma3azen3'}
+
+
+
+
 
 
 

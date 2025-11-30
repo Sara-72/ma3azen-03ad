@@ -11,7 +11,7 @@ import {
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../../components/footer/footer.component';
-import { Ameen3Component } from '../ameen/ameen3/ameen3.component';
+import { Ameen1Component } from '../ameen/ameen1/ameen1.component';
 
 
 function passwordValidator(control: AbstractControl): ValidationErrors | null {
@@ -49,7 +49,7 @@ interface LoginForm {
   imports: [
     FooterComponent,CommonModule,
     ReactiveFormsModule,
-    Ameen3Component
+    Ameen1Component
   ],
   templateUrl: './login3-page.component.html',
   styleUrl: './login3-page.component.css'
@@ -116,7 +116,7 @@ export class Login3PageComponent {
 
     this.isSubmitting.set(true);
     console.log('Form Submitted!', this.loginForm.value);
-    this.router.navigate(['/ameen3']);
+    this.router.navigate(['/ameen1']);
 
     // Simulate API call delay
     setTimeout(() => {
