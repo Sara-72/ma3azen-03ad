@@ -1,3 +1,8 @@
+.container{
+  margin-bottom:10%;
+}
+
+
 .side-bar{
   width:20%;
 
@@ -69,7 +74,7 @@ table {
 th, td {
   /* Style for all header and data cells */
   border: 2px solid #000;
-  padding: 10px;
+  padding: 30px;
   text-align: center; /* Center text alignment */
   height: 85px;
   vertical-align: top; /* Start content at the top of the large cells */
