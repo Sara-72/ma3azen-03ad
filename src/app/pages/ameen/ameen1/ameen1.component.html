@@ -7,31 +7,19 @@
 
 <div class="content d-flex flex-row">
 
-<div class="side-bar mt-5 mb-5 ms-5">
+<aside class="sidebar">
+            <h5>مرحباً أستاذ/ة محمد أحمد</h5>
+            <ul class="mt-5">
+                <li class="active"><a>المخزن</a></li>
+                <li><a href="/ameen2">دفتر اليومية</a></li>
+                <li><a href="/ameen3">أذونات الصرف</a></li>
 
-  <div class="side-element1 border-bottom border-2 py-3 px-1">
-
-    <a class="fs-4 me-3 fw-medium">المخزن</a>
-
-  </div>
-
-    <div class="side-element-r border-bottom border-2 py-3 px-1">
-
-    <a href="/ameen2" class="fs-4 me-3 fw-medium">دفتر اليومية</a>
-
-  </div>
-
-  <div class="side-element-r border-bottom border-2 py-3 px-1">
-
-    <a href="/ameen3" class="fs-4 me-3 fw-medium">أذونات الصرف</a>
-
-  </div>
-
-</div>
+            </ul>
+        </aside>
 
 
 
-<form [formGroup]="simpleForm" (ngSubmit)="onSubmit()" dir="rtl" class="mt-5 mx-5">
+<form [formGroup]="simpleForm" (ngSubmit)="onSubmit()" dir="rtl" class="mt-5 form-part">
     <div class="table-section">
         <table>
             <thead>
