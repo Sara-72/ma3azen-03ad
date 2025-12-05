@@ -17,6 +17,7 @@ import { Employee2Component } from './pages/employee/employee2/employee2.compone
 import { EmployeeMa5azen1Component } from './pages/employee_ma5azen/employee-ma5azen1/employee-ma5azen1.component';
 import { EmployeeMa5azen2Component } from './pages/employee_ma5azen/employee-ma5azen2/employee-ma5azen2.component';
 import { EmployeeMa5azen3Component } from './pages/employee_ma5azen/employee-ma5azen3/employee-ma5azen3.component';
+import { Elda3mComponent } from './pages/elda3m/elda3m.component';
 
 export const routes: Routes = [
 
@@ -36,7 +37,9 @@ export const routes: Routes = [
   { path: 'employee2', component: Employee2Component, title: 'employee2'},
   { path: 'employee_ma3azen1', component: EmployeeMa5azen1Component, title: 'employee_ma3azen1'},
   { path: 'employee_ma3azen2', component: EmployeeMa5azen2Component, title: 'employee_ma3azen2'},
-  { path: 'employee_ma3azen3', component: EmployeeMa5azen3Component, title: 'employee_ma3azen3'}
+  { path: 'employee_ma3azen3', component: EmployeeMa5azen3Component, title: 'employee_ma3azen3'},
+  { path: 'elda3m' , component :Elda3mComponent , title:'elda3m'}
+
 
 
 
