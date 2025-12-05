@@ -33,7 +33,7 @@ export const routes: Routes = [
   { path: 'modeer1', component: Modeer1Component, title: 'modeer1'},
   { path: 'modeer2', component: Modeer2Component, title: 'modeer2'},
   { path: 'employee1', component: Employee1Component, title: 'employee1'},
-  { path: 'employee2', component: Employee1Component, title: 'employee2'},
+  { path: 'employee2', component: Employee2Component, title: 'employee2'},
   { path: 'employee_ma3azen1', component: EmployeeMa5azen1Component, title: 'employee_ma3azen1'},
   { path: 'employee_ma3azen2', component: EmployeeMa5azen2Component, title: 'employee_ma3azen2'},
   { path: 'employee_ma3azen3', component: EmployeeMa5azen3Component, title: 'employee_ma3azen3'}

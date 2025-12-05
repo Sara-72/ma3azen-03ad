@@ -1,11 +1,12 @@
-body {
-    margin: 0;
-    padding: 0;
-    font-family: "Cairo", sans-serif;
-    background: #f5f5f5;
+a{
+  text-decoration: none;
+  color:var(--black-color);
+  transition: 0.3s;
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+  -ms-transition: 0.3s;
+  -o-transition: 0.3s;
 }
-
-
 
 /*  PAGE LAYOUT */
 .page-container {
@@ -32,14 +33,21 @@ body {
 .sidebar li {
     padding: 10px 5px;
     border-bottom: 1px solid #ddd;
-    cursor: pointer;
+    cursor: default;
+}
+
+.sidebar li  a:hover {
+  color:var(--secondary-color);
 }
 
 .sidebar li.active {
     color: #0a3a63;
     font-weight: bold;
     border-left: 4px solid #0a3a63;
+    cursor:default;
 }
+
+/************************************************/
 
 /*  MAIN CONTENT  */
 .content {
