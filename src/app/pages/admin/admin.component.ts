@@ -24,5 +24,17 @@ import { HeaderComponent } from '../../components/header/header.component';
   styleUrl: './admin.component.css'
 })
 export class AdminComponent {
+   adminForm: FormGroup;
 
+  private fb = new FormBuilder();
+
+  constructor() {
+    // Form Group جديد فقط للـ Admin page
+    this.adminForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required]],
+      role: ['', [Validators.required]],
+      college: ['']
+    });
+  }
 }

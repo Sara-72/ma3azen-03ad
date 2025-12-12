@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit , signal, computed, effect,inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, signal, computed, effect, inject } from '@angular/core';
 import {
   ReactiveFormsModule,
   FormGroup,
@@ -12,6 +12,8 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { AdminComponent } from '../admin/admin.component';
+import { AuthService } from '../../services/auth.service';
+import { HttpClientModule } from '@angular/common/http';
 
 
 function passwordValidator(control: AbstractControl): ValidationErrors | null {
@@ -49,87 +51,104 @@ interface LoginForm {
 @Component({
   selector: 'app-login5-page',
   imports: [
-      FooterComponent ,CommonModule,
-      ReactiveFormsModule,
-      AdminComponent],
+    FooterComponent, CommonModule,
+    ReactiveFormsModule,
+    AdminComponent,
+    HttpClientModule
+  ],
 
   templateUrl: './login5-page.component.html',
-  styleUrl: './login5-page.component.css'
+  styleUrls: ['./login5-page.component.css']
+
 })
 export class Login5PageComponent {
 
 
 
-    isSubmitting = signal(false);
-    message = signal<{ text: string; type: 'success' | 'error' } | null>(null);
+  isSubmitting = signal(false);
+  message = signal<{ text: string; type: 'success' | 'error' } | null>(null);
 
-    // Form Group initialization using FormBuilder
-    private fb = new FormBuilder();
-    private router = inject(Router);
+  // Form Group initialization using FormBuilder
+  private fb = new FormBuilder();
+  private router = inject(Router);
 
-    loginForm: FormGroup<LoginForm> = this.fb.group({
-      email: this.fb.nonNullable.control('', [
-        Validators.required,
-        Validators.email,
-      ]),
-      password: this.fb.nonNullable.control('', [
-        Validators.required,
-        passwordValidator, // Our custom validator
-      ]),
-
-
+  loginForm: FormGroup<LoginForm> = this.fb.group({
+    email: this.fb.nonNullable.control('', [
+      Validators.required,
+      Validators.email,
+    ]),
+    password: this.fb.nonNullable.control('', [
+      Validators.required,
+      passwordValidator, // Our custom validator
+    ]),
 
 
-    }) as FormGroup<LoginForm>;
 
 
-    constructor() {
-      // Effect to clear messages when user starts typing again
-      effect(() => {
-          const emailValue = this.loginForm.controls.email.value;
-          const passwordValue = this.loginForm.controls.password.value;
-          if (emailValue || passwordValue) {
-              this.message.set(null);
-          }
-      }, {allowSignalWrites: true});
-    }
+  }) as FormGroup<LoginForm>;
 
-    // Helper to check if a control is invalid and should display an error
-    isInvalid(controlName: keyof LoginForm): boolean {
-      const control = this.loginForm.get(controlName);
-      return !!control && control.invalid && (control.dirty || control.touched);
-    }
+  private auth = inject(AuthService);
 
-    onSubmit() {
-      this.message.set(null);
-
-      if (this.loginForm.invalid) {
-        // Mark all fields as touched to display errors immediately
-        this.loginForm.markAllAsTouched();
-        this.message.set({
-          text: 'Form contains validation errors. Please correct them.',
-          type: 'error',
-        });
-        return;
+  constructor() {
+    // Effect to clear messages when user starts typing again
+    effect(() => {
+      const emailValue = this.loginForm.controls.email.value;
+      const passwordValue = this.loginForm.controls.password.value;
+      if (emailValue || passwordValue) {
+        this.message.set(null);
       }
+    }, { allowSignalWrites: true });
+  }
 
-      this.isSubmitting.set(true);
-      console.log('Form Submitted!', this.loginForm.value);
-      this.router.navigate(['/admin']);
+  // Helper to check if a control is invalid and should display an error
+  isInvalid(controlName: keyof LoginForm): boolean {
+    const control = this.loginForm.get(controlName);
+    return !!control && control.invalid && (control.dirty || control.touched);
+  }
 
-      // Simulate API call delay
-      setTimeout(() => {
+  onSubmit() {
+    this.message.set(null);
+
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      this.message.set({
+        text: 'من فضلك أكمل البيانات بشكل صحيح',
+        type: 'error',
+      });
+      return;
+    }
+
+    this.isSubmitting.set(true);
+
+    const loginData = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password
+    };
+
+    this.auth.login(loginData).subscribe({
+      next: (res: any) => {
+        this.isSubmitting.set(false);
+
+        if (res && res.id) { // <-- بدلاً من res.success
+          // login ناجح
+          this.router.navigate(['/admin']);
+        } else {
+          this.message.set({
+            text: 'خطأ في الحساب أو كلمة السر',
+            type: 'error',
+          });
+        }
+      }
+      ,
+      error: (err) => {
         this.isSubmitting.set(false);
         this.message.set({
-          text: `Login successful for ${this.loginForm.value.email}!`,
-          type: 'success',
+          text: 'حدث خطأ أثناء الاتصال بالسيرفر',
+          type: 'error'
         });
-        this.loginForm.reset();
-        // Need to reset the pristine/touched state after reset
-        Object.keys(this.loginForm.controls).forEach(key => {
-          this.loginForm.get(key)?.setErrors(null);
-        });
-      }, 1500);
-    }
+      }
+    });
+  }
+
 
 }
