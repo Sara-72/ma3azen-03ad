@@ -41,7 +41,7 @@ function passwordValidator(control: AbstractControl): ValidationErrors | null {
 interface LoginForm {
   email: FormControl<string>;
   password: FormControl<string>;
-  college: FormControl<string | null>;
+
 }
 
 @Component({
@@ -74,9 +74,6 @@ export class Login3PageComponent {
       passwordValidator, // Our custom validator
     ]),
 
-    college: this.fb.control<string | null>(null, [
-        Validators.required
-    ]),
 
 
   }) as FormGroup<LoginForm>;
@@ -122,7 +119,7 @@ export class Login3PageComponent {
     setTimeout(() => {
       this.isSubmitting.set(false);
       this.message.set({
-        text: `Login successful for ${this.loginForm.value.email}! College: ${this.loginForm.value.college}`,
+        text: `Login successful for ${this.loginForm.value.email}!`,
         type: 'success',
       });
       this.loginForm.reset();

@@ -41,7 +41,7 @@ function passwordValidator(control: AbstractControl): ValidationErrors | null {
 interface LoginForm {
   email: FormControl<string>;
   password: FormControl<string>;
-  college: FormControl<string | null>;
+
 }
 
 @Component({
@@ -73,9 +73,7 @@ export class Login4PageComponent {
         passwordValidator, // Our custom validator
       ]),
 
-      college: this.fb.control<string | null>(null, [
-          Validators.required
-      ]),
+
 
 
     }) as FormGroup<LoginForm>;
@@ -97,7 +95,7 @@ export class Login4PageComponent {
       const control = this.loginForm.get(controlName);
       return !!control && control.invalid && (control.dirty || control.touched);
     }
-    
+
 
   onSubmit() {
     this.auth.inventoryManagerLogin({
@@ -105,10 +103,10 @@ export class Login4PageComponent {
   password: this.loginForm.value.password
 }).subscribe({
   next: (res: any) => {
-     console.log('Login response:', res);
+    console.log('Login response:', res);
     localStorage.setItem('token', res.token);
     localStorage.setItem('role', 'INVENTORY_MANAGER');
-    
+
 
     this.router.navigate(['/modeer1']);
   },

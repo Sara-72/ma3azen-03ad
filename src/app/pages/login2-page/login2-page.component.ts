@@ -43,7 +43,7 @@ function passwordValidator(control: AbstractControl): ValidationErrors | null {
 interface LoginForm {
   email: FormControl<string>;
   password: FormControl<string>;
-  college: FormControl<string | null>;
+
 }
 
 @Component({
@@ -75,9 +75,6 @@ export class Login2PageComponent {
       passwordValidator, // Our custom validator
     ]),
 
-    college: this.fb.control<string | null>(null, [
-        Validators.required
-    ]),
 
 
   }) as FormGroup<LoginForm>;
@@ -108,7 +105,7 @@ export class Login2PageComponent {
   next: (res: any) => {
     localStorage.setItem('token', res.token);
     localStorage.setItem('role', 'EMPLOYEE');
-   
+
 
     this.router.navigate(['/employee_ma5azen1']);
   },
