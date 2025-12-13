@@ -25,15 +25,18 @@ import { AuthService } from '../../services/auth.service';
   styleUrl: './admin.component.css'
 })
 export class AdminComponent {
-   adminForm: FormGroup;
+  adminForm: FormGroup;
 
   roles = ['موظف', 'موظف مخزن', 'أمين مخزن', 'مدير مخزن'];
   colleges = [
     'كلية التربية',
     'كلية الحاسبات والذكاء الاصطناعي',
     'كلية الألسن',
-    'كلية السياحة والفنادق'
+    'كلية السياحة والفنادق',
+    'مركزية'
   ];
+
+  showCollegeSelection: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -81,4 +84,22 @@ export class AdminComponent {
 
     this.adminForm.reset();
   }
+
+  ngOnInit(): void {
+    // 🚨 Add subscription to the role control
+    this.adminForm.get('role')?.valueChanges.subscribe(selectedRole => {
+        // Assuming the value for Employee is 'موظف'
+        this.showCollegeSelection = (selectedRole === 'موظف');
+
+        // Optional: If you want to enforce validation only when 'موظف' is selected
+        const collegeControl = this.adminForm.get('college');
+        if (this.showCollegeSelection) {
+            collegeControl?.setValidators(Validators.required);
+        } else {
+            collegeControl?.clearValidators();
+            collegeControl?.setValue(''); // Clear selection when hidden
+        }
+        collegeControl?.updateValueAndValidity();
+    })
+}
 }

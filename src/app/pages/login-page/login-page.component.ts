@@ -113,9 +113,9 @@ onSubmit() {
   };
 
   this.auth.userLogin(data).subscribe({
-    
+
     next: (res: any) => {
-       console.log('Login response:', res); 
+      console.log('Login response:', res);
       localStorage.setItem('token', res.token);
       localStorage.setItem('role', 'USER');
       localStorage.setItem('college', this.loginForm.value.college!);
