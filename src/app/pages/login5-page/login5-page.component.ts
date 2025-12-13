@@ -7,7 +7,7 @@ import {
   ValidationErrors,
   AbstractControl,
   FormBuilder,
-} from '@angular/forms';
+} from '@angular/forms'
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../../components/footer/footer.component';
@@ -63,7 +63,7 @@ interface LoginForm {
 })
 export class Login5PageComponent {
 
-
+  
 
   isSubmitting = signal(false);
   message = signal<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -105,50 +105,36 @@ export class Login5PageComponent {
     const control = this.loginForm.get(controlName);
     return !!control && control.invalid && (control.dirty || control.touched);
   }
+ onSubmit() {
+  this.message.set(null);
 
-  onSubmit() {
-    this.message.set(null);
-
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      this.message.set({
-        text: 'من فضلك أكمل البيانات بشكل صحيح',
-        type: 'error',
-      });
-      return;
-    }
-
-    this.isSubmitting.set(true);
-
-    const loginData = {
-      email: this.loginForm.value.email,
-      password: this.loginForm.value.password
-    };
-
-    this.auth.login(loginData).subscribe({
-      next: (res: any) => {
-        this.isSubmitting.set(false);
-
-        if (res && res.id) { // <-- بدلاً من res.success
-          // login ناجح
-          this.router.navigate(['/admin']);
-        } else {
-          this.message.set({
-            text: 'خطأ في الحساب أو كلمة السر',
-            type: 'error',
-          });
-        }
-      }
-      ,
-      error: (err) => {
-        this.isSubmitting.set(false);
-        this.message.set({
-          text: 'حدث خطأ أثناء الاتصال بالسيرفر',
-          type: 'error'
-        });
-      }
-    });
+  if (this.loginForm.invalid) {
+    this.loginForm.markAllAsTouched();
+    return;
   }
+
+  this.isSubmitting.set(true);
+
+  this.auth.adminLogin(this.loginForm.value).subscribe({
+    next: (res: any) => {
+      this.isSubmitting.set(false);
+
+      // ✅ هنا فقط
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('role', 'ADMIN');
+
+      this.router.navigate(['/admin']);
+    },
+    error: () => {
+      this.isSubmitting.set(false);
+      this.message.set({
+        text: 'الإيميل أو كلمة السر غير صحيحة',
+        type: 'error'
+      });
+    }
+  });
+}
+
 
 
 }

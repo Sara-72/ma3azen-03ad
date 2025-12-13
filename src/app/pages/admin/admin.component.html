@@ -5,7 +5,7 @@
 
 <div class="container d-flex justify-content-center align-items-center vh-100">
     <div class="card shadow-lg p-4 auth-card" dir="rtl">
-        <form [formGroup]="adminForm" class="auth-form">
+        <form [formGroup]="adminForm" (ngSubmit)="submit()"  class="auth-form">
 
             <div class="mb-4">
                 <label for="email" class="form-label d-block text-end">أضف الحساب الإلكتروني</label>
@@ -33,8 +33,9 @@
                 <div class="d-flex justify-content-end flex-wrap gap-3 role-selection">
                     <div class="form-check form-check-inline m-auto"
                         *ngFor="let role of ['موظف','موظف مخزن', 'أمين مخزن', 'مدير مخزن']">
-                        <input class="form-check-input mx-2" type="radio" name="role" id="{{role}}" value="{{role}}">
-                        <label class="form-check-label" for="{{role}}">{{ role }}</label>
+                        <input class="form-check-input mx-2" type="radio" name="role" [value]="role"
+    [id]="role" formControlName="role">
+                        <label class="form-check-label"  [for]="role">{{ role }}</label>
                     </div>
                 </div>
             </div>
@@ -45,9 +46,10 @@
                 <div class="d-flex justify-content-end flex-wrap gap-3 college-selection">
                     <div class="form-check form-check-inline m-auto"
                         *ngFor="let college of ['كلية التربية', 'كلية الحاسبات والذكاء الاصطناعي', 'كلية الألسن', 'كلية السياحة والفنادق']">
-                        <input class="form-check-input mx-2" type="radio" name="college" id="{{college}}"
-                            value="{{college}}">
-                        <label class="form-check-label" for="{{college}}">{{ college }}</label>
+                        <input class="form-check-input mx-2" type="radio" name="college" formControlName="college"
+    [value]="college"
+    [id]="college">
+                        <label class="form-check-label" [for]="college">{{ college }}</label>
                     </div>
                 </div>
             </div>

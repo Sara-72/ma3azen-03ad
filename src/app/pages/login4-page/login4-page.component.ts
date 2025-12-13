@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { Modeer1Component } from '../modeer/modeer1/modeer1.component';
+import { AuthService } from '../../services/auth.service';
 
 function passwordValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value || '';
@@ -60,7 +61,7 @@ export class Login4PageComponent {
 
     // Form Group initialization using FormBuilder
     private fb = new FormBuilder();
-    private router = inject(Router);
+   // private router = inject(Router);
 
     loginForm: FormGroup<LoginForm> = this.fb.group({
       email: this.fb.nonNullable.control('', [
@@ -80,7 +81,7 @@ export class Login4PageComponent {
     }) as FormGroup<LoginForm>;
 
 
-    constructor() {
+    constructor(private auth: AuthService, private router: Router) {
       // Effect to clear messages when user starts typing again
       effect(() => {
           const emailValue = this.loginForm.controls.email.value;
@@ -96,39 +97,30 @@ export class Login4PageComponent {
       const control = this.loginForm.get(controlName);
       return !!control && control.invalid && (control.dirty || control.touched);
     }
+    
 
-    onSubmit() {
-      this.message.set(null);
+  onSubmit() {
+    this.auth.inventoryManagerLogin({
+  email: this.loginForm.value.email,
+  password: this.loginForm.value.password
+}).subscribe({
+  next: (res: any) => {
+     console.log('Login response:', res);
+    localStorage.setItem('token', res.token);
+    localStorage.setItem('role', 'INVENTORY_MANAGER');
+    
 
-      if (this.loginForm.invalid) {
-        // Mark all fields as touched to display errors immediately
-        this.loginForm.markAllAsTouched();
-        this.message.set({
-          text: 'Form contains validation errors. Please correct them.',
-          type: 'error',
-        });
-        return;
-      }
+    this.router.navigate(['/modeer1']);
+  },
+  error: () => {
+    this.message.set({
+      text: 'الإيميل أو كلمة السر غير صحيحة',
+      type: 'error'
+    });
+  }
+});
 
-      this.isSubmitting.set(true);
-      console.log('Form Submitted!', this.loginForm.value);
-      this.router.navigate(['/modeer1']);
-
-      // Simulate API call delay
-      setTimeout(() => {
-        this.isSubmitting.set(false);
-        this.message.set({
-          text: `Login successful for ${this.loginForm.value.email}! College: ${this.loginForm.value.college}`,
-          type: 'success',
-        });
-        this.loginForm.reset();
-        // Need to reset the pristine/touched state after reset
-        Object.keys(this.loginForm.controls).forEach(key => {
-          this.loginForm.get(key)?.setErrors(null);
-        });
-      }, 1500);
-    }
-
+  }
 
 
 }
