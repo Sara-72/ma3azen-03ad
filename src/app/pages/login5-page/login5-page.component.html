@@ -1,0 +1,145 @@
+
+<div class="login-container p-4">
+
+  <img class="u-logo" src="assets/images/Hurghada-University.png">
+
+
+    <div class="login-box d-flex flex-column my-3 mx-auto">
+
+      <p class="fw-semibold fs-3 mb-0">
+        مرحبا بك,
+      </p>
+      <span class="fw-medium text-secondary">سجل الدخول الى حسابك</span>
+
+      <ul class="nav nav-tabs mt-4">
+
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/login5"><i class="fa-solid fa-user"></i> مسئول </a>
+              </li>
+
+
+              <li class="nav-item">
+                <a class="nav-link " aria-current="page" href="/login"><i class="fa-solid fa-user"></i> مستخدم </a>
+              </li>
+
+              <li class="nav-item">
+                  <a class="nav-link" href="/login2"><i class="fa-solid fa-pen-to-square"></i> موظف مخزن</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/login3"> <i class="fa-solid fa-shield-halved"></i> أمين مخزن</a>
+              </li>
+                <li class="nav-item">
+                <a class="nav-link" href="/login4"><i class="fa-solid fa-user-tie"></i>مدير مخزن</a>
+              </li>
+
+      </ul>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="mt-4">
+
+
+
+      <div class="mb-3">
+          <label for="email" class="form-label" > الحساب الالكتروني</label>
+          <input type="email" class="form-control" id="email" name="email" formControlName="email" placeholder="أدخل الحساب الالكتروني" required
+              [class.border-red-500]="isInvalid('email')"
+              [class.border-gray-300]="!isInvalid('email')">
+
+
+
+
+
+            @if (isInvalid('email')) {
+              <div class="mt-1 text-xs text-red-600 font-medium">
+                @if (loginForm.get('email')?.getError('required')) {
+                  <span class="text-danger">من فضلك أدخل الحساب الالكتروني</span>
+                } @else if (loginForm.get('email')?.getError('email')) {
+                  <span class="text-danger">من فضلك أدحل حساب الكتروني موجود</span>
+                }
+              </div>
+            }
+
+
+                </div>
+
+      <div class="mb-3">
+          <label for="password" class="form-label">كلمة السر</label>
+          <input type="password" id="password" formControlName="password"  class="form-control" name="password" placeholder="أدخل كلمة السر" aria-describedby="passwordHelpBlock" required minlength="8"
+              [class.border-red-500]="isInvalid('password')"
+              [class.border-gray-300]="!isInvalid('password')">
+
+
+            @if (isInvalid('password')) {
+              <div class="mt-1 text-xs text-red-600 font-medium">
+                @if (loginForm.get('password')?.getError('required')) {
+                  <span class="text-danger">من فضلك أدخل كلمة السر</span>
+                } @else if (loginForm.get('password')?.getError('invalidPassword')) {
+
+                  <span>{{ loginForm.get('password')?.getError('invalidPassword')?.message }}</span>
+                }
+              </div>
+            }
+
+      </div>
+
+
+
+
+
+        <div class="form-check d-flex flex-row">
+
+            <input class="form-check-input" type="checkbox" value="" id="checkDefault">
+
+            <label class="form-check-label me-5" for="checkDefault">
+                تذكر كلمة المرور
+            </label>
+
+        </div>
+
+
+
+          <div class="button mt-4">
+
+                <button
+                    type="submit"
+                    [disabled]="isSubmitting() || loginForm.invalid"
+                    [class.bg-blue-600]="loginForm.valid"
+                    [class.hover:bg-blue-700]="loginForm.valid"
+                    [class.focus:ring-blue-500]="loginForm.valid"
+                    [class.bg-blue-400]="loginForm.invalid"
+                    [class.opacity-60]="loginForm.invalid"
+                    class="btn text-white fw-medium p-3 fs-5" role="button" href="#">
+
+
+            @if (isSubmitting()) {
+              Processing...
+            } @else {
+              سجل الدخول
+            }
+
+                  </button>
+
+          </div>
+
+
+
+        </form>
+
+        @if (message()) {
+          <div class="mt-6 p-3 rounded-lg text-sm font-semibold text-center"
+            [class.bg-green-100]="message()!.type === 'success'"
+            [class.text-green-800]="message()!.type === 'success'"
+            [class.bg-red-100]="message()!.type === 'error'"
+            [class.text-red-800]="message()!.type === 'error'"
+          >
+
+            {{ message()!.text }}
+          </div>
+        }
+
+    </div>
+
+</div>
+
+<app-footer>
+
+</app-footer>

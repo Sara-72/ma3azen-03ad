@@ -1,0 +1,66 @@
+<app-header>
+
+</app-header>
+
+
+<div class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow-lg p-4 auth-card" dir="rtl">
+        <form [formGroup]="adminForm" (ngSubmit)="submit()"  class="auth-form">
+
+            <div class="mb-4">
+                <label for="email" class="form-label d-block text-end">أضف الحساب الإلكتروني</label>
+                <div class="input-group">
+                    <input type="email" id="email" formControlName="email" name="email" class="form-control text-end"
+                        placeholder="أدخل الحساب الالكتروني" required>
+                    <span class="input-group-text">
+                        <i class="fas fa-envelope"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="form-label d-block text-end">أضف كلمة السر</label>
+                <div class="input-group">
+                    <input type="password" id="password" formControlName="password" name="password"
+                        class="form-control text-end" placeholder="أدخل كلمة السر" required>
+                    <span class="input-group-text">
+                        <i class="fas fa-lock"></i>
+                    </span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex justify-content-end flex-wrap gap-3 role-selection">
+                    <div class="form-check form-check-inline m-auto"
+                        *ngFor="let role of ['موظف','موظف مخزن', 'أمين مخزن', 'مدير مخزن']">
+                        <input class="form-check-input mx-2" type="radio" name="role" [value]="role"
+    [id]="role" formControlName="role">
+                        <label class="form-check-label"  [for]="role">{{ role }}</label>
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="mb-4" *ngIf="showCollegeSelection">
+                <div class="d-flex justify-content-end flex-wrap gap-3 college-selection">
+                    <div class="form-check form-check-inline m-auto"
+                        *ngFor="let college of ['كلية التربية', 'كلية الحاسبات والذكاء الاصطناعي', 'كلية الألسن', 'كلية السياحة والفنادق' ,'مركزي']">
+                        <input class="form-check-input mx-2" type="radio" name="college" formControlName="college"
+    [value]="college"
+    [id]="college">
+                        <label class="form-check-label" [for]="college">{{ college }}</label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary submit-button w-100 mt-4">
+                حفظ
+            </button>
+        </form>
+    </div>
+</div>
+
+<app-footer>
+
+</app-footer>
