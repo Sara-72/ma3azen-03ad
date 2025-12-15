@@ -52,7 +52,7 @@ a{
 
 /* Basic Reset and RTL Setup */
 .form-container {
-    width: 800px;
+    width: 900px;
     margin: 30px auto;
     padding: 20px;
     border: 1px solid #000;
@@ -144,7 +144,7 @@ a{
 .table-section th {
     background-color: #f0f0f0;
     font-size: 0.9em;
-    padding: 10px 5px;
+    padding: 10px 30px;
 }
 
 .table-section .table-input {
@@ -153,6 +153,9 @@ a{
     text-align: center;
     height: 30px;
 }
+
+
+
 
 .remove-row-button {
     position: absolute;
@@ -265,6 +268,11 @@ select{
   background-color: white;
   border:1px solid black;
   padding:0.5%;
+  border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
 }
 
 .search-dropdown-list {

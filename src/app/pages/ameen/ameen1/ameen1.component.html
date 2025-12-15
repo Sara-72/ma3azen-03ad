@@ -29,6 +29,7 @@
 
                     <th>الفئة</th>
                     <th>الصنف</th>
+                    <th>نوع الصنف</th>
                     <th>العدد</th>
 
                 </tr>
@@ -58,6 +59,16 @@
                             }
                         </select>
                     </td>
+
+
+                    <td>
+                            <select formControlName="itemType" class="table-input">
+                                <option value="" disabled selected hidden>اختر نوع</option>
+                                @for (type of itemTypes; track type) {
+                                    <option [value]="type">{{ type }}</option>
+                                }
+                            </select>
+                        </td>
 
                         <td><input type="text" formControlName="count" class="table-input"></td>
                     </tr>

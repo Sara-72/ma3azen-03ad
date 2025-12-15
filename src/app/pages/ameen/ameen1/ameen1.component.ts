@@ -38,12 +38,6 @@ interface CategoryItemMap {
 
 export class Ameen1Component implements OnInit ,OnDestroy{
 
-
-    // days: string[] = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0')); // "01" to "31"
-    // months: string[] = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')); // "01" to "12"
-    // years: string[] = Array.from({ length: 100 }, (_, i) => String(2000 + i));// "00" to "99" (Last 2 digits of year)
-
-
     categoryItemMap: CategoryItemMap = {
     'أثاث مكتبي': ['مكتب مدير', 'كرسي دوار', 'خزانة ملفات'],
     'قرطاسية': ['أقلام حبر', 'أوراق A4', 'دفاتر ملاحظات'],
@@ -55,6 +49,7 @@ export class Ameen1Component implements OnInit ,OnDestroy{
 
   // NEW: Array to hold available items for each *specific* row
   availableItemsByRow: string[][] = [];
+  itemTypes: string[] = ['مستهلك', 'مستديم'];
 
   // NEW: Array to hold subscriptions for cleaning up when the component is destroyed
   private subscriptions: Subscription[] = [];
@@ -112,9 +107,12 @@ ngOnInit(): void {
     //     mm: ['', Validators.required],
     //     dd: ['', Validators.required]
     // }),
-      count: ['', Validators.required]
+      count: ['', Validators.required],
+      itemType: ['', Validators.required], // نوع الصنف
     });
   }
+
+
 
 
 

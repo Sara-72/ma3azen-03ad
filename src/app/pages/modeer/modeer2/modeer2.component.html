@@ -124,6 +124,7 @@
         <table>
             <thead>
                 <tr>
+                    <th>الفئة</th>
                     <th>اسم الصنف</th>
                     <th>الوحدة</th>
                     <th>الكمية المطلوبة</th>
@@ -140,39 +141,42 @@
                   @for (rowGroup of tableData.controls; track $index) {
                     <tr [formGroupName]="$index">
 
-<td class="search-dropdown-container">
+<td>
+                <select
+                    formControlName="category"
+                    class="table-input"
 
-<input
-    type="text"
-    [formControlName]="'itemName'"
-    class="form-control text-center"
-    placeholder="ابحث عن صنف..."
+                    (change)="updateFilteredItems(getCategoryValue($event), $index)"
+                    >
 
-    #inputRef
-    (input)="filterItems(inputRef.value)"
+                    <option value="" disabled selected hidden>اختر الفئة</option>
+                    @for (category of categories; track category) {
+                        <option [value]="category">{{ category }}</option>
+                    }
+                </select>
+            </td>
+<td>
+    <input
+        type="text"
+        formControlName="itemSearchText"
+        class="table-input"
+        placeholder="ابحث عن صنف"
 
-    (focus)="isDropdownOpen[$index] = true"
+        [attr.list]="'itemList-' + $index"
 
-    (blur)="closeDropdown($index)"
+        (input)="filterItemOptions($event, $index)"
 
-    autocomplete="off"
->
-    <div class="search-dropdown-list" [class.open]="isDropdownOpen[$index]">
+        (change)="rowGroup.get('itemName')?.setValue(rowGroup.get('itemSearchText')?.value)">
 
-        @for (name of filteredItemNames; track trackByItem($index, name)) {
-            <div
-                class="dropdown-item"
-                (mousedown)="selectItem(name, $index)">
-                {{ name }}
-            </div>
+        <datalist [id]="'itemList-' + $index">
+        @for (item of getFilteredItemsForRow($index); track item) {
+            <option [value]="item"></option>
         }
-        @if (filteredItemNames.length === 0) {
-            <div class="dropdown-item disabled">لا توجد نتائج</div>
-        }
-    </div>
+    </datalist>
 
-</td>
+    <input type="hidden" formControlName="itemName">
 
+    </td>
                         <td><input type="text" formControlName="unit" class="table-input"></td>
                         <td><input type="text" formControlName="quantityRequired" class="table-input"></td>
                         <td><input type="text" formControlName="quantityAuthorized" class="table-input"></td>

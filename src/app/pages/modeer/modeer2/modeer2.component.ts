@@ -27,7 +27,7 @@ interface ConsumableRow {
   imports: [
     HeaderComponent,
     FooterComponent,
-    FormsModule,
+
     ReactiveFormsModule,
     CommonModule
   ],
@@ -37,246 +37,261 @@ interface ConsumableRow {
 
 export class Modeer2Component implements OnInit {
 // ------------------- SEARCHABLE DROPDOWN PROPERTIES (ADDED) -------------------
-
-    //  Array to hold the list of item names currently displayed in the dropdown
-    filteredItemNames: string[] = [];
-    isDropdownOpen: boolean[] = [];
-
-    //  Array to track the open/close state for EACH ROW's dropdown
-    // Initialized in ngOnInit/addRow
+// --- DATA PROPERTIES ---
+  days: string[] = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0'));
+  months: string[] = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
+  years: string[] = Array.from({ length: 100 }, (_, i) => String(2000 + i));
 
 
-    // --- PROPERTIES FOR DROPDOWN OPTIONS ---
-    days: string[] = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0')); // "01" to "31"
-    months: string[] = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')); // "01" to "12"
-    years: string[] = Array.from({ length: 100 }, (_, i) => String(2000 + i));
 
-    // Item Name and Condition Arrays (Example data - replace with your actual options)
-    itemNames: string[] = ['أثاث', 'قرطاسية', 'إلكترونيات', 'أدوات نظافة', 'خزائن ملفات', 'أجهزة عرض', 'مواد كيميائية'];
-    itemConditions: string[] = ['جديدة', 'مستعمل', 'قابل للإصلاح', 'كهنة أو خردة'];
-    documentNumbers:string[]=[' كشف العجز',' سند خصم' ,' أصناف تالفة أو تالفة ',' محضر بيع جلب تشغيل-',' إهداءات ليست للنشاط الرئيسي للجهة'];
+  // Define your categories
+categories: string[] = ['أثاث', 'أجهزة', 'مستهلكات', 'تنظيف'];
 
-    // --- FORM PROPERTIES ---
-    tableRows: ConsumableRow[] = [this.createEmptyRow()];
-    consumableForm!: FormGroup;
-    isSubmitting = signal(false);
+// Define the data mapping (Category to Item List)
+itemData: { [key: string]: string[] } = {
+    'أثاث': ['مكاتب', 'كراسي', 'خزائن'],
+    'أجهزة': ['شاشات', 'طابعات', 'كمبيوتر'],
+    'مستهلكات': ['أقلام', 'ورق A4', 'ملفات'],
+    'تنظيف': ['مطهرات', 'صابون', 'مناديل']
+}
 
+  // Master list of all item names
+  itemNames: string[] = ['أثاث', 'قرطاسية', 'إلكترونيات', 'أدوات نظافة', 'خزائن ملفات', 'أجهزة عرض', 'مواد كيميائية'];
+  itemConditions: string[] = ['جديدة', 'مستعمل', 'قابل للإصلاح', 'كهنة أو خردة'];
+  documentNumbers: string[] = [' كشف العجز', ' سند خصم', ' أصناف تالفة أو تالفة', ' محضر بيع جلب تشغيل-', ' إهداءات ليست للنشاط الرئيسي للجهة'];
 
-    // --- DEPENDENCY INJECTION ---
-    private router = inject(Router);
-    private fb = inject(FormBuilder);
+  // Array to hold the list of item names currently displayed in the Datalist/Dropdown (updated by the filter)
+  filteredItemNames: string[] = [];
 
-  // --- CONSTRUCTOR & INITIALIZATION ---
+  // --- FORM PROPERTIES ---
+  tableRows: ConsumableRow[] = [this.createEmptyRow()];
+  consumableForm!: FormGroup;
+  isSubmitting = signal(false);
+
+  // --- DEPENDENCY INJECTION ---
+  private fb = inject(FormBuilder);
+
   constructor(private http: HttpClient) {
     this.consumableForm = this.fb.group({
       // Top Info Section Fields - ALL REQUIRED
       destinationName: ['', Validators.required],
       storehouse: ['', Validators.required],
 
-            // Date Groups - Now relying on selection (dropdowns)
-            requestDateGroup: this.fb.group({
-                yy: ['', Validators.required],
-                mm: ['', Validators.required],
-                dd: ['', Validators.required]
-            }),
-            regularDateGroup: this.fb.group({
-                yy: ['', Validators.required],
-                mm: ['', Validators.required],
-                dd: ['', Validators.required]
-            }),
+      // Date Groups
+      requestDateGroup: this.fb.group({
+        yy: ['', Validators.required],
+        mm: ['', Validators.required],
+        dd: ['', Validators.required]
+      }),
+      regularDateGroup: this.fb.group({
+        yy: ['', Validators.required],
+        mm: ['', Validators.required],
+        dd: ['', Validators.required]
+      }),
 
-            requestorName: ['', Validators.required], // Matches 'اسم الطالب'
-            documentNumber: ['', Validators.required], // Matches 'سند الصرف'
+      requestorName: ['', Validators.required],
+      documentNumber: ['', Validators.required],
 
-            // Table Data using FormArray
-            tableData: this.fb.array([])
-        });
+      // Table Data using FormArray
+      tableData: this.fb.array([])
+    });
 
-        // Initialize the filtered list in the constructor
-        this.filteredItemNames = [...this.itemNames];
-    }
+    // Initialize the filtered list to show all items initially
+    this.filteredItemNames = [...this.itemNames];
+  }
 
-    ngOnInit(): void {
-        // Initialize the FormArray with the initial row data
-        this.tableRows.forEach(() => {
-            this.tableData.push(this.createTableRowFormGroup());
-        });
+  ngOnInit(): void {
+    // Initialize the FormArray with the initial row data
+    this.tableRows.forEach(() => {
+      this.tableData.push(this.createTableRowFormGroup());
+    });
+  }
 
-        // 🚨 Initialize the dropdown state array (one entry for each row)
-      this.isDropdownOpen = new Array(this.tableData.length).fill(false);
-        // this.consumableForm.get('requestorName')?.setValue('New Name');
-    }
+  // Helper getter to easily access the FormArray
+  get tableData(): FormArray {
+    return this.consumableForm.get('tableData') as FormArray;
+  }
 
-    // Helper getter to easily access the FormArray
-    get tableData(): FormArray {
-        return this.consumableForm.get('tableData') as FormArray;
-    }
+  // Helper function to create the form group for a single table row
+  private createTableRowFormGroup(): FormGroup {
+    return this.fb.group({
+      category: ['', Validators.required],
+      // MANDATORY FIELDS FOR VALIDATION
+      itemName: ['', Validators.required], // Final value of the selected item
+      unit: ['', Validators.required],
+      quantityRequired: ['', Validators.required],
 
-    // Helper function to create the form group for a single table row
-    private createTableRowFormGroup(): FormGroup {
-        return this.fb.group({
-            // MANDATORY FIELDS FOR VALIDATION
-            itemName: ['', Validators.required], // اسم الصنف (Dropdown)
-            unit: ['', Validators.required], // الوحدة
-            quantityRequired: ['', Validators.required], // الكمية المطلوبة
+      // Optional/Default fields
+      quantityAuthorized: [''],
+      quantityIssued: [''],
+      itemCondition: [''],
+      unitPrice: [''],
+      value: [''],
 
-            quantityAuthorized: [''],
-            quantityIssued: [''],
-            itemCondition: [''],
-            unitPrice: [''],
-            value: ['']
-        });
-    }
+      // Control to hold the search text (must be defined for the HTML to bind)
+      itemSearchText: ['']
+    });
+  }
 
-    // Helper function to create an empty row object
-    private createEmptyRow(): ConsumableRow {
-        return {
-            itemName: '', unit: '', quantityRequired: '',
-            quantityAuthorized: '', quantityIssued: '', itemCondition: '',
-            unitPrice: '', value: ''
-        };
-    }
+  // Helper function to create an empty row object
+  private createEmptyRow(): ConsumableRow {
+    return {
+      itemName: '', unit: '', quantityRequired: '',
+      quantityAuthorized: '', quantityIssued: '', itemCondition: '',
+      unitPrice: '', value: ''
+    };
+  }
 
-    // ------------------- SEARCHABLE DROPDOWN METHODS (ADDED) -------------------
+  // ------------------- SEARCHABLE INPUT METHOD -------------------
 
-    /**
-     * Filters the global item list based on the user's input.
-     * This filtered list is used by all rows.
-     */
-    filterItems(searchTerm: string): void {
-        if (!searchTerm) {
-            this.filteredItemNames = [...this.itemNames];
-            return;
-        }
-        const term = searchTerm.toLowerCase();
-        this.filteredItemNames = this.itemNames.filter(name =>
-            name.toLowerCase().includes(term)
-        );
-    }
+  /**
+   * Filters the global item list based on the user's input in any row.
+   * This is used to populate the Datalist associated with the search input.
+   */
+// 🚨 UPDATE filterItemOptions to use the selected category for the master list
+filterItemOptions(event: Event, rowIndex: number): void {
+    const searchText = (event.target as HTMLInputElement).value;
 
-    /**
-     * Sets the selected item name back to the correct form control in the correct row.
-     * @param selectedName The item name to set.
-     * @param rowIndex The index of the row being edited.
-     */
-// --- Modeer2Component.ts ---
+    // 1. Get the category for the current row
+    const categoryControl = this.tableData.at(rowIndex).get('category');
+    const selectedCategory = categoryControl ? categoryControl.value : '';
 
-selectItem(selectedName: string, rowIndex: number): void {
-    // 1. Get the FormGroup for the specific row
-    const rowGroup = this.tableData.at(rowIndex) as FormGroup;
+    // 2. Determine the master list based on the category
+    const masterList = this.itemData[selectedCategory] || this.itemNames;
 
-    // 🚨 FIX: Add a guard clause to prevent access if the row doesn't exist
-    if (!rowGroup) {
-        console.error(`Row group not found at index: ${rowIndex}. Skipping value setting.`);
-        // If the row doesn't exist, we must also close the dropdown and exit.
-        this.isDropdownOpen[rowIndex] = false;
+    if (!searchText) {
+        this.filteredItemNames = [...masterList]; // Show all items for that category
         return;
     }
+    const term = searchText.toLowerCase();
 
-    // 2. Set the value safely
-    rowGroup.get('itemName')?.setValue(selectedName);
-
-    // 3. Close the dropdown for this row
-    this.isDropdownOpen[rowIndex] = false;
-
-    this.filteredItemNames = [...this.itemNames];
-}
-    /**
-     * Helper function for ngFor/trackBy (optional but good practice)
-     */
-    trackByItem(index: number, item: string): string {
-        return item;
-    }
-
-
-    closeDropdown(rowIndex: number): void {
-    // We delay closing the dropdown slightly to allow the (mousedown) on an item
-    // to complete before the dropdown disappears.
-    setTimeout(() => {
-        if (this.isDropdownOpen[rowIndex]) {
-            this.isDropdownOpen[rowIndex] = false;
-        }
-    }, 150); // A small delay (e.g., 150ms)
+    // 3. Filter and update the global list (still affects all rows)
+    this.filteredItemNames = masterList.filter(name =>
+        name.toLowerCase().includes(term)
+    );
 }
 
-    // ------------------- ROW MANAGEMENT LOGIC (UPDATED) -------------------
-    addRow(): void {
-        this.tableRows.push(this.createEmptyRow());
-        this.tableData.push(this.createTableRowFormGroup());
 
-        // 🚨 Update dropdown state for the new row
-        this.isDropdownOpen.push(false);
+getFilteredItemsForRow(rowIndex: number): string[] {
+    const rowGroup = this.tableData.at(rowIndex);
+    const category = rowGroup.get('category')?.value;
+
+    if (!category || !this.itemData[category]) {
+        return [];
+    }
+    // Return the master list for that category, ready to be searched locally
+    return this.itemData[category];
+}
+
+  // 🚨 Add this helper function
+/**
+ * Helper function to safely extract the value from a change event on a select element.
+ * @param event The native DOM event object.
+ */
+getCategoryValue(event: Event): string {
+    return (event.target as HTMLSelectElement).value;
+}
+
+
+// 🚨 Add the category change logic
+/**
+ * Handles the change event on the Category select.
+ * 1. Resets the Item Name and Search Text controls for the affected row.
+ * 2. Updates the global filteredItemNames list based on the new category (temporarily).
+ * @param category The newly selected category string.
+ * @param rowIndex The index of the row being edited.
+ */
+updateFilteredItems(category: string, rowIndex: number): void {
+    // 1. Update the global list of available items based on the selected category
+    // NOTE: This array is global, meaning changing the category in ONE row affects the Datalist options in ALL rows.
+    // This is a known limitation of using a single global list for Datalist.
+    this.filteredItemNames = this.itemData[category] || [];
+
+    // 2. Get the specific row group
+    const rowGroup = this.tableData.at(rowIndex);
+
+    // 3. Reset related controls in that row (critical for validation)
+    rowGroup.get('itemName')?.setValue('');
+    rowGroup.get('itemSearchText')?.setValue('');
+}
+
+
+
+
+  // ------------------- ROW MANAGEMENT LOGIC -------------------
+
+  addRow(): void {
+    this.tableRows.push(this.createEmptyRow());
+    this.tableData.push(this.createTableRowFormGroup());
+  }
+
+  removeRow(): void {
+    if (this.tableRows.length > 1) {
+      this.tableRows.pop();
+      this.tableData.removeAt(this.tableData.length - 1);
+    } else if (this.tableRows.length === 1) {
+      this.tableData.at(0).reset();
+    }
+  }
+
+  // ------------------- SUBMISSION LOGIC -------------------
+
+  onSubmit(): void {
+    if (this.consumableForm.invalid) {
+      this.consumableForm.markAllAsTouched();
+      console.warn('Form is invalid. Cannot submit.');
+      return;
     }
 
-    removeRow(): void {
-        if (this.tableRows.length > 1) {
-            this.tableRows.pop();
-            this.tableData.removeAt(this.tableData.length - 1);
+    this.isSubmitting.set(true);
 
-            // 🚨 Update dropdown state
-            this.isDropdownOpen.pop();
-        } else if (this.tableRows.length === 1) {
-            this.tableData.at(0).reset();
-        }
-    }
+    const reqDate = this.consumableForm.value.requestDateGroup;
+    const docDate = this.consumableForm.value.regularDateGroup;
 
-    // --- SAVE BUTTON LOGIC ---
-    onSubmit(): void {
-        // ... (existing submission logic) ...
-        if (this.consumableForm.invalid) {
-            this.consumableForm.markAllAsTouched();
-            console.warn('Form is invalid. Cannot submit.');
-            return;
-        }
+    const basePayload = {
+      destinationName: this.consumableForm.value.destinationName,
+      storeHouse: this.consumableForm.value.storehouse,
 
-  this.isSubmitting.set(true);
+      // Construct Date objects and convert to ISO string format
+      requestDate: new Date(reqDate.yy, reqDate.mm - 1, reqDate.dd).toISOString(),
+      documentDate: new Date(docDate.yy, docDate.mm - 1, docDate.dd).toISOString(),
 
-  const reqDate = this.consumableForm.value.requestDateGroup;
-  const docDate = this.consumableForm.value.regularDateGroup;
-
-  const basePayload = {
-    destinationName: this.consumableForm.value.destinationName,
-    storeHouse: this.consumableForm.value.storehouse,
-
-    requestDate: new Date(reqDate.yy, reqDate.mm - 1, reqDate.dd).toISOString(),
-    documentDate: new Date(docDate.yy, docDate.mm - 1, docDate.dd).toISOString(),
-
-    requestorName: this.consumableForm.value.requestorName,
-    documentNumber: this.consumableForm.value.documentNumber
-  };
-
-  const requests = this.tableData.value.map((row: any) => {
-    const payload = {
-      ...basePayload,
-
-      itemName: row.itemName,
-      unit: row.unit,
-      requestedQuantity: Number(row.quantityRequired),
-      approvedQuantity: Number(row.quantityAuthorized || 0),
-      issuedQuantity: Number(row.quantityIssued || 0),
-      stockStatus: row.itemCondition || 'جديدة',
-      unitPrice: Number(row.unitPrice || 0),
-      totalValue: Number(row.value || 0)
+      requestorName: this.consumableForm.value.requestorName,
+      documentNumber: this.consumableForm.value.documentNumber
     };
 
-    return this.http.post(
-      'http://newwinventoryapi.runasp.net/api/SpendPermissions',
-      payload
-    );
-  });
+    const requests = this.tableData.value.map((row: any) => {
+      const payload = {
+        ...basePayload,
 
-  Promise.all(requests.map((r: any) => r.toPromise()))
-    .then(() => {
-      alert('تم الحفظ بنجاح ✅');
-      this.consumableForm.reset();
-      this.isSubmitting.set(false);
-    })
-    .catch(err => {
-      console.error(err);
-      alert('حصل خطأ أثناء الحفظ ❌');
-      this.isSubmitting.set(false);
+        itemName: row.itemName,
+        unit: row.unit,
+        requestedQuantity: Number(row.quantityRequired),
+        approvedQuantity: Number(row.quantityAuthorized || 0),
+        issuedQuantity: Number(row.quantityIssued || 0),
+        stockStatus: row.itemCondition || 'جديدة',
+        unitPrice: Number(row.unitPrice || 0),
+        totalValue: Number(row.value || 0)
+      };
+
+      return this.http.post(
+        'http://newwinventoryapi.runasp.net/api/SpendPermissions',
+        payload
+      );
     });
-}
+
+    Promise.all(requests.map((r: any) => r.toPromise()))
+      .then(() => {
+        alert('تم الحفظ بنجاح ✅');
+        this.consumableForm.reset();
+        this.isSubmitting.set(false);
+      })
+      .catch(err => {
+        console.error(err);
+        alert('حصل خطأ أثناء الحفظ ❌');
+        this.isSubmitting.set(false);
+      });
+  }
 
 
 }

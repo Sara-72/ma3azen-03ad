@@ -55,6 +55,8 @@ export class EmployeeMa5azen3Component implements OnInit,OnDestroy{
   // NEW: Array to hold subscriptions for cleaning up when the component is destroyed
   private subscriptions: Subscription[] = [];
 
+  itemTypes: string[] = ['مستهلك', 'مستديم'];
+
 
   simpleForm!: FormGroup;
   isSubmitting = signal(false);
@@ -108,7 +110,8 @@ ngOnInit(): void {
     //     mm: ['', Validators.required],
     //     dd: ['', Validators.required]
     // }),
-      count: ['', Validators.required]
+      count: ['', Validators.required],
+      itemType: ['', Validators.required], // نوع الصنف
     });
   }
 
