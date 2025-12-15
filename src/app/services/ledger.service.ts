@@ -4,15 +4,14 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface LedgerEntry {
-  id?: number;                 // ✔️ بيرجع من الـ API
   date: string;
   documentReference: string;
   addedItemsValue: number;
   issuedItemsValue: number;
-  storeType: number;
-  spendPermissionId: number;
-  spendPermission?: any;        // ✔️ مطابق للـ Swagger
+  storeType: number;        // 0 = مستهلك | 1 = مستديم
+  spendPermissionId: number | null;
 }
+
 
 
 @Injectable({
@@ -32,9 +31,20 @@ export class LedgerService {
     return this.http.get<LedgerEntry>(`${this.apiUrl}/${id}`);
   }
 
-  addLedgerEntry(entry: LedgerEntry): Observable<LedgerEntry> {
-    return this.http.post<LedgerEntry>(this.apiUrl, entry);
-  }
+  addLedgerEntry(entry: LedgerEntry): Observable<any> {
+  return this.http.post(this.apiUrl, {
+    id: 0,
+    date: entry.date,
+    documentReference: entry.documentReference,
+    addedItemsValue: entry.addedItemsValue,
+    issuedItemsValue: entry.issuedItemsValue,
+    storeType: entry.storeType,
+    spendPermissionId: entry.spendPermissionId,
+    spendPermission: null // ⭐ مهم جدًا
+  });
+}
+
+
 
   updateLedgerEntry(id: number, entry: LedgerEntry): Observable<LedgerEntry> {
     return this.http.put<LedgerEntry>(`${this.apiUrl}/${id}`, entry);

@@ -31,7 +31,7 @@ export class Ameen2Component implements OnInit {
 
   constructor() {
   this.inventoryLogForm = this.fb.group({
-    storehouseName: ['', Validators.required],
+   // storehouseName: ['',Validators.required],
     assetType: ['', Validators.required],
     tableData: this.fb.array([])
   });
@@ -54,7 +54,7 @@ export class Ameen2Component implements OnInit {
 
       sourceOrDestination: ['',Validators.required], // وارد من / منصرف إلى
       addedValue: ['',Validators.required],       // قيمة الأصناف المضافة
-      issuedValue: ['',Validators.required],      // قيمة الأصناف المنصرفة
+      issuedValue: ['',Validators.required],  
  
 
 
@@ -87,23 +87,25 @@ export class Ameen2Component implements OnInit {
 
   const requests = this.tableData.value.map((row: any, index: number) => {
 
-    const entry: LedgerEntry = {
-      date: row.date,
-      documentReference: row.sourceOrDestination,
-      addedItemsValue: Number(row.addedValue) || 0,
-      issuedItemsValue: Number(row.issuedValue) || 0,
-      storeType: this.assetTypes.indexOf(
-        this.inventoryLogForm.value.assetType
-      ) + 1,
-      spendPermissionId: 0,
-      spendPermission: null
-    };
+  const entry: LedgerEntry = {
+  date: new Date(row.date).toISOString(),
+  documentReference: row.sourceOrDestination,
+  addedItemsValue: Number(row.addedValue) || 0,
+  issuedItemsValue: Number(row.issuedValue) || 0,
+  storeType: this.assetTypes.indexOf(
+    this.inventoryLogForm.value.assetType
+  ) + 1, // 1 أو 2 زي Swagger
+  spendPermissionId: null
+};
+
+
+
 
     return lastValueFrom(
       this.ledgerService.addLedgerEntry(entry).pipe(
         catchError(err => {
-          console.error(`Error sending entry #${index + 1}:`, err);
-          return of(null);
+          console.error('API Error:', err);
+          throw err; // ✅ فشل حقيقي
         })
       )
     );
@@ -115,6 +117,9 @@ export class Ameen2Component implements OnInit {
       this.inventoryLogForm.reset();
       this.tableData.clear();
       this.addRow();
+    })
+    .catch(() => {
+      alert('فشل حفظ البيانات');
     })
     .finally(() => this.isSubmitting.set(false));
 }
