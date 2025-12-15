@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { FormsModule, FormBuilder,ReactiveFormsModule, FormGroup, Validators ,FormArray } from '@angular/forms';
 import { HeaderComponent } from '../../../components/header/header.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
+import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 // Assuming you have an ApiService to handle HTTP requests
 // import { ApiService } from '../services/api.service';
@@ -65,12 +66,12 @@ export class Modeer2Component implements OnInit {
     private router = inject(Router);
     private fb = inject(FormBuilder);
 
-    // --- CONSTRUCTOR & INITIALIZATION ---
-    constructor() {
-        this.consumableForm = this.fb.group({
-
-            destinationName: ['', Validators.required],
-            storehouse: ['', Validators.required],
+  // --- CONSTRUCTOR & INITIALIZATION ---
+  constructor(private http: HttpClient) {
+    this.consumableForm = this.fb.group({
+      // Top Info Section Fields - ALL REQUIRED
+      destinationName: ['', Validators.required],
+      storehouse: ['', Validators.required],
 
             // Date Groups - Now relying on selection (dropdowns)
             requestDateGroup: this.fb.group({
@@ -228,16 +229,56 @@ selectItem(selectedName: string, rowIndex: number): void {
             return;
         }
 
-        this.isSubmitting.set(true);
-        const formData = this.consumableForm.value;
-        console.log('Sending Form Data:', formData);
+  this.isSubmitting.set(true);
 
-        setTimeout(() => {
-            console.log('Request submitted successfully!');
-            this.isSubmitting.set(false);
-        }, 2000);
-    }
-    // -------------------------------------
-  }
+  const reqDate = this.consumableForm.value.requestDateGroup;
+  const docDate = this.consumableForm.value.regularDateGroup;
+
+  const basePayload = {
+    destinationName: this.consumableForm.value.destinationName,
+    storeHouse: this.consumableForm.value.storehouse,
+
+    requestDate: new Date(reqDate.yy, reqDate.mm - 1, reqDate.dd).toISOString(),
+    documentDate: new Date(docDate.yy, docDate.mm - 1, docDate.dd).toISOString(),
+
+    requestorName: this.consumableForm.value.requestorName,
+    documentNumber: this.consumableForm.value.documentNumber
+  };
+
+  const requests = this.tableData.value.map((row: any) => {
+    const payload = {
+      ...basePayload,
+
+      itemName: row.itemName,
+      unit: row.unit,
+      requestedQuantity: Number(row.quantityRequired),
+      approvedQuantity: Number(row.quantityAuthorized || 0),
+      issuedQuantity: Number(row.quantityIssued || 0),
+      stockStatus: row.itemCondition || 'جديدة',
+      unitPrice: Number(row.unitPrice || 0),
+      totalValue: Number(row.value || 0)
+    };
+
+    return this.http.post(
+      'http://newwinventoryapi.runasp.net/api/SpendPermissions',
+      payload
+    );
+  });
+
+  Promise.all(requests.map((r: any) => r.toPromise()))
+    .then(() => {
+      alert('تم الحفظ بنجاح ✅');
+      this.consumableForm.reset();
+      this.isSubmitting.set(false);
+    })
+    .catch(err => {
+      console.error(err);
+      alert('حصل خطأ أثناء الحفظ ❌');
+      this.isSubmitting.set(false);
+    });
+}
+
+
+}
 
 
