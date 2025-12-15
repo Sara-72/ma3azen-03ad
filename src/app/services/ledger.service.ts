@@ -4,19 +4,22 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface LedgerEntry {
+  id?: number;                 // ✔️ بيرجع من الـ API
   date: string;
   documentReference: string;
   addedItemsValue: number;
   issuedItemsValue: number;
   storeType: number;
   spendPermissionId: number;
-  spendPermission: string;
+  spendPermission?: any;        // ✔️ مطابق للـ Swagger
 }
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class LedgerService {
+
   private apiUrl = 'http://newwinventoryapi.runasp.net/api/LedgerEntries';
 
   constructor(private http: HttpClient) {}
@@ -25,7 +28,16 @@ export class LedgerService {
     return this.http.get<LedgerEntry[]>(this.apiUrl);
   }
 
+  getLedgerEntryById(id: number): Observable<LedgerEntry> {
+    return this.http.get<LedgerEntry>(`${this.apiUrl}/${id}`);
+  }
+
   addLedgerEntry(entry: LedgerEntry): Observable<LedgerEntry> {
     return this.http.post<LedgerEntry>(this.apiUrl, entry);
   }
+
+  updateLedgerEntry(id: number, entry: LedgerEntry): Observable<LedgerEntry> {
+    return this.http.put<LedgerEntry>(`${this.apiUrl}/${id}`, entry);
+  }
 }
+

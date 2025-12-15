@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../../../components/header/header.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
 import { FormBuilder, ReactiveFormsModule, FormGroup, Validators, FormArray } from '@angular/forms';
-import { catchError, lastValueFrom, Observable } from 'rxjs';
+import { catchError, lastValueFrom, Observable, of } from 'rxjs';
 import { LedgerService, LedgerEntry } from '../../../services/ledger.service';
 
 
@@ -30,21 +30,12 @@ export class Ameen2Component implements OnInit {
   private ledgerService = inject(LedgerService);
 
   constructor() {
-<<<<<<< HEAD
   this.inventoryLogForm = this.fb.group({
     storehouseName: ['', Validators.required],
     assetType: ['', Validators.required],
     tableData: this.fb.array([])
   });
 }
-=======
-    this.inventoryLogForm = this.fb.group({
-      // storehouseName: ['',Validators.required], // For the single input field at the top (مخزن)
-      assetType: ['', Validators.required],
-      tableData: this.fb.array([])
-    });
-  }
->>>>>>> b7bb77c0b7085bc5ef9ce78c3974a797281bbf8e
 
   ngOnInit(): void {
     // Start with one empty row
@@ -88,7 +79,6 @@ export class Ameen2Component implements OnInit {
 
  onSubmit(): void {
   if (this.inventoryLogForm.invalid) {
-    console.log('Form is invalid', this.inventoryLogForm.value);
     this.inventoryLogForm.markAllAsTouched();
     return;
   }
@@ -96,42 +86,39 @@ export class Ameen2Component implements OnInit {
   this.isSubmitting.set(true);
 
   const requests = this.tableData.value.map((row: any, index: number) => {
+
     const entry: LedgerEntry = {
       date: row.date,
       documentReference: row.sourceOrDestination,
-      addedItemsValue: +row.addedValue,
-      issuedItemsValue: +row.issuedValue,
-      storeType: this.assetTypes.indexOf(row.assetType) + 1,
+      addedItemsValue: Number(row.addedValue) || 0,
+      issuedItemsValue: Number(row.issuedValue) || 0,
+      storeType: this.assetTypes.indexOf(
+        this.inventoryLogForm.value.assetType
+      ) + 1,
       spendPermissionId: 0,
-      spendPermission: ''
+      spendPermission: null
     };
-
-    console.log(`Sending entry #${index + 1}:`, entry);
 
     return lastValueFrom(
       this.ledgerService.addLedgerEntry(entry).pipe(
         catchError(err => {
           console.error(`Error sending entry #${index + 1}:`, err);
-          return []; // ارجع مصفوفة فارغة بدل ما ينهار الكود
+          return of(null);
         })
-      ) as Observable<LedgerEntry>
+      )
     );
   });
 
   Promise.all(requests)
     .then(() => {
-      console.log('All entries saved successfully');
-      alert('تم حفظ البيانات بنجاح!');
+      alert('تم حفظ البيانات بنجاح');
       this.inventoryLogForm.reset();
       this.tableData.clear();
       this.addRow();
     })
-    .catch(err => {
-      console.error('Error in saving entries:', err);
-      alert('حدث خطأ أثناء الحفظ.');
-    })
     .finally(() => this.isSubmitting.set(false));
 }
+
 
 
 }
