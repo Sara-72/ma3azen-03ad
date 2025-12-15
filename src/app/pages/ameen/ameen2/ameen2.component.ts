@@ -30,12 +30,21 @@ export class Ameen2Component implements OnInit {
   private ledgerService = inject(LedgerService);
 
   constructor() {
+<<<<<<< HEAD
   this.inventoryLogForm = this.fb.group({
     storehouseName: ['', Validators.required],
     assetType: ['', Validators.required],
     tableData: this.fb.array([])
   });
 }
+=======
+    this.inventoryLogForm = this.fb.group({
+      // storehouseName: ['',Validators.required], // For the single input field at the top (مخزن)
+      assetType: ['', Validators.required],
+      tableData: this.fb.array([])
+    });
+  }
+>>>>>>> b7bb77c0b7085bc5ef9ce78c3974a797281bbf8e
 
   ngOnInit(): void {
     // Start with one empty row
@@ -55,7 +64,7 @@ export class Ameen2Component implements OnInit {
       sourceOrDestination: ['',Validators.required], // وارد من / منصرف إلى
       addedValue: ['',Validators.required],       // قيمة الأصناف المضافة
       issuedValue: ['',Validators.required],      // قيمة الأصناف المنصرفة
-      assetType: ['', Validators.required]
+ 
 
 
     });
