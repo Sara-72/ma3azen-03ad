@@ -24,8 +24,9 @@ export class LedgerService {
   constructor(private http: HttpClient) {}
 
   getLedgerEntries(): Observable<LedgerEntry[]> {
-    return this.http.get<LedgerEntry[]>(this.apiUrl);
-  }
+  return this.http.get<LedgerEntry[]>(this.apiUrl, { responseType: 'json' });
+}
+
 
   getLedgerEntryById(id: number): Observable<LedgerEntry> {
     return this.http.get<LedgerEntry>(`${this.apiUrl}/${id}`);
