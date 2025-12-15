@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HeaderComponent } from '../../../components/header/header.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
-import { AdditionsService } from '../../../services/additions.service';
 import { CommonModule } from '@angular/common';
+import { ModeerSercive } from '../../../services/modeer.service';
 
 @Component({
   selector: 'app-modeer1',
@@ -18,14 +18,14 @@ export class Modeer1Component implements OnInit {
 
   additions: any[] = [];
 
-  constructor(private additionsService: AdditionsService) {}
+  constructor(private modeerSercive : ModeerSercive ) {}
 
   ngOnInit(): void {
     this.loadAdditions();
   }
 
   loadAdditions() {
-    this.additionsService.getAdditions().subscribe({
+    this.modeerSercive.getAdditions().subscribe({
       next: (data) => {
         console.log('API DATA:', data);
         this.additions = data;
