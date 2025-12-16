@@ -13,14 +13,17 @@
                 <li><a href="/employee_ma5azen2">كاتب الشطب</a></li>
                 <li><a href="employee_ma5azen3">المخزن</a></li>
                 <li><a href="/employee_ma5azen4">مخزن الأمين</a></li>
+                <li><a href="/employee_ma5azen5">عرض مخزنك </a></li>
 
             </ul>
         </aside>
 
-      <form [formGroup]="inventoryLogForm" (ngSubmit)="onSubmit()" dir="rtl" class="me-5">
+      <form [formGroup]="inventoryLogForm" (ngSubmit)="onSubmit()" dir="rtl" class="my-5 mx-4">
 
-        <div class="table-section">
+        <div class="table-section p-4">
+          <h2 class="text-center mb-5"> <br>دفتر المالية</h2>
             <table class="table table-bordered text-center">
+
                 <thead>
                     <tr>
                         <th>رقم الإضافة</th>

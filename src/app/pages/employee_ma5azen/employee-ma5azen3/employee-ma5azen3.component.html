@@ -8,6 +8,7 @@
       <li><a href="/employee_ma5azen2">كاتب الشطب</a></li>
       <li class="active"><a>المخزن</a></li>
       <li><a href="/employee_ma5azen4">مخزن الأمين</a></li>
+      <li><a href="/employee_ma5azen5">عرض مخزنك </a></li>
     </ul>
   </aside>
 
@@ -15,10 +16,11 @@
     [formGroup]="simpleForm"
     (ngSubmit)="onSubmit()"
     dir="rtl"
-    class="mt-5 form-part"
+    class="mt-5 form-part m-auto"
   >
-    <div class="table-section">
-      <table>
+    <div class="table-section px-5 py-4">
+      <h2 class="text-center m-4"> المخزن</h2>
+      <table class="table table-bordered text-center">
         <thead>
           <tr>
             <th>الفئة</th>
@@ -32,7 +34,7 @@
           @for (rowGroup of tableData.controls; track $index) {
           <tr [formGroupName]="$index">
             <td>
-              <select formControlName="category" class="table-input">
+              <select formControlName="category" class="form-control">
                 <option value="" disabled selected hidden>اختر فئة</option>
                 @for (category of categories; track category) {
                 <option [value]="category">{{ category }}</option>
@@ -41,7 +43,7 @@
             </td>
 
             <td>
-              <select formControlName="item" class="table-input">
+              <select formControlName="item" class="form-control">
                 <option [ngValue]="null" disabled selected hidden>
                   اختر صنف
                 </option>
@@ -52,7 +54,7 @@
             </td>
 
                 <td>
-                            <select formControlName="itemType" class="table-input">
+                            <select formControlName="itemType" class="form-control">
                                 <option value="" disabled selected hidden>اختر نوع</option>
                                 @for (type of itemTypes; track type) {
                                     <option [value]="type">{{ type }}</option>
@@ -61,7 +63,7 @@
                         </td>
 
             <td>
-              <input type="text" formControlName="count" class="table-input" />
+              <input type="number" min="0" formControlName="count" class="form-control" />
             </td>
           </tr>
           }

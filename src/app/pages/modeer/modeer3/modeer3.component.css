@@ -15,10 +15,12 @@ a{
 
 /* SIDEBAR  */
 .sidebar {
-    width: 220px;
+  width: 20%;
+    min-height: 100vh;
     background: #fff;
     padding: 20px;
     border-left: 1px solid #ddd;
+    box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 }
 
 .sidebar h3 {

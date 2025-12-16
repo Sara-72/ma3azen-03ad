@@ -15,10 +15,12 @@ a{
 
 /* SIDEBAR  */
 .sidebar {
-    width: 220px;
+    width: 20%;
+    min-height: 100vh;
     background: #fff;
     padding: 20px;
     border-left: 1px solid #ddd;
+    box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 }
 
 .sidebar h3 {
@@ -57,9 +59,10 @@ a{
     position: relative; /* CRITICAL: Must be relative for absolute button positioning */
     margin-top: 20px;
     /* padding-bottom: 30px; Space below table for buttons */
-    border: 1px solid #000;
+    /* border: 1px solid #000; */
     width:95%;
     border-color:black;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
 
 
 }

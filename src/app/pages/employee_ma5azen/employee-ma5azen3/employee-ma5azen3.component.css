@@ -15,10 +15,12 @@ a{
 
 /* SIDEBAR  */
 .sidebar {
-    width: 220px;
+    width: 20%;
+    min-height: 100vh;
     background: #fff;
     padding: 20px;
     border-left: 1px solid #ddd;
+    box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 }
 
 .sidebar h3 {
@@ -47,51 +49,43 @@ a{
     cursor:default;
 }
 
-/********************************************/
+
+/*****************************************************************/
 
 
-.form-part{
-  margin-right: 10rem;
-
+.table{
+  border-color:#000;
 }
 
+/* 1. Table/Row Controls Styling */
 .table-section {
-    position: relative;
-    margin: 20px auto;
-    width: 600px; /* Example width */
-    padding-bottom: 30px;
+    position: relative; /* CRITICAL: Must be relative for absolute button positioning */
+    margin-top: 20px;
+    /* padding-bottom: 30px; Space below table for buttons */
+    /* border: 1px solid #000; */
+    width:95%;
+    border-color:black;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
+
 
 }
-.table-section table {
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #000;
-}
-.table-section th, .table-section td {
-    border: 1px solid #000;
-    padding: 0;
-    text-align: center;
-    height: 40px;
-}
-.table-section th {
-    background-color: #f0f0f0;
-    font-weight: bold;
-}
-.table-input {
-    width: 100%;
-    height: 100%;
-    border: none;
-    padding: 5px;
-    box-sizing: border-box;
-    text-align: center;
+
+th{
+  background-color:#f0f0f0;
+  border-color:black ;
+
 }
 
-/* Dynamic Row Button Styles (Circular, overlapping design) */
+td{
 
+  border-color:black ;
+
+}
+/* Base button styles */
 .add-row-button,
 .remove-row-button {
     position: absolute;
-    bottom: -17.5px;
+    bottom: -17.5px; /* Pulls button halfway below the table section */
     background-color: var(--primary-color);
     color: white;
     width: 35px;
@@ -104,76 +98,43 @@ a{
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
     z-index: 10;
     padding: 0;
+    font-size: 2em;
 }
 
 .add-row-button {
-    right: -17.5px; /* Place on the far right (RTL layout) */
-
-
-    font-size: 2em;
+    right: -3px; /* Halfway outside the right edge */
 }
 
 .remove-row-button {
-    left: -17.5px; /* Place on the far left (RTL layout) */
-
-
-    font-size: 2em;
+    left: -3px; /* Halfway outside the left edge */
 }
 
-
-
-/* --- Base Button Styles --- */
+/* 2. Submit Button Styling */
+.button-section {
+    display: flex;
+    justify-content: center; /* Centers the button horizontally */
+    width: 100%;
+    margin-top: 25px;
+}
 
 .submit-btn {
-    /* General appearance and size */
     padding: 10px 30px;
     font-size: 1.1em;
-    font-weight: bold; /* Use the fw-medium from HTML */
+    font-weight: bold;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.2s, opacity 0.2s; /* Smooth transitions */
-
-    /* Center text if not already centered by Bootstrap or other framework */
+    transition: background-color 0.2s, opacity 0.2s;
     text-align: center;
-
-    /* Ensure text color is white as specified in HTML */
     color: white;
 }
 
-/* --- Conditional Styles (Based on Form State) --- */
-
-/* Style for when the button is enabled and ready to submit (valid form) */
-/* Corresponds to the [class.bg-blue-600] binding */
 .submit-btn:not(:disabled) {
     background-color: var(--primary-color);
 }
 
-/* Style for when the button is disabled (invalid form or submitting) */
 .submit-btn:disabled {
-
-    background-color:var(--black-color);
+    background-color: var(--black-color);
     cursor: not-allowed;
-    opacity: 0.8;
+    opacity: 0.7;
 }
-
-/* Style for hover effect (optional, only for enabled state) */
-.submit-btn:not(:disabled):hover {
-    background-color: var(--secondary-color);
-}
-
-/* Style for the "Processing..." state (optional) */
-.submit-btn:disabled.is-processing {
-    background-color: var(--secondary-color);
-
-}
-
-
-
-select{
-  background-color: white;
-  border:1px solid black;
-  padding:0.5%;
-
-}
-

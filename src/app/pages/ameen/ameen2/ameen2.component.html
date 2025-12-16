@@ -18,7 +18,7 @@
 
 
 
-<form [formGroup]="inventoryLogForm" (ngSubmit)="onSubmit()" dir="rtl">
+<form [formGroup]="inventoryLogForm" (ngSubmit)="onSubmit()" dir="rtl" class="my-3 mx-2">
 
     <div class="log-container">
 
@@ -37,11 +37,11 @@
 </div>
 
         <div class="table-section">
-            <table>
+            <table class="table table-bordered text-center">
                 <thead>
                     <tr>
                         <th>التاريخ</th>
-                        
+
 
                         <th>وارد من / منصرف إلى</th>
                         <th>قيمة الأصناف المضافة</th>
@@ -54,11 +54,11 @@
                     @for (rowGroup of tableData.controls; track $index) {
                         <tr [formGroupName]="$index">
 
-                            <td><input type="date" formControlName="date" class="table-input"></td>
+                            <td><input type="date" formControlName="date" class="form-control"></td>
 
-                            <td><input type="text" formControlName="sourceOrDestination" class="table-input wide-col"></td>
-                            <td><input type="text" formControlName="addedValue" class="table-input"></td>
-                            <td><input type="text" formControlName="issuedValue" class="table-input"></td>
+                            <td><input type="text" formControlName="sourceOrDestination" class="form-control wide-col"></td>
+                            <td><input type="text" formControlName="addedValue" class="form-control"></td>
+                            <td><input type="text" formControlName="issuedValue" class="form-control"></td>
 
                         </tr>
                     }

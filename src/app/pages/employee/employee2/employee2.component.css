@@ -16,10 +16,12 @@ a{
 
 /* SIDEBAR */
 .sidebar {
-    width: 240px;
+    width: 20%;
+    min-height: 100vh;
     padding: 20px;
     background: white;
     border-left: 1px solid #ddd;
+    box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
 }
 
 .sidebar ul {
@@ -49,31 +51,40 @@ a{
 }
 
 
-.table-wrapper {
-    width: 60%;
-    margin: auto;
-    background: white;
-    padding: 25px;
-    border: 1px solid #aaa;
+
+
+.table-container {
+
+  width: 100%;
+  max-width: 600px; /* Adjust as needed */
+  margin: 20px auto;
+
 }
 
-/* TABLE STYLE */
-.styled-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: center;
-    font-size: 18px;
+
+table {
+  /* Set the table to take full width of its container */
+  width: 100%;
+  border-collapse: collapse; /* Essential for clean borders */
+  border: 1px solid #dee2e6 ; /* Main outer border */
+  box-shadow: rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px;
 }
 
-.styled-table th,
-.styled-table td {
-    padding: 10px;
-    border: 1px solid #000;
+th, td {
+  /* Style for all header and data cells */
+  border: 2px solid #dee2e6 ;
+  padding: 30px;
+  text-align: center; /* Center text alignment */
+  height: 85px;
+  vertical-align: top; /* Start content at the top of the large cells */
+  box-sizing: border-box;
 }
 
-.styled-table th {
-    background: #f1f1f1;
-    font-weight: bold;
+th {
+  /* Style specifically for table headers */
+  background-color: #f8f8f8;
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #333;
 }
-
 

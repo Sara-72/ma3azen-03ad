@@ -23,6 +23,7 @@ import { EmployeeMa5azen1Component } from './pages/employee_ma5azen/employee-ma5
 import { EmployeeMa5azen2Component } from './pages/employee_ma5azen/employee-ma5azen2/employee-ma5azen2.component';
 import { EmployeeMa5azen3Component } from './pages/employee_ma5azen/employee-ma5azen3/employee-ma5azen3.component';
 import { EmployeeMa5azen4Component } from './pages/employee_ma5azen/employee-ma5azen4/employee-ma5azen4.component';
+import { EmployeeMa5azen5Component } from './pages/employee_ma5azen/employee-ma5azen5/employee-ma5azen5.component';
 import { Elda3mComponent } from './pages/elda3m/elda3m.component';
 
 
@@ -51,6 +52,7 @@ export const routes: Routes = [
   { path: 'employee_ma5azen2', component: EmployeeMa5azen2Component, title: 'employee_ma5azen2'},
   { path: 'employee_ma5azen3', component: EmployeeMa5azen3Component, title: 'employee_ma5azen3'},
   { path: 'employee_ma5azen4', component:EmployeeMa5azen4Component , title:'employee_ma5azen4'},
+  { path: 'employee_ma5azen5', component:EmployeeMa5azen5Component , title:'employee_ma5azen5'},
   { path: 'elda3m' , component :Elda3mComponent , title:'elda3m'}
 
 
