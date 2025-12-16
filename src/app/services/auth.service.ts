@@ -48,22 +48,22 @@ export class AuthService {
     return this.http.post(`${this.api}/InventoryManagers`, data);
   }
   checkEmailExists(email: string, role: string) {
-  let url = '';
-  switch (role) {
-    case 'موظف':
+    let url = '';
+    switch (role) {
+     case 'موظف':
       url = `${this.api}/Users?email=${email}`;
       break;
-    case 'موظف مخزن':
+     case 'موظف مخزن':
       url = `${this.api}/Employees?email=${email}`;
       break;
-    case 'أمين مخزن':
+     case 'أمين مخزن':
       url = `${this.api}/StoreKeepers?email=${email}`;
       break;
-    case 'مدير مخزن':
+     case 'مدير مخزن':
       url = `${this.api}/InventoryManagers?email=${email}`;
       break;
+     }
+    return this.http.get(url); // يفترض السيرفر يرجع [] لو مش موجود أو object لو موجود
   }
-  return this.http.get(url); // يفترض السيرفر يرجع [] لو مش موجود أو object لو موجود
-}
 
 }

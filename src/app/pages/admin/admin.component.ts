@@ -105,13 +105,23 @@ export class AdminComponent implements OnInit, OnDestroy{
   const form = this.adminForm.value;
 
   this.auth.checkEmailExists(form.email, form.role).subscribe((res: any) => {
-    // لو السيرفر رجع موجود
-    if (res && res.length > 0) {
-      alert('الإيميل موجود بالفعل. يرجى إدخال إيميل آخر.');
-      return; // يمنع الإرسال
+
+    let exists = false;
+
+    if (Array.isArray(res)) {
+      exists = res.some((item: any) =>
+        item.email?.toLowerCase() === form.email.toLowerCase()
+      );
+    } else if (res && res.email) {
+      exists = res.email.toLowerCase() === form.email.toLowerCase();
     }
 
-    // لو مش موجود، نفذ الإضافة
+    if (exists) {
+      alert('الإيميل موجود بالفعل. يرجى إدخال إيميل آخر.');
+      return;
+    }
+
+    // ✅ الإيميل غير موجود → أضيف
     const body = {
       email: form.email,
       password: form.password,
@@ -139,10 +149,11 @@ export class AdminComponent implements OnInit, OnDestroy{
 
     this.adminForm.reset();
   }, err => {
-    console.error('حدث خطأ أثناء التحقق من الإيميل', err);
-    alert('حدث خطأ أثناء التحقق من الإيميل');
+    console.error(err);
+    alert('حصل خطأ أثناء التحقق من الإيميل');
   });
 }
+
 
 
   ngOnInit(): void {
