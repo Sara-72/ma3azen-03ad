@@ -3,6 +3,7 @@ nav{
   background-color: var(--primary-color);
   color :white;
   box-shadow: rgba(60, 64, 67, 0.3) 0px 1px 2px 0px, rgba(60, 64, 67, 0.15) 0px 1px 3px 1px;
+  width:100%;
 }
 
 .navbar-nav .nav-link {
@@ -40,4 +41,71 @@ nav{
 
 button{
   margin-right:15rem;
+}
+
+
+/* --- Responsive Adjustments (Applied on Smaller Screens) --- */
+
+@media (max-width: 992px) {
+    /* Tablet and Mobile adjustments */
+
+    /* Ensure logo and toggler are aligned correctly */
+    .navbar {
+        padding: 10px 15px !important;
+        justify-content: space-between !important;
+    }
+
+    /* Remove large fixed margins and center the main menu */
+    .collapse.navbar-collapse {
+        order: 1; /* Ensure collapse menu appears below logo/toggler */
+    }
+
+    .right-nav {
+        /* Reset spacing for mobile menu, let Bootstrap handle alignment */
+        margin-right: 0;
+        margin-left: 0;
+        width: 100%;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1); /* Separator line */
+    }
+
+    /* Reset left container alignment and push elements to the far right of the dropdown menu */
+    .left-container {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100%;
+        justify-content: flex-start !important; /* Align content to the right */
+        padding-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1); /* Separator line */
+    }
+
+    /* Ensure user icon and sign-out link are aligned on a single line */
+    .left-container ul {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+        padding: 0;
+    }
+
+    /* Adjust spacing for icons in the left nav */
+    .left-nav .nav-item {
+        margin-left: 0 !important;
+        margin-right: 10px;
+    }
+
+    /* Reduce icon size margin for better mobile fit */
+    .left-nav .ph-user-circle {
+        margin-right: 0 !important;
+        margin-left: 10px;
+    }
+    .left-nav .ph-sign-out {
+        margin-right: 0 !important;
+        margin-left: 0;
+    }
+
+    /* Toggler button margin cleanup */
+    button {
+        margin-right: 0;
+    }
 }

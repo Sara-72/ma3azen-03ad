@@ -88,3 +88,99 @@ th {
   color: #333;
 }
 
+
+
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+
+@media (max-width: 992px) {
+    /* Tablet/Small Desktop Layout */
+
+    .sidebar {
+        width: 25%; /* Give a little more space to the content */
+    }
+
+    .content {
+        padding: 20px; /* Reduce main content padding */
+    }
+
+    /* Table adjustments for slightly smaller screens */
+    .table-container {
+        max-width: 95%; /* Allow table to grow closer to full width */
+        margin: 15px auto;
+    }
+
+    th, td {
+        padding: 15px; /* Reduce padding significantly */
+        font-size: 0.9em;
+        height: auto; /* Allow height to collapse */
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile/Tablet Layout Stacking */
+
+    .page-container {
+        flex-direction: column; /* Stack sidebar and content vertically */
+        flex-grow: 1;
+    }
+
+    .sidebar {
+        width: 100%; /* Sidebar takes full width */
+        min-height: auto;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Ensure sidebar content aligns correctly when horizontal */
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .sidebar h5 {
+        text-align: center;
+    }
+
+    .sidebar li {
+        border-bottom: none;
+        border-right: 1px solid #ddd; /* Add separator between menu items */
+        padding: 8px 15px;
+        flex: 1 1 auto;
+        text-align: center;
+    }
+
+    .sidebar li.active {
+        border-left: none;
+        border-bottom: 3px solid #0a3a63; /* Use bottom border for active item */
+    }
+
+    .content {
+        padding: 10px;
+        flex-grow: 1;
+    }
+
+    /* Table Layout on Mobile */
+    .table-container {
+        overflow-x: auto; /* Enable horizontal scrolling for the table */
+        max-width: 100%;
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .styled-table {
+        /* Prevent table from shrinking smaller than its content requires */
+        min-width: 400px;
+    }
+
+    th, td {
+        padding: 10px;
+        font-size: 0.85em;
+        white-space: nowrap; /* Prevent text wrapping in cells to enforce scrolling */
+    }
+
+    th {
+        font-size: 0.9em;
+    }
+}

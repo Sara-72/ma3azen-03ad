@@ -8,6 +8,18 @@ html, body {
   height: 100%;
   margin: 0;
 }
+
+/* In global styles.css */
+app-root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.page-container {
+    /* ... existing styles ... */
+    flex-grow: 1 !important;
+}
 :root {
 
     /*colors*/

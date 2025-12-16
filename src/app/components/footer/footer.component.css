@@ -8,3 +8,17 @@ footer{
 
 }
 
+
+/* --- Responsive Adjustments (Applied on Smaller Screens) --- */
+
+@media (max-width: 768px) {
+    /* Reduce font size on mobile screens */
+    footer p {
+        font-size: 0.85em;
+    }
+
+    /* Reduce padding slightly on very small screens */
+    footer {
+        padding: 1rem 0.5rem;
+    }
+}

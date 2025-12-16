@@ -342,3 +342,130 @@ input[type="text"] {
     /* Add any specific styles needed for date input padding/font if they differ */
     line-height: 1.5; /* Helps align text in date field */
 }
+
+
+/* --- RESPONSIVE ADJUSTMENTS (APPLIED ONLY ON SMALL SCREENS) --- */
+
+/* Tablet and Mobile (Max 992px) */
+@media (max-width: 992px) {
+
+    /* 1. LAYOUT STACKING */
+    .page-container {
+        flex-direction: column; /* Stack sidebar and content */
+    }
+
+    .sidebar {
+        width: 100%; /* Full width sidebar */
+        min-height: auto;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Adjust Main Content Container */
+    .d-flex.align-items-center.big-container {
+        /* Remove explicit d-flex behavior that might cause issues, make it fluid */
+        display: block;
+        padding: 10px;
+        margin: 0 !important;
+    }
+
+    /* Centering the form and ensuring it uses available width */
+    .d-flex .mt-5.mx-5 {
+        margin: 10px auto !important; /* Center the form horizontally with small margins */
+        max-width: 100%;
+        width: 98%;
+    }
+
+    /* 2. PAPER & CONTENT */
+    .paper {
+        padding: 15px; /* Reduced padding on paper */
+        /* Restore relative position for row controls if they were inside */
+        position: relative;
+    }
+
+    .paper-logo {
+        width: 50px; /* Smaller logo */
+    }
+
+    /* 3. SIGNATURES STACKING (General Tablet/Mobile) */
+    .signatures {
+        flex-wrap: wrap; /* Allow signature blocks to wrap */
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .signatures > div {
+        /* Allow two per row on tablets, but stack entirely on smaller mobiles */
+        flex: 1 1 45%;
+        min-width: 150px;
+        margin: 0 !important; /* Remove fixed margins (ms-3) */
+    }
+
+    /* Override input sizing to fit the new 45% container */
+    .signatures input[type="text"],
+    .signatures .form-select {
+        width: 100%;
+        max-width: 100%;
+    }
+
+
+    /* 4. ITEM LINE STACKING (Item Lines) */
+    .item-line {
+        flex-wrap: wrap; /* Allow fields in the item line to stack */
+    }
+
+    .item-line .field {
+        flex: 1 1 100%; /* Fields take full width */
+        min-width: auto;
+    }
+
+    .item-line .count-input {
+        flex: 1 1 40%; /* Count input takes nearly half width */
+        max-width: 50%;
+    }
+
+    /* 5. ROW CONTROL POSITIONING */
+    /* Remove the absolute positioning intended for desktop */
+    .row-controls {
+        display: flex; /* Make it a flex container */
+        justify-content: center;
+        width: 100%;
+        position: static;
+        margin-top: 10px;
+        margin-bottom: 20px;
+    }
+
+    .add-row-button,
+    .remove-row-button {
+        position: static;
+        margin: 0 10px; /* Add margin around buttons */
+    }
+
+    .add-row-button { right: auto; }
+    .remove-row-button { left: auto; }
+}
+
+/* Mobile Devices (Max 576px) - Ensures full stacking on small phones */
+@media (max-width: 576px) {
+
+    .signatures > div {
+        flex: 1 1 100%; /* Force all signature blocks to stack vertically */
+    }
+
+    /* Adjust item line layout for small screen stacking */
+    .item-line .count-input {
+        flex: 1 1 100%; /* Count input takes full width */
+        max-width: 100%;
+    }
+
+    .remove-btn-container {
+        /* Ensure remove button doesn't share line with count input */
+        flex: 1 1 100%;
+        text-align: right; /* Align button to the right */
+        padding-top: 5px;
+    }
+
+    .remove-item-btn {
+        justify-content: flex-end;
+    }
+}
