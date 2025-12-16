@@ -1,12 +1,13 @@
 import { Component ,OnInit,inject , signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormsModule, FormBuilder,ReactiveFormsModule, FormGroup, Validators ,FormArray } from '@angular/forms';
+import { FormsModule, FormBuilder,ReactiveFormsModule, FormGroup,FormArray,ValidationErrors, ValidatorFn, Validators,AbstractControl} from '@angular/forms';
 import { HeaderComponent } from '../../../components/header/header.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 // Assuming you have an ApiService to handle HTTP requests
 // import { ApiService } from '../services/api.service';
+
 
 
 
@@ -20,6 +21,31 @@ interface ConsumableRow {
   itemCondition: string;
   unitPrice: string;
   value: string;
+}
+
+/**
+ * Validates that the input string contains exactly four distinct words (strings separated by spaces).
+ */
+export function fourStringsValidator(): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+
+    if (!value) {
+      return null; // Let Validators.required handle the empty state
+    }
+
+    // Trim whitespace and split by one or more spaces, filtering out empty strings.
+    const words = String(value).trim().split(/\s+/).filter(Boolean);
+
+    const isValid = words.length === 4;
+
+    return isValid ? null : {
+        fourStrings: {
+            requiredCount: 4,
+            actualCount: words.length
+        }
+    };
+  };
 }
 @Component({
   selector: 'app-modeer2',
@@ -89,8 +115,9 @@ itemData: { [key: string]: string[] } = {
         dd: ['', Validators.required]
       }),
 
-      requestorName: ['', Validators.required],
+      requestorName: ['', [Validators.required, fourStringsValidator()]],
       documentNumber: ['', Validators.required],
+      managerApprovalName: ['', [Validators.required, fourStringsValidator()]],
 
       // Table Data using FormArray
       tableData: this.fb.array([])
@@ -172,16 +199,7 @@ filterItemOptions(event: Event, rowIndex: number): void {
 }
 
 
-getFilteredItemsForRow(rowIndex: number): string[] {
-    const rowGroup = this.tableData.at(rowIndex);
-    const category = rowGroup.get('category')?.value;
 
-    if (!category || !this.itemData[category]) {
-        return [];
-    }
-    // Return the master list for that category, ready to be searched locally
-    return this.itemData[category];
-}
 
   // 🚨 Add this helper function
 /**
@@ -213,6 +231,34 @@ updateFilteredItems(category: string, rowIndex: number): void {
     // 3. Reset related controls in that row (critical for validation)
     rowGroup.get('itemName')?.setValue('');
     rowGroup.get('itemSearchText')?.setValue('');
+}
+
+
+
+/**
+ * Gets the list of available items for a specific row based on its selected category.
+ * This is used to populate the Datalist options in the HTML.
+ * @param rowIndex The index of the table row being rendered.
+ * @returns An array of item names for that category, or an empty array.
+ */
+getFilteredItemsForRow(rowIndex: number): string[] {
+    const rowGroup = this.tableData.at(rowIndex);
+
+    // Check if the row exists
+    if (!rowGroup) {
+        return [];
+    }
+
+    // Get the category value for this specific row
+    const category = rowGroup.get('category')?.value;
+
+    // Return the list of items mapped to that category from itemData
+    if (!category || !this.itemData[category]) {
+        return [];
+    }
+
+    // Return the master list for that specific category
+    return this.itemData[category];
 }
 
 
