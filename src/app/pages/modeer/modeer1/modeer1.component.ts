@@ -29,8 +29,9 @@ ngOnInit(): void {
   this.userName = localStorage.getItem('name') || '';
   this.displayName = this.getFirstTwoNames(this.userName);
 
-  this.loadAdditions();
+  this.loadgetStoreKeeperStocks();
 }
+
 getFirstTwoNames(fullName: string): string {
   if (!fullName) return '';
 
