@@ -153,3 +153,145 @@ a{
     border-color: var(--primary-color);
 }
 
+
+
+
+/* --- CORE LAYOUT FIX (CRITICAL) --- */
+
+/* Target the main wrapper, adjusting it to take available vertical space */
+.d-flex {
+    flex-grow: 1;
+    width: 100%;
+}
+
+/* Ensure the form takes the rest of the space and is centered */
+.d-flex > form {
+    flex-grow: 1;
+    display: flex; /* Make the form a flex container */
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    margin: 0 auto !important; /* Remove unwanted fixed margins */
+}
+
+/* Make the log container flexible on all screen sizes */
+.log-container {
+    width: 95%; /* Increase flexibility */
+    max-width: 950px;
+    margin: 20px auto; /* Adjust margin */
+    padding: 20px; /* Reduce padding slightly */
+    box-sizing: border-box;
+}
+
+/* Adjust table cell padding for better density */
+.table-section th, .table-section td {
+    padding: 8px 5px;
+    font-size: 0.9em;
+    height: auto;
+}
+
+/* Remove fixed column widths for the current 4-column layout
+   (The HTML shows 4 columns, but the CSS is targeting 6) */
+.table-section table {
+    table-layout: auto; /* Change to auto to allow width distribution */
+}
+
+/* Remove absolute positioning for row buttons since they don't exist in the HTML */
+.table-section {
+    position: static;
+    padding-bottom: 5px; /* Remove extra space */
+}
+
+
+
+
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+
+@media (max-width: 992px) {
+    /* Tablet Adjustments */
+
+    .sidebar {
+        width: 25%;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile Layout Stacking & Fixes */
+
+    /* 1. LAYOUT STACKING FIX */
+    .d-flex {
+        flex-direction: column !important; /* Force stacking */
+        display: block !important;
+    }
+
+    /* 2. SIDEBAR COLLAPSE */
+    .sidebar {
+        width: 100% !important;
+        min-height: auto;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+        order: -1;
+    }
+
+    /* Reorganize sidebar links for horizontal display on mobile */
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 10px !important;
+    }
+
+    .sidebar li {
+        border-bottom: none;
+        padding: 8px 10px;
+        flex: 1 1 auto;
+        text-align: center;
+        border-right: 1px solid #ddd;
+    }
+    .sidebar li.active {
+        border-left: none;
+        border-bottom: 3px solid var(--primary-color);
+    }
+
+    /* 3. FORM & LOG CONTAINERS */
+    .d-flex > form {
+        width: 100% !important;
+        padding: 10px 5px;
+        margin: 0 !important;
+        align-items: flex-start; /* Align content to the right/start in RTL layout */
+    }
+
+    .log-container {
+        width: 100%;
+        padding: 10px 5px;
+        margin: 10px 0;
+        box-shadow: none; /* Reduce visual noise on mobile */
+    }
+
+    .log-header h2 {
+        font-size: 1.5em;
+    }
+
+    /* 4. TABLE SCROLLING */
+    .table-section {
+        overflow-x: auto; /* Enable horizontal scrolling */
+        width: 100%;
+    }
+
+    .table-section table {
+        min-width: 550px; /* Min width to accommodate 4 columns with text */
+        width: auto;
+    }
+
+    .table-section th, .table-section td {
+        font-size: 0.8em;
+        padding: 6px 4px;
+        white-space: nowrap; /* Prevent content wrapping in cells */
+    }
+
+    /* Ensure span in storehouse-field doesn't take too much space */
+    .storehouse-field {
+        font-size: 0.9em;
+        justify-content: flex-end;
+    }
+}

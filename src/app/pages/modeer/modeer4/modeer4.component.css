@@ -233,3 +233,155 @@ td{
   text-align: center;
   height: 35px;
 }
+
+
+
+
+
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+
+@media (max-width: 992px) {
+    /* Tablet Adjustments */
+
+    .sidebar {
+        width: 25%;
+    }
+
+    .info-section .field {
+        margin-right: 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile Layout Stacking & Fixes */
+
+    /* 1. LAYOUT STACKING FIX */
+    .d-flex {
+        flex-direction: column !important;
+        display: block !important;
+    }
+
+    /* 2. SIDEBAR COLLAPSE */
+    .sidebar {
+        width: 100% !important;
+        min-height: auto;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+        order: -1;
+    }
+
+    /* Reorganize sidebar links for horizontal display on mobile */
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 10px !important;
+    }
+
+    .sidebar li {
+        border-bottom: none;
+        padding: 8px 10px;
+        flex: 1 1 auto;
+        text-align: center;
+        border-right: 1px solid #ddd;
+    }
+    .sidebar li.active {
+        border-left: none;
+        border-bottom: 3px solid #0a3a63;
+    }
+
+    /* 3. FORM CONTAINER */
+    .d-flex > ul, .d-flex > ul > li > form {
+        width: 100% !important;
+        padding: 10px 0;
+        margin: 0 !important;
+        align-items: flex-start;
+    }
+    .form-container {
+        width: 98%;
+        padding: 10px 5px;
+    }
+
+    /* 4. INFO SECTION STACKING */
+    .info-section .row {
+        flex-direction: column;
+        justify-content: flex-start;
+        margin-bottom: 5px;
+    }
+    .info-section .field {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end; /* Push label and content to the right */
+    }
+
+    /* Ensure data display elements take full width */
+    .info-section .field > table,
+    .info-section .field > tr {
+        flex-grow: 1;
+        justify-content: flex-end; /* Push content to the right */
+    }
+
+    .info-section .field > tr > td {
+        flex-grow: 1;
+        width: auto;
+    }
+
+    /* Date fields: stack label, keep date components inline */
+    .date-group {
+        flex-wrap: nowrap;
+        justify-content: flex-end !important;
+    }
+    .date-group label {
+        flex-basis: 100%;
+        margin-bottom: 5px;
+    }
+
+    .info-section .date-group tr td {
+        width: 30%;
+        min-width: 30px;
+    }
+
+    /* 5. WIDE TABLE SCROLLING */
+    .table-section {
+        overflow-x: auto;
+        border: none;
+    }
+
+    .table-section table {
+        min-width: 850px; /* Minimum width for 9 columns */
+        width: auto;
+    }
+
+    .table-section th, .table-section td {
+        font-size: 0.7em;
+        padding: 4px 2px;
+        white-space: nowrap;
+        height: auto;
+    }
+
+    /* 6. SIGNATURE SECTION WRAP */
+    .signature-section {
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 30px;
+    }
+
+    /* Allocate space for 2 or 3 columns on a small screen */
+    .signature-section > div {
+        flex: 1 1 45%; /* Two items per row */
+        min-width: 100px;
+        margin-bottom: 20px;
+        font-size: 0.8em;
+    }
+
+    .signature-section div.flex-column {
+        flex: 1 1 90%; /* Center this element on its own row */
+    }
+
+    /* Ensure the signature line table row/cell spans the container */
+    .signature-section tr {
+        width: 100%;
+    }
+}

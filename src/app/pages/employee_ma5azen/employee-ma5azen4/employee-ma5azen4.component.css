@@ -86,3 +86,118 @@ th {
   color: #333;
 }
 
+
+
+/* --- CORE LAYOUT FIX (CRITICAL for Sticky Footer and Layout) --- */
+
+/* Target the main content wrapper (d-flex flex-row) */
+.d-flex.flex-row {
+    flex-grow: 1; /* Pushes the footer down (Inherits from app-root) */
+    width: 100%;
+    /* Keep display: flex and flex-direction: row for desktop */
+}
+
+/* Ensure the container holding the table takes the remaining space on desktop */
+.d-flex.flex-row > .container {
+    flex-grow: 1;
+    padding: 0 15px; /* Add padding to the sides */
+}
+
+/* Ensure the sidebar does not grow */
+.sidebar {
+    /* ... existing styles ... */
+    flex-shrink: 0;
+}
+
+/* Reduce overly large cell padding globally */
+th, td {
+    padding: 15px; /* Reduced from 30px for better initial display */
+    height: auto; /* Remove fixed height */
+}
+
+
+
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+
+@media (max-width: 992px) {
+    /* Tablet/Small Desktop Adjustments */
+
+    .sidebar {
+        width: 25%; /* Give more room to the table */
+        padding: 15px;
+    }
+
+    /* Reduce table cell padding further on tablets */
+    th, td {
+        padding: 10px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile Layout Stacking & Sticky Footer Fix */
+
+    /* 1. LAYOUT STACKING FIX (Overriding d-flex flex-row) */
+    .d-flex.flex-row {
+        flex-direction: column !important; /* Force stacking */
+        flex-grow: 1; /* Retain flex-grow for footer */
+        display: block !important; /* Force block flow temporarily */
+    }
+
+    /* 2. SIDEBAR COLLAPSE */
+    .sidebar {
+        width: 100% !important; /* Sidebar takes full width */
+        min-height: auto;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+        order: -1; /* Ensure sidebar appears BEFORE the main content */
+    }
+
+    /* Reorganize sidebar links for horizontal display on mobile */
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 10px !important;
+    }
+
+    .sidebar h5 {
+        text-align: center;
+    }
+
+    .sidebar li {
+        border-bottom: none;
+        padding: 8px 10px;
+        flex: 1 1 auto;
+        text-align: center;
+        border-right: 1px solid #ddd; /* Separator */
+    }
+    .sidebar li.active {
+        border-left: none;
+        border-bottom: 3px solid var(--primary-color);
+    }
+
+    /* 3. TABLE SCROLLING */
+    .d-flex.flex-row > .container {
+        width: 100% !important;
+        max-width: 100%;
+        padding: 10px 5px; /* Minimal padding */
+        margin: 0 !important; /* Clear Bootstrap margins */
+    }
+
+    .table-responsive-rtl {
+        overflow-x: auto; /* Enable horizontal scrolling */
+        width: 100%;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        min-width: 450px; /* Min width for 4 columns */
+        width: auto;
+    }
+
+    th, td {
+        font-size: 0.8em;
+        padding: 6px 4px; /* Tight padding */
+    }
+}

@@ -135,3 +135,172 @@ td{
     cursor: not-allowed;
     opacity: 0.7;
 }
+
+
+/* --- CORE LAYOUT FIX (CRITICAL for Sticky Footer) --- */
+/* Fix the desktop layout structure and ensure content can grow */
+/* Target the combined class from your HTML */
+.content.d-flex.flex-row {
+    flex-grow: 1; /* CRITICAL for Sticky Footer on all screens */
+    width: 100%;
+    padding: 0;
+}
+
+/* Ensure the sidebar does not grow */
+.sidebar {
+    /* ... existing styles ... */
+    flex-shrink: 0;
+}
+
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+
+@media (max-width: 992px) {
+    /* Tablet/Small Desktop Adjustments */
+
+    .sidebar {
+        width: 25%;
+        padding: 15px;
+    }
+
+    .content > form {
+        padding: 10px;
+    }
+
+    .table-section {
+        width: 100%;
+        padding: 10px;
+        box-shadow: none;
+    }
+
+    .table input, .table select {
+        padding: 5px;
+        font-size: 0.9em;
+    }
+}
+
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+
+@media (max-width: 768px) {
+    /* 1. LAYOUT STACKING FIX (Overriding d-flex flex-row) */
+    .content.d-flex.flex-row {
+        flex-direction: column !important; /* Force stacking */
+        flex-grow: 1; /* Must retain flex-grow */
+        display: block !important; /* Temporarily treat as a block container */
+        min-height: 1px; /* Prevents zero height issues */
+        padding: 0;
+    }
+
+    /* Ensure the sidebar collapses correctly */
+    .sidebar {
+        width: 100% !important; /* Force full width */
+        min-height: auto;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+        order: -1; /* Ensure sidebar appears BEFORE the form */
+    }
+
+    /* The form (main content) must take full width and spacing */
+    .content > form {
+        width: 100% !important;
+        padding: 10px 5px;
+        margin: 0 !important; /* Clear Bootstrap margins */
+    }
+
+    /* 2. SIDEBAR MENU FIX */
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 10px !important;
+    }
+
+    .sidebar li {
+        border-bottom: none;
+        padding: 8px 10px;
+        flex: 1 1 auto;
+        text-align: center;
+        border-right: 1px solid #ddd;
+    }
+    .sidebar li:last-child {
+        border-right: none;
+    }
+
+    .sidebar li.active {
+        border-left: none;
+        border-bottom: 3px solid var(--primary-color);
+    }
+
+    /* 3. TABLE SCROLLING & COMPRESSION FIX */
+    .table-section {
+        overflow-x: auto; /* Enable horizontal scrolling */
+        width: 100%;
+        max-width: 100%;
+        padding: 0 5px; /* Minimal padding around the scrolling container */
+    }
+
+    .table-section > .table {
+        min-width: 700px; /* Ensures all 7 columns are visible/scrollable */
+        margin-bottom: 50px;
+        width: auto; /* Allow the table itself to exceed 100% width */
+    }
+
+    .table th, .table td {
+        font-size: 0.8em;
+        padding: 6px 4px; /* Tight padding */
+    }
+
+    /* Input size reduction */
+    .table input, .table select {
+        padding: 3px;
+        height: 30px;
+        min-width: 80px;
+    }
+
+    /* 4. BUTTON FIX */
+    .table-section .add-row-button,
+    .table-section .remove-row-button {
+        bottom: -25px;
+        right: 10px;
+        left: auto;
+    }
+
+    .table-section .remove-row-button {
+        right: 50px;
+    }
+
+    .button-section {
+        margin-top: 50px;
+    }
+}
+
+@media (max-width: 576px) {
+    /* Aggressive Mobile Layout (Very Small Screens) */
+
+    /* Ensure table controls are still accessible, even with minimal padding */
+    .table-section > .table {
+        min-width: 600px; /* Slightly less aggressive min-width for very small screens */
+    }
+
+    /* Force sidebar menu items to stack more */
+    .sidebar li {
+        flex: 0 0 45%;
+        border-right: none;
+        margin-bottom: 5px;
+    }
+
+    /* Fix the button section margin in case the table is very short */
+    .button-section {
+        margin-top: 25px;
+    }
+
+    /* Fix Footer: The footer is being blocked by the main table */
+    /* Ensure the footer container is not pushed by the horizontal scroll */
+    .table-section {
+        /* This is the key fix: ensures the horizontal scroll is contained */
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}

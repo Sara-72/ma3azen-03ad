@@ -63,3 +63,114 @@ a{
 .table-bordered td {
     border-color: #dee2e6 !important;
 }
+
+
+
+
+/* --- CORE LAYOUT FIX (CRITICAL) --- */
+
+/* Target the main wrapper */
+.d-flex {
+    flex-grow: 1;
+    width: 100%;
+}
+
+/* Ensure the container holding the table takes the remaining space on desktop */
+.d-flex > .container {
+    flex-grow: 1;
+    padding: 0 15px; /* Add padding to the sides */
+    margin-top: 20px !important; /* Adjust default top margin */
+    max-width: 100%; /* Ensure it can shrink */
+}
+
+/* Ensure the sidebar does not grow */
+.sidebar {
+    flex-shrink: 0;
+}
+
+/* Ensure table cells have appropriate padding for readability */
+.table-bordered th,
+.table-bordered td {
+    padding: 10px;
+    font-size: 0.9em;
+    white-space: nowrap; /* Prevent content from wrapping prematurely */
+}
+
+
+
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+
+@media (max-width: 992px) {
+    /* Tablet/Small Desktop Adjustments */
+
+    .sidebar {
+        width: 25%;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile Layout Stacking & Fixes */
+
+    /* 1. LAYOUT STACKING FIX */
+    .d-flex {
+        flex-direction: column !important; /* Force stacking */
+        display: block !important;
+    }
+
+    /* 2. SIDEBAR COLLAPSE */
+    .sidebar {
+        width: 100% !important;
+        min-height: auto;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+        order: -1; /* Ensure sidebar appears BEFORE the main content */
+    }
+
+    /* Reorganize sidebar links for horizontal display on mobile */
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 10px !important;
+    }
+
+    .sidebar li {
+        border-bottom: none;
+        padding: 8px 10px;
+        flex: 1 1 auto;
+        text-align: center;
+        border-right: 1px solid #ddd; /* Separator */
+    }
+    .sidebar li.active {
+        border-left: none;
+        border-bottom: 3px solid #0a3a63; /* Use the primary color */
+    }
+
+    /* 3. MAIN CONTAINER ADJUSTMENTS */
+    .d-flex > .container {
+        width: 100% !important;
+        padding: 10px 5px; /* Minimal padding */
+        margin-top: 10px !important;
+    }
+
+    /* 4. TABLE SCROLLING */
+
+    /* The HTML already uses .table-responsive-rtl, but we add fixes */
+    .table-responsive-rtl {
+        overflow-x: auto; /* Ensure horizontal scrolling is enabled */
+        width: 100%;
+        -webkit-overflow-scrolling: touch; /* Better scrolling experience on touch devices */
+    }
+
+    .table {
+        min-width: 500px; /* Min width for 5 columns of data */
+        width: auto;
+    }
+
+    .table-bordered th,
+    .table-bordered td {
+        font-size: 0.8em;
+        padding: 6px 4px; /* Tight padding */
+    }
+}

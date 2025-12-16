@@ -135,3 +135,162 @@ td{
     cursor: not-allowed;
     opacity: 0.7;
 }
+
+
+/* --- CORE LAYOUT FIX (CRITICAL for Sticky Footer and Layout) --- */
+
+/* Target the main content wrapper */
+.content.d-flex.flex-row {
+    flex-grow: 1; /* Pushes the footer down (Inherits from app-root) */
+    width: 100%;
+}
+
+/* Ensure the form takes the rest of the space and is centered */
+.content > form {
+    flex-grow: 1;
+    display: flex; /* Make the form a flex container */
+    flex-direction: column;
+    align-items: center; /* Center form content horizontally */
+    padding: 10px; /* Add some internal padding */
+    margin: 0 auto !important; /* Override m-auto for better control */
+}
+
+/* Ensure the sidebar does not grow */
+.sidebar {
+    flex-shrink: 0;
+}
+
+/* Adjust table section on desktop */
+.table-section {
+    width: 90%; /* Adjust width for better spacing around the form */
+    max-width: 100%;
+    margin: 20px auto;
+    padding: 15px; /* Reduce initial padding from px-5 py-4 */
+}
+
+/* Reduce table padding for better initial display */
+th, td {
+    padding: 10px 5px;
+    font-size: 0.95em;
+    height: auto;
+}
+
+
+
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+
+@media (max-width: 992px) {
+    /* Tablet/Small Desktop Adjustments */
+
+    .sidebar {
+        width: 25%; /* Give more room to the table */
+        padding: 15px;
+    }
+
+    .table-section {
+        width: 100%; /* Take full width of the form container */
+    }
+
+    /* Further reduce table cell padding on tablets */
+    th, td {
+        padding: 8px 4px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile Layout Stacking & Sticky Footer Fix */
+
+    /* 1. LAYOUT STACKING FIX (Overriding d-flex flex-row) */
+    .content.d-flex.flex-row {
+        flex-direction: column !important; /* Force stacking */
+        flex-grow: 1; /* Retain flex-grow for footer */
+        display: block !important;
+    }
+
+    /* 2. SIDEBAR COLLAPSE */
+    .sidebar {
+        width: 100% !important; /* Sidebar takes full width */
+        min-height: auto;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+        order: -1; /* Ensure sidebar appears BEFORE the form */
+    }
+
+    /* Reorganize sidebar links for horizontal display on mobile */
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 10px !important;
+    }
+
+    .sidebar h5 {
+        text-align: center;
+    }
+
+    .sidebar li {
+        border-bottom: none;
+        padding: 8px 10px;
+        flex: 1 1 auto;
+        text-align: center;
+        border-right: 1px solid #ddd; /* Separator */
+    }
+    .sidebar li.active {
+        border-left: none;
+        border-bottom: 3px solid var(--primary-color);
+    }
+
+    /* 3. FORM & TABLE SCROLLING */
+    .content > form {
+        width: 100% !important;
+        padding: 10px 5px;
+        margin-top: 20px !important;
+        align-items: flex-start; /* Align content to the right/start in RTL layout */
+    }
+
+    .table-section {
+        overflow-x: auto; /* Enable horizontal scrolling */
+        width: 100%;
+        padding: 0 5px;
+        box-shadow: none;
+        margin-top: 10px;
+    }
+
+    .table-section > .table {
+        min-width: 400px; /* Ensures 4 columns are readable and scrollable */
+        width: auto;
+        margin-bottom: 50px; /* Space for buttons */
+    }
+
+    th, td {
+        font-size: 0.8em;
+        padding: 6px 4px;
+    }
+
+    /* Ensure form inputs are sized correctly */
+    .table select, .table input[type="number"] {
+        width: 100%;
+        max-width: 120px;
+        padding: 3px;
+        height: 30px;
+        font-size: 0.9em;
+    }
+
+    /* 4. ROW CONTROL BUTTONS FIX (Must be relative to the scrolling container) */
+    .table-section .add-row-button,
+    .table-section .remove-row-button {
+        bottom: 5px;
+        right: 10px;
+        left: auto;
+    }
+
+    .table-section .remove-row-button {
+        right: 50px;
+    }
+
+    .submit-btn {
+        margin-top: 20px !important;
+        width: 90%;
+    }
+}

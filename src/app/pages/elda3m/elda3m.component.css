@@ -114,3 +114,96 @@ textarea {
 
 
 
+
+
+/* --- CORE LAYOUT ADJUSTMENTS --- */
+
+.container {
+    max-width: 1100px; /* Cap maximum width for large monitors */
+    width: 90%; /* Increase from 80% for slightly better desktop use */
+    margin: auto;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.form-box {
+    max-width: 800px; /* Cap maximum form width */
+    width: 90%; /* Increase width for better desktop use */
+    margin-top: 20px;
+    padding: 50px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    margin-left: auto; /* Keeps it right-aligned */
+    margin-right: auto; /* Add auto to center it within the container */
+}
+
+/* Ensure the initial button styles are clean */
+.btn {
+    margin-right: auto; /* Center the button */
+    margin-left: auto;
+}
+
+
+
+
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+
+@media (max-width: 768px) {
+    /* Tablet and Mobile adjustments */
+
+    /* 1. Main Container */
+    .container {
+        width: 100%; /* Take full screen width */
+        padding: 20px 10px; /* Reduce vertical and horizontal padding */
+    }
+
+    /* 2. Form Layout Stacking */
+    .form-box {
+        width: 100%; /* Form takes full container width */
+        padding: 30px 15px; /* Reduce padding inside the form box */
+    }
+
+    /* 3. Input Field Stacking (CRITICAL) */
+    .row {
+        flex-direction: column; /* Stack input fields vertically */
+        margin-bottom: 0; /* Remove gap between rows as fields now handle their own margin */
+        gap: 0;
+    }
+
+    input, select {
+        width: 100%; /* Inputs take full width when stacked */
+        margin-bottom: 15px; /* Add margin back after stacking */
+    }
+
+    /* 4. Button Alignment Fix */
+    .btn-main {
+        display: block; /* Make the button full width */
+        width: 100%;
+        text-align: center;
+        margin: 15px auto 0 auto; /* Center the button */
+        justify-content: center;
+    }
+
+    /* 5. Contact Info Alignment Fix */
+    .contact-info {
+        text-align: center; /* Center the contact information */
+        padding-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Extra Small Mobile adjustments */
+
+    .container h2 {
+        font-size: 20px; /* Reduce heading size */
+    }
+
+    .form-box {
+        padding: 20px 10px; /* Minimize form padding */
+    }
+
+    /* Ensure text areas still look good */
+    textarea {
+        height: 100px;
+    }
+}

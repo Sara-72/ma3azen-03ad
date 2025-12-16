@@ -203,8 +203,8 @@ a{
 .signature-section div {
 
     text-align: center;
-    border-bottom: 1px dotted #000; /* Dotted line for signature */
-    padding-bottom: 15px;
+    /* border-bottom: 1px dotted #000; */
+    /* padding-bottom: 15px; */
     font-weight: bold;
     font-size: 0.9em;
 }
@@ -318,4 +318,235 @@ select{
 .search-dropdown-container {
     position: relative; /* Crucial for absolute positioning of the dropdown list */
     padding: 0; /* Ensures the input takes up the full space */
+}
+
+
+
+
+/* --- CORE LAYOUT FIX (CRITICAL) --- */
+
+/* Target the main wrapper */
+.d-flex {
+    flex-grow: 1;
+    width: 100%;
+}
+
+/* Ensure the form takes the rest of the space and is centered */
+.d-flex > form {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    margin: 0 auto !important; /* Override m-auto */
+}
+
+/* Make the form container flexible on all screen sizes (targeting .form-containera) */
+.form-container {
+    width: 95%; /* Increase flexibility */
+    max-width: 900px; /* Keep max width */
+    margin: 20px auto;
+    padding: 20px; /* Reduce padding slightly */
+    box-sizing: border-box;
+}
+
+/* Make the document select wider than the date boxes, but still flexible */
+.info-section select {
+    width: auto;
+    min-width: 150px;
+}
+/*
+/* Ensure signature input matches the parent signature div */
+.signature-section .signature-input {
+    width: 30%;
+    margin: 5px auto 0;
+    border: 1px solid #000;
+    padding: 2px 5px;
+    box-sizing: border-box;
+    text-align: center;
+} */
+
+/* Make table headers padding smaller to give more space for the 9 columns */
+.table-section th {
+    padding: 10px 5px; /* Reduced from 30px */
+}
+
+
+
+
+/* --- RESPONSIVE ADJUSTMENTS (MEDIA QUERIES) --- */
+
+@media (max-width: 992px) {
+    /* Tablet Adjustments */
+
+    .sidebar {
+        width: 25%;
+    }
+
+    /* Reduce spacing in info section for narrower screens */
+    .info-section .field {
+        margin-right: 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    /* Mobile Layout Stacking & Fixes */
+
+    /* 1. LAYOUT STACKING FIX */
+    .d-flex {
+        flex-direction: column !important; /* Force stacking */
+        display: block !important;
+    }
+
+    /* 2. SIDEBAR COLLAPSE */
+    .sidebar {
+        width: 100% !important;
+        min-height: auto;
+        border-left: none;
+        border-bottom: 1px solid #ddd;
+        order: -1;
+    }
+
+    /* Reorganize sidebar links for horizontal display on mobile */
+    .sidebar ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 10px !important;
+    }
+
+    .sidebar li {
+        border-bottom: none;
+        padding: 8px 10px;
+        flex: 1 1 auto;
+        text-align: center;
+        border-right: 1px solid #ddd;
+    }
+    .sidebar li.active {
+        border-left: none;
+        border-bottom: 3px solid #0a3a63;
+    }
+
+    /* 3. FORM CONTAINER */
+    .d-flex > form {
+        width: 100% !important;
+        padding: 10px 0;
+        margin: 0 !important;
+        align-items: flex-start; /* Align content to the right/start in RTL layout */
+    }
+    .form-containera {
+        width: 98%;
+        padding: 10px 5px;
+    }
+
+    /* 4. INFO SECTION STACKING */
+    .info-section .row {
+        flex-direction: column; /* Stack rows vertically */
+        justify-content: flex-start;
+        margin-bottom: 5px;
+    }
+    .info-section .field {
+        width: 100%; /* Fields take full width */
+        margin-right: 0;
+        margin-bottom: 10px;
+        flex-wrap: wrap; /* Allow wrapping for label and input */
+    }
+
+    /* Make input lines take more space */
+    .info-section .input-line,
+    .info-section select {
+        width: 100%;
+        min-width: 100px;
+        flex-grow: 1;
+    }
+
+    /* Date fields need specific handling */
+    .date-group {
+        flex-wrap: nowrap; /* Prevent date components from wrapping */
+        justify-content: flex-end !important;
+
+        /* Ensure the label wraps but the boxes stay together */
+        & label {
+            flex-basis: 100%;
+            margin-bottom: 5px;
+        }
+    }
+
+    .info-section .input-box {
+        width: 30%; /* Give date boxes more proportional width */
+        margin-left: 5px;
+    }
+
+    /* Error message styling */
+    .text-danger {
+        width: 100%;
+        margin-right: 0;
+    }
+
+    /* 5. WIDE TABLE SCROLLING */
+    .table-section {
+        overflow-x: auto;
+        border: none;
+    }
+
+    .table-section table {
+        min-width: 950px; /* Minimum width for 9 columns */
+        width: auto;
+    }
+
+    .table-section th, .table-section td {
+        font-size: 0.7em;
+        padding: 4px 2px;
+        white-space: nowrap; /* Prevent content wrapping in cells */
+    }
+
+    .table-section .table-input {
+        width: 95%;
+        height: 25px;
+    }
+
+    /* 6. ROW CONTROL BUTTONS FIX */
+    .table-section .add-row-button {
+        right: 10px; /* Position relative to the scrolling element */
+    }
+
+    .table-section .remove-row-button {
+        left: 10px;
+    }
+
+    /* 7. SIGNATURE SECTION WRAP */
+    .signature-section {
+        flex-wrap: wrap;
+        justify-content: space-around;
+        margin-top: 30px;
+    }
+
+    /* Allocate space for 3 columns on a small screen */
+    .signature-section > div {
+        flex: 1 1 30%;
+        min-width: 100px;
+        margin-bottom: 20px;
+        font-size: 0.8em;
+    }
+
+    .signature-section div.flex-column {
+        flex: 1 1 90%; /* Manager approval takes more space due to input and error msg */
+    }
+
+    .signature-section div {
+        /* Remove dotted line for signatures on mobile to allow input to span correctly */
+        border-bottom: none !important;
+        padding-bottom: 0;
+    }
+
+    /* 8. SUBMIT BUTTON */
+    .button-section {
+        width: 100%;
+        text-align: center;
+    }
+    .submit-btn {
+        width: 90%;
+        font-size: 1em;
+        padding: 10px 20px;
+    }
 }
