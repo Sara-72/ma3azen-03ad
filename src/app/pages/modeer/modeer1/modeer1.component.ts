@@ -53,7 +53,10 @@ getFirstTwoNames(fullName: string): string {
           id: item.id,
           itemName: item.itemName,
           category: item.category,
-          quantity: item.quantity
+          quantity: item.quantity,
+          storeType: item.storeType, 
+          unit: item.unit
+
           // زوّدي أي حقول كانت موجودة في getStoreKeeperStocks قبل كده
         }));
       },
