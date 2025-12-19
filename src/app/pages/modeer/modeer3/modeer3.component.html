@@ -1,121 +1,115 @@
-<app-header>
-
-</app-header>
+<app-header></app-header>
 
 <div class="d-flex">
-
-<aside class="sidebar">
-            <h5>مرحباً بك </h5>
-            <ul class="mt-5">
-                <li><a href="/modeer1">المخزن</a></li>
-                <li ><a href="/modeer2">اذن الصرف</a></li>
-                <li class="active"><a>مذكرات الصرف</a></li>
-                <li><a href="/modeer4">اذونات الصرف</a></li>
-
-
-
-
-            </ul>
-</aside>
-
-
-
-
-
+    <aside class="sidebar">
+        <h5>مرحباً بك </h5>
+        <ul class="mt-5">
+            <li><a href="/modeer1">المخزن</a></li>
+            <li><a href="/modeer2">اذن الصرف</a></li>
+            <li class="active"><a>مذكرات الصرف</a></li>
+            <li><a href="/modeer4">اذونات الصرف</a></li>
+        </ul>
+    </aside>
 
     <div class="d-flex align-items-center big-container mx-auto my-3">
 
-        <form dir="rtl" class="mt-5 mx-5">
+        <div dir="rtl" class="mt-5 mx-5">
 
+            <ng-container *ngIf="groupedNotes.length; else noData">
 
+                <div *ngFor="let note of groupedNotes" class="paper">
 
+                    <div class="d-flex justify-content-center align-items-center">
+                        <img src="assets/images/Hurghada-University.png" class="paper-logo" alt="logo">
+                        <h2 class="title m-auto">مكتب أمين الكلية </h2>
+                    </div>
 
+                    <div class="paper-box">
+                        <p>السيد الأستاذ/ أمين عام الجامعة المساعد</p>
+                        <p>تحية طيبة وبعد،،،</p>
 
-                    <div class="paper mb-4">
+                        <p class="mt">الرجاء من سيادتكم بالموافقة على صرف عدد</p>
 
-                        <div class="d-flex justify-content-center align-items-center">
-                            <img src="assets/images/Hurghada-University.png" class="paper-logo" alt="logo">
-                            <h2 class="title m-auto">مكتب أمين الكلية </h2>
+                        <div class="row">
+                            <div class="field d-flex">
+                                <label>الفئة :</label>
+                                <span>{{ note.category }}</span>
+                            </div>
                         </div>
 
-                        <div class="paper-box">
-                            <p>السيد الأستاذ/ أمين عام الجامعة المساعد</p>
-                            <p>تحية طيبة وبعد،،،</p>
+                        <div class="item-lines-container">
+                            <div *ngFor="let item of note.items" class="row item-line d-flex">
+                                <div class="field d-flex">
+                                    <label>الصنف: </label>
+                                    <!-- ❌ td / ✅ span -->
+                                    <span>{{ item.itemName }}</span>
+                                </div>
 
-                            <p class="mt">الرجاء من سيادتكم بالموافقة على صرف </p>
-
-                            <div class="row">
-
-                                <div class="field d-flex justify-content-center">
-                                    <label>الفئة :</label>
-                                    <td>أدوات مكتبية</td>
-
+                                <div class="field count-input d-flex">
+                                    <label>العدد:</label>
+                                    <span>{{ item.quantity }}</span>
                                 </div>
                             </div>
+                        </div>
 
-        <div class="item-lines-container">
+                        <br>
+                        <p>وتفضلوا سيادتكم بقبول فائق التقدير و الاحترام،،،</p>
 
-
-    <div class="row item-line d-flex">
-
-        <div class="field d-flex">
-            <label>الصنف: </label>
-            <td>قلم أزرق</td>
-
-        </div>
-
-        <div class="field count-input d-flex">
-            <label>العدد:</label>
-            <td>12</td>
-
-        </div>
-
-  </div>
-
-<br>
-                            <p>وتفضلوا سيادتكم بقبول فائق التقدير و الاحترام،،،</p>
-
-                            <div class="d-flex align-items-center">
-                                <div class="signatures">
-                                    <div class="ms-3">
-    <strong>توقيع الموظف</strong><br>
-
-<td>أحمد محمد أحمد</td>
-
-
-</div>
-                                    <div class="ms-3">
-                                      <strong>الكلية</strong><br>
-                                    <td>حاسبات و ذكاء اصطناعي</td>
-                                    </div>
-                                    <div class="ms-3">
-                                        <strong>تاريخ الطلب</strong><br>
-                                        <td>3/3/2026</td>
-
-                                    </div>
-
-                                    <div class="ms-3">
-                                        <strong>أمين الكلية</strong><br>
-
-
-                                    </div>
+                        <div class="d-flex align-items-center justify-content-around">
+                            <div class="signatures">
+                                <div class="ms-3">
+                                    <strong>توقيع الموظف</strong><br>
+                                    <span>{{ note.userSignature }}</span>
                                 </div>
+                                <div class="ms-3">
+                                    <strong>الكلية</strong><br>
+                                    <span>{{ note.college }}</span>
+                                </div>
+                                <div class="ms-3">
+                                    <strong>تاريخ الطلب</strong><br>
+                                    <span>{{ note.requestDate | date:'shortDate' }}</span>
+                                </div>
+                                <div class="ms-3">
+                                    <strong>أمين الكلية</strong><br>
+                                    <span>{{ note.collageKeeper }}</span>
+                                </div>
+
                             </div>
-                        </div> </div> </div>
+                        </div>
+
+                        <div class="d-flex mb-4 justify-content-evenly mt-4" *ngIf="note.showButtons">
+                            <button type="button" class="btn btn-success" (click)="changeStatus(note, 'مقبول')">
+                                قبول الطلب
+                            </button>
+
+                            <button type="button" class="btn btn-danger" (click)="changeStatus(note, 'مرفوض')">
+                                رفض الطلب
+                            </button>
+                        </div>
+
+                        <div *ngIf="!note.showButtons" class="d-flex align-items-center justify-content-between mt-3">
+                            <span class="text-primary-emphasis fw-bold">{{ note.currentStatus }}</span>
+                            <div>
+                                <button class="btn btn-primary mx-2" (click)="confirmNote(note)">تأكيد</button>
+                                <button class="btn btn-warning" (click)="cancelChange(note)">تراجع</button>
+                            </div>
+                        </div>
 
 
 
-                      <div class="d-flex mb-4 justify-content-evenly">
-                        <button type="button" class="btn btn-success">قبول الطلب</button>
-                        <button type="button" class="btn btn-secondary">يتم مراجعة الطلب</button>
-                        <button type="button" class="btn btn-danger">رفض الطلب</button>
-                      </div>
 
-        </form>
+                    </div>
+                </div>
 
+            </ng-container>
+
+            <!-- ✅ Template في حالة مفيش بيانات -->
+            <ng-template #noData>
+                <p class="text-center mt-5">لا توجد مذكرات صرف</p>
+            </ng-template>
+
+        </div>
     </div>
 </div>
 
-<app-footer>
-
-</app-footer>
+<app-footer></app-footer>

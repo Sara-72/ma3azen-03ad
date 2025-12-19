@@ -28,5 +28,23 @@ export class ModeerSercive {
   getSpendPermissionById(id: number): Observable<any> {
     return this.http.get<any>(`${this.api}/SpendPermissions/${id}`);
   }
+  // modeer.service.ts
+  getSpendNotes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/SpendNotes`);
+  }
+
+  getSpendNoteById(id: number): Observable<any> {
+    return this.http.get<any>(`${this.api}/SpendNotes/${id}`);
+  }
+
+  updateSpendNoteStatus(
+    noteId: number,
+    updatedNote: any
+  ): Observable<any> {
+    return this.http.put(
+      `${this.api}/SpendNotes/${noteId}`,
+      updatedNote
+    );
+  }
 }
 
