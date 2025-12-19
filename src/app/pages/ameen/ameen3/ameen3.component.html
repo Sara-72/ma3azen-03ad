@@ -1,176 +1,167 @@
-<app-header>
-
-</app-header>
+<app-header></app-header>
 
 <div class="d-flex">
 
-<aside class="sidebar">
-            <h5>مرحباً بك</h5>
-            <ul class="mt-5">
-                <li><a href="/ameen1">المخزن</a></li>
-                <li ><a href="/ameen2">دفتر اليومية</a></li>
-                <li class="active"><a >أذونات الصرف</a></li>
-                <li><a href="/ameen4">دفاتر اليومية</a></li>
-                <li><a href="/ameen5">مخزنك</a></li>
+  <aside class="sidebar">
+    <h5>مرحباً بك</h5>
+    <ul class="mt-5">
+      <li><a href="/ameen1">المخزن</a></li>
+      <li><a href="/ameen2">دفتر اليومية</a></li>
+      <li class="active"><a>أذونات الصرف</a></li>
+      <li><a href="/ameen4">دفاتر اليومية</a></li>
+      <li><a href="/ameen5">مخزنك</a></li>
+    </ul>
+  </aside>
 
-            </ul>
-        </aside>
+  <div class="big-container m-5">
 
+    <!-- إذن صرف واحد (مجمع) -->
+    <div *ngFor="let perm of groupedPermissions" class="form-container mb-5" dir="rtl">
 
-
-
-
-
-<form class="m-auto">
-<div class="form-container" dir="rtl">
-
-    <header class="form-header">
-        <h2 class="title">طلب و إذن صرف </h2>
+      <header class="form-header">
+        <h2 class="title">طلب و إذن صرف</h2>
         <h3 class="subtitle">مستديم | مستهلك</h3>
-    </header>
+      </header>
 
-    <div class="info-section">
+      <!-- بيانات الإذن -->
+      <div class="info-section">
 
         <div class="row">
-            <div class="field mb-2">
-                <label>اسم الجهة :</label>
-              <table><tr><td>كلية الحاسبات</td></tr></table>
-            </div>
-            <div class="field mb-2">
-                <label>الفئة</label>
-                  <tr><td>أدوات مكتبية</td></tr>
-            </div>
+          <div class="field mb-2">
+            <label>اسم الجهة :</label>
+            <span>{{ perm.destinationName }}</span>
+          </div>
+
+          <div class="field mb-2">
+            <label>الفئة :</label>
+            <span>{{ perm.category }}</span>
+          </div>
         </div>
 
         <div class="row">
-              <div class="field mb-2 date-group">
-                <label>تاريخ الطلب :</label>
+          <div class="field mb-2 date-group">
+            <label>تاريخ الطلب :</label>
+            <span>{{ perm.requestDate | date:'shortDate' }}</span>
+          </div>
 
-                <tr><td>2</td></tr>
-
-
-                <p class="mb-0"> / </p>
-
-                  <tr><td>4</td></tr>
-                <p class="mb-0"> / </p>
-
-                <tr><td>3</td></tr>
-
-
-            </div>
-
-              <div class="field d-flex align-items-center mb-2 date-group">
-                <label>التاريخ :</label>
-
-
-                <tr><td>2</td></tr>
-
-
-                <p class="mb-0"> / </p>
-
-                  <tr><td>4</td></tr>
-                <p class="mb-0"> / </p>
-
-                <tr><td>3</td></tr>
-
-
-            </div>
-
+          <div class="field mb-2 date-group">
+            <label>تاريخ الإذن :</label>
+            <span>{{ perm.documentDate | date:'shortDate' }}</span>
+          </div>
         </div>
 
         <div class="row">
-
-            <div class="field mb-2">
-                <label>اسم الطالب ( المخزن / الإدارة / العامل ) :</label>
-                <tr><td>محمد أحمد</td></tr>
-
-            </div>
+          <div class="field mb-2">
+            <label>اسم الطالب ( المخزن / الإدارة / العامل ) :</label>
+            <span>{{ perm.requestorName }}</span>
+          </div>
         </div>
 
         <div class="row">
-            <div class="field">
-                <label>(*) سند الصرف :</label>
-                <tr><td>سند العجز</td></tr>
-
-            </div>
+          <div class="field mb-2">
+            <label>(*) سند الصرف :</label>
+            <span>{{ perm.documentNumber }}</span>
+          </div>
         </div>
-    </div>
 
-    <div class="table-section">
+      </div>
+
+      <!-- جدول الأصناف -->
+      <div class="table-section">
         <table>
-            <thead>
-                <tr>
-                    <th>اسم الصنف</th>
-                    <th>الوحدة</th>
-                    <th>الكمية المطلوبة</th>
-                    <th>الكمية المصرح بها</th>
-                    <th>الكمية المنصرفة</th>
-                    <th>المخزن</th>
-                    <th>حالة الصنف (**)</th>
-                    <th>سعر الوحدة</th>
-                    <th>القيمة</th>
-                </tr>
-            </thead>
+          <thead>
+            <tr>
+              <th>اسم الصنف</th>
+              <th>الوحدة</th>
+              <th>الكمية المطلوبة</th>
+              <th>الكمية المصرح بها</th>
+              <th>الكمية المنصرفة</th>
+              <th>المخزن</th>
+              <th>حالة الصنف (**)</th>
+              <th>سعر الوحدة</th>
+              <th>القيمة</th>
+            </tr>
+          </thead>
 
-            <tbody >
-
-
-                    <tr>
-
-                        <td>
-                                قلم أزرق
-                        </td>
-
-                        <td>مش عارفين</td>
-                        <td>11</td>
-                        <td>2</td>
-                        <td>3</td>
-<td></td>
-                        <td>مستعمل</td>
-
-                        <td>2</td>
-                        <td>10</td>
-                    </tr>
-
-            </tbody>
+          <tbody>
+            <tr *ngFor="let item of perm.items">
+              <td>{{ item.itemName }}</td>
+              <td>{{ item.unit }}</td>
+              <td>{{ item.requestedQuantity }}</td>
+              <td>{{ item.approvedQuantity }}</td>
+              <td>{{ item.issuedQuantity }}</td>
+              <td>{{ item.storeHouse }}</td>
+              <td>{{ item.stockStatus }}</td>
+              <td>{{ item.unitPrice }}</td>
+              <td>{{ item.totalValue }}</td>
+            </tr>
+          </tbody>
         </table>
+      </div>
 
-
-    </div>
-
-    <div class="signature-section">
+      <!-- التوقيعات -->
+      <div class="signature-section">
         <div>توقيع الطالب</div>
         <div>كاتب الشطب</div>
 
         <div class="d-flex flex-column">
-            <div>يصرح بالصرف مدير المخازن</div>
-            <tr><td>محمد أحمد</td></tr>
-
+          <div>يصرح بالصرف مدير المخازن</div>
+          <span>{{ perm.managerSignature }}</span>
         </div>
 
-        <div style="white-space:no-wrap">تم الصرف أمين المخازن</div>
+        <div style="white-space: nowrap">تم الصرف أمين المخازن</div>
         <div>كاتب الشطب</div>
         <div>توقيع المستلم</div>
-    </div>
+      </div>
 
-    <div class="footnotes">
+      <div class="footnotes">
         <p>(*) كشف العجز - سند خصم - أصناف تالفة أو تالفة - محضر بيع جلب تشغيل - إهداءات ليست للنشاط الرئيسي للجهة</p>
-        <p>(**) جديدة - مستعمل - قابل للإصلاح - كهنة أو خردة</p>
+        <p>(**) جديدة - مستعمل - قابل للإصلاح - كهَن أو خردة</p>
+      </div>
+      
+
+      <!-- أزرار التحكم -->
+      <!-- أزرار التحكم -->
+<div class="d-flex mb-4 justify-content-evenly">
+
+  <!-- زر قبول الصرف -->
+  <button
+    *ngIf="confirmingPerm !== perm"
+    type="button"
+    class="btn btn-success"
+    (click)="openConfirmInline(perm)">
+    قبول الصرف
+  </button>
+
+  <!-- رسالة التأكيد -->
+  <div *ngIf="confirmingPerm === perm" class="text-center">
+
+    <p class="mb-3 fw-bold">
+       هل أنت متأكد من قبول إذن الصرف؟
+    </p>
+
+    <div class="d-flex justify-content-center gap-3">
+      <button class="btn btn-secondary" (click)="cancelConfirm()">
+        تراجع
+      </button>
+
+      <button class="btn btn-success" (click)="confirmApprove()">
+        تأكيد
+      </button>
+    </div>
+    
+
+  </div>
+
+</div>
+
+
     </div>
 
+  </div>
+  
 </div>
 
 
-                      <div class="d-flex mb-4 justify-content-evenly">
-                        <button type="button" class="btn btn-success">قبول الصرف</button>
-                        <button type="button" class="btn btn-secondary">يتم مراجعة الصرف</button>
-                        <button type="button" class="btn btn-danger">رفض الصرف</button>
-                      </div>
-</form>
 
-</div>
-
-<app-footer>
-</app-footer>
-
-
+<app-footer></app-footer>
