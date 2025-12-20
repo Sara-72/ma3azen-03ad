@@ -2,19 +2,20 @@ import { Component, OnInit } from '@angular/core';
 import { SpendPermissionService } from '../../../services/spend-permission.service';
 import { StoreKeeperStockService } from '../../../services/store-keeper-stock.service';
 import { SpendNoteService } from '../../../services/spend-note.service';
-import { FooterComponent } from "../../../components/footer/footer.component";
-import { HeaderComponent } from "../../../components/header/header.component";
 import { CommonModule } from '@angular/common';
+import { FooterComponent } from '../../../components/footer/footer.component';
+import { HeaderComponent } from '../../../components/header/header.component';
+import { forkJoin } from 'rxjs';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-ameen3',
   templateUrl: './ameen3.component.html',
   styleUrl: './ameen3.component.css',
-  imports: [CommonModule, FooterComponent, HeaderComponent]
+  imports: [CommonModule, FooterComponent, HeaderComponent, FormsModule]
 })
 export class Ameen3Component implements OnInit {
 [x: string]: any;
-
   newPermissions: any[] = [];
   groupedPermissions: any[] = [];
   showConfirmModal = false;
@@ -51,7 +52,7 @@ confirmApprove() {
 
 
   // 1️⃣ تحميل الأذونات الجديدة
-  loadNewPermissions() {
+ loadNewPermissions() {
   this.spendPermissionService.getAll().subscribe(res => {
 
     const newOnes = res.filter(p => p.permissionStatus === 'جديد');
@@ -105,62 +106,74 @@ confirmApprove() {
 }
 
 
+
   // 2️⃣ زر القبول
-  approvePermission(perm: any) {
+ approvePermission(perm: any) {
 
-  // // 🔔 تأكيد UI
-  // const confirmed = confirm('⚠ هل أنت متأكد من قبول إذن الصرف بالكامل؟');
-  // if (!confirmed) return;
+  this.stockService.getAllStocks().subscribe(stocks => {
 
-  perm.items.forEach((item: any) => {
+    const stockUpdates = [];
 
-    this.stockService.getAllStocks().subscribe(stocks => {
+    for (let item of perm.items) {
 
       const stock = stocks.find(s =>
         s.itemName === item.itemName &&
         s.category === perm.category &&
-        s.unit === item.unit
+        s.unit === item.unit &&
+        s.storeType === item.stockStatus
       );
 
-      if (!stock || stock.quantity < item.requestedQuantity) {
+      if (!stock) {
+        alert(`❌ الصنف ${item.itemName} غير موجود بالمخزن`);
+        return;
+      }
+
+      if (stock.quantity < item.requestedQuantity) {
         alert(`❌ الكمية غير كافية للصنف ${item.itemName}`);
         return;
       }
 
-      // 1️⃣ خصم المخزن
-      this.stockService.updateStock(stock.id, {
-        stock: {
+      // تجهيز خصم المخزن
+      stockUpdates.push(
+        this.stockService.updateStock(stock.id, {
           ...stock,
           quantity: stock.quantity - item.requestedQuantity
-        }
-      }).subscribe(() => {
+        })
+      );
+    }
 
-        // 2️⃣ تحديث SpendPermission (كامل)
-        const updatedPermission = {
+    // ✅ تنفيذ خصم المخزن مرة واحدة
+    forkJoin(stockUpdates).subscribe(() => {
+
+      // 2️⃣ تحديث SpendPermissions
+      const permissionUpdates = perm.items.map((item: any) =>
+        this.spendPermissionService.update(item.permissionId, {
           ...item.fullPermission,
-          permissionStatus: ' الطلب مقبول'
-        };
+          permissionStatus: 'تم الصرف',
+          issuedQuantity: item.requestedQuantity
+        })
+      );
 
-        this.spendPermissionService
-          .update(item.permissionId, updatedPermission)
-          .subscribe();
+      forkJoin(permissionUpdates).subscribe(() => {
+
+        // 3️⃣ تحديث SpendNote
+        this.spendNoteService.update(perm.spendNote.id, {
+          ...perm.spendNote,
+          permissinStatus: 'تم الصرف'
+        }).subscribe(() => {
+
+          // 🧹 حذف من الواجهة
+          this.groupedPermissions =
+            this.groupedPermissions.filter(p => p !== perm);
+
+          alert('✅ تم الصرف وتحديث المخزن بنجاح');
+        });
+
       });
     });
   });
-
-  // 3️⃣ تحديث SpendNote مرة واحدة
-  this.spendNoteService.update(perm.spendNote.id, {
-    ...perm.spendNote,
-    permissinStatus: ' الطلب مقبول'
-  }).subscribe(() => {
-   
-  // ✅ حذف الإذن من الواجهة فورًا
-  this.groupedPermissions =
-    this.groupedPermissions.filter(p => p !== perm);
-
-  alert('✅ تم قبول إذن الصرف بالكامل');
-  });
 }
+
 
 
 }
