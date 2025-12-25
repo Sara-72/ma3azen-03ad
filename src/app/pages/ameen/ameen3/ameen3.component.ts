@@ -198,7 +198,7 @@ getFullName(): string {
   perm.spendNote.id,
   {
     ...perm.spendNote,          // 👈 OBJECT كامل
-    PermissinStatus: 'تم الصرف',
+    permissinStatus: 'تم الصرف',
    // confirmationStatus: 'تم الصرف'
   }
 )

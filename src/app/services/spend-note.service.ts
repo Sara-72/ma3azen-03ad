@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 @Injectable({ providedIn: 'root' })
 export class SpendNoteService {
-  private apiUrl = 'http://newwinventoryapi.runasp.net/api/SpendNotes';
+  private apiUrl = 'https://newwinventoryapi.runasp.net/api/SpendNotes';
 
   constructor(private http: HttpClient) {}
 

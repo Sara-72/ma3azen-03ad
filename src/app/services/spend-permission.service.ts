@@ -4,12 +4,8 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class SpendPermissionService {
-<<<<<<< HEAD
-  private apiUrl = 'http://newwinventoryapi.runasp.net/api/SpendPermissions';
-=======
 
-  private apiUrl = 'https://newwinventoryapi.runasp.net/api/SpendPermissions';
->>>>>>> main
+private apiUrl = 'https://newwinventoryapi.runasp.net/api/SpendPermissions';
 
   constructor(private http: HttpClient) {}
 
