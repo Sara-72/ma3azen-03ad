@@ -3,6 +3,7 @@
 <div class="d-flex">
   <aside class="sidebar">
     <h5>مرحباً بك</h5>
+    <span *ngIf="displayName">، {{ displayName }}</span>
     <ul class="mt-5">
       <li><a href="/ameen1">المخزن</a></li>
       <li><a href="/ameen2">دفتر اليومية</a></li>
@@ -41,6 +42,11 @@
             <label>تاريخ الإذن :</label>
             <span>{{ perm.documentDate | date:'shortDate' }}</span>
           </div>
+          <div class="field mb-2 date-group">
+  <label>تاريخ الصرف :</label>
+  <span>{{ today | date:'shortDate' }}</span>
+</div>
+
         </div>
 
         <div class="row">
@@ -98,12 +104,8 @@
         </div>
         <div>
           <div style="white-space:nowrap">تم الصرف أمين المخازن</div>
-          <input
-            type="text"
-            style="width:80%;"
-            placeholder="أدخل اسم أمين المخازن"
-            [(ngModel)]="perm.storeKeeperSignature"
-          >
+          <span>{{ fullName }}</span>
+
         </div>
         <div>كاتب الشطب</div>
         <div>توقيع المستلم</div>
