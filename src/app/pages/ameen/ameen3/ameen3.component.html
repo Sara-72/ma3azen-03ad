@@ -1,7 +1,6 @@
 <app-header></app-header>
 
 <div class="d-flex">
-
   <aside class="sidebar">
     <h5>مرحباً بك</h5>
     <ul class="mt-5">
@@ -14,24 +13,19 @@
   </aside>
 
   <div class="big-container m-5">
-
-    <!-- إذن صرف واحد (مجمع) -->
     <div *ngFor="let perm of groupedPermissions" class="form-container mb-5" dir="rtl">
-
+      
       <header class="form-header">
         <h2 class="title">طلب و إذن صرف</h2>
         <h3 class="subtitle">مستديم | مستهلك</h3>
       </header>
 
-      <!-- بيانات الإذن -->
       <div class="info-section">
-
         <div class="row">
           <div class="field mb-2">
             <label>اسم الجهة :</label>
             <span>{{ perm.destinationName }}</span>
           </div>
-
           <div class="field mb-2">
             <label>الفئة :</label>
             <span>{{ perm.category }}</span>
@@ -43,7 +37,6 @@
             <label>تاريخ الطلب :</label>
             <span>{{ perm.requestDate | date:'shortDate' }}</span>
           </div>
-
           <div class="field mb-2 date-group">
             <label>تاريخ الإذن :</label>
             <span>{{ perm.documentDate | date:'shortDate' }}</span>
@@ -63,10 +56,8 @@
             <span>{{ perm.documentNumber }}</span>
           </div>
         </div>
-
       </div>
 
-      <!-- جدول الأصناف -->
       <div class="table-section">
         <table>
           <thead>
@@ -82,7 +73,6 @@
               <th>القيمة</th>
             </tr>
           </thead>
-
           <tbody>
             <tr *ngFor="let item of perm.items">
               <td>{{ item.itemName }}</td>
@@ -99,19 +89,21 @@
         </table>
       </div>
 
-      <!-- التوقيعات -->
       <div class="signature-section">
         <div>توقيع الطالب</div>
         <div>كاتب الشطب</div>
-
         <div class="d-flex flex-column">
           <div>يصرح بالصرف مدير المخازن</div>
           <span>{{ perm.managerSignature }}</span>
         </div>
-
         <div>
-        <div style="white-space:no-wrap">تم الصرف أمين المخازن</div>
-        <input type="text" [(ngModel)]="perm.storeKeeperSignature" style="width:80%;">
+          <div style="white-space:nowrap">تم الصرف أمين المخازن</div>
+          <input
+            type="text"
+            style="width:80%;"
+            placeholder="أدخل اسم أمين المخازن"
+            [(ngModel)]="perm.storeKeeperSignature"
+          >
         </div>
         <div>كاتب الشطب</div>
         <div>توقيع المستلم</div>
@@ -121,50 +113,23 @@
         <p>(*) كشف العجز - سند خصم - أصناف تالفة أو تالفة - محضر بيع جلب تشغيل - إهداءات ليست للنشاط الرئيسي للجهة</p>
         <p>(**) جديدة - مستعمل - قابل للإصلاح - كهَن أو خردة</p>
       </div>
+
+      <div class="d-flex mb-4 justify-content-evenly">
+        <button *ngIf="confirmingPerm !== perm" type="button" class="btn btn-success" (click)="openConfirmInline(perm)">
+          قبول الصرف
+        </button>
+
+        <div *ngIf="confirmingPerm === perm" class="text-center">
+          <p class="mb-3 fw-bold">هل أنت متأكد من قبول إذن الصرف؟</p>
+          <div class="d-flex justify-content-center gap-3">
+            <button class="btn btn-secondary" (click)="cancelConfirm()">تراجع</button>
+            <button type="button" class="btn btn-success" (click)="confirmApprove()">تأكيد</button>
+          </div>
+        </div>
+      </div>
       
-
-      <!-- أزرار التحكم -->
-      <!-- أزرار التحكم -->
-<div class="d-flex mb-4 justify-content-evenly">
-
-  <!-- زر قبول الصرف -->
-  <button
-    *ngIf="confirmingPerm !== perm"
-    type="button"
-    class="btn btn-success"
-    (click)="openConfirmInline(perm)">
-    قبول الصرف
-  </button>
-
-  <!-- رسالة التأكيد -->
-  <div *ngIf="confirmingPerm === perm" class="text-center">
-
-    <p class="mb-3 fw-bold">
-       هل أنت متأكد من قبول إذن الصرف؟
-    </p>
-
-    <div class="d-flex justify-content-center gap-3">
-      <button class="btn btn-secondary" (click)="cancelConfirm()">
-        تراجع
-      </button>
-
-      <button class="btn btn-success" (click)="confirmApprove()">
-        تأكيد
-      </button>
     </div>
-    
-
   </div>
-
 </div>
-
-
-    </div>
-
-  </div>
-  
-</div>
-
-
 
 <app-footer></app-footer>

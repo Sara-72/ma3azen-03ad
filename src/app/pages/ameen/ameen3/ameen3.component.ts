@@ -10,20 +10,15 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-ameen3',
+  standalone: true,
   templateUrl: './ameen3.component.html',
-  styleUrl: './ameen3.component.css',
+  styleUrls: ['./ameen3.component.css'],
   imports: [CommonModule, FooterComponent, HeaderComponent, FormsModule]
 })
 export class Ameen3Component implements OnInit {
-[x: string]: any;
-  newPermissions: any[] = [];
+
   groupedPermissions: any[] = [];
-  showConfirmModal = false;
-selectedPermission: any = null;
-confirmingPerm: any = null;
-
-
-
+  confirmingPerm: any = null;
 
   constructor(
     private spendPermissionService: SpendPermissionService,
@@ -34,143 +29,197 @@ confirmingPerm: any = null;
   ngOnInit() {
     this.loadNewPermissions();
   }
+
+  /* =========================
+      Helper
+  ========================= */
+  normalize(value: string) {
+    return value?.trim().toLowerCase();
+  }
+
+  /* =========================
+      Confirm UI
+  ========================= */
   openConfirmInline(perm: any) {
-  this.confirmingPerm = perm;
-}
+    this.confirmingPerm = perm;
+  }
 
-cancelConfirm() {
-  this.confirmingPerm = null;
-}
+  cancelConfirm() {
+    this.confirmingPerm = null;
+  }
 
-confirmApprove() {
-  if (!this.confirmingPerm) return;
+  confirmApprove() {
+    if (!this.confirmingPerm) return;
 
-  this.approvePermission(this.confirmingPerm);
-  this.confirmingPerm = null;
-}
-
-
-
-  // 1️⃣ تحميل الأذونات الجديدة
- loadNewPermissions() {
-  this.spendPermissionService.getAll().subscribe(res => {
-
-    const newOnes = res.filter(p => p.permissionStatus === 'جديد');
-
-    const grouped: any = {};
-
-    newOnes.forEach(p => {
-
-      const key = `
-        ${p.requestorName}|
-        ${p.requestDate}|
-        ${p.documentDate}|
-        ${p.category}
-      `;
-
-      if (!grouped[key]) {
-        grouped[key] = {
-          destinationName: p.destinationName,
-          category: p.category,
-          requestDate: p.requestDate,
-          documentDate: p.documentDate,
-          requestorName: p.requestorName,
-          documentNumber: p.documentNumber,
-          managerSignature: p.managerSignature,
-          spendNote: p.spendNote,
-          permissionStatus: p.permissionStatus,
-
-          // 👈 هنا الأصناف
-          items: []
-        };
-      }
-
-     grouped[key].items.push({
-  permissionId: p.id,
-  fullPermission: p,   // ⭐⭐⭐ مهم
-  itemName: p.itemName,
-  unit: p.unit,
-  requestedQuantity: p.requestedQuantity,
-  approvedQuantity: p.approvedQuantity,
-  issuedQuantity: p.issuedQuantity,
-  storeHouse: p.storeHouse,
-  stockStatus: p.stockStatus,
-  unitPrice: p.unitPrice,
-  totalValue: p.totalValue
-});
-
-    });
-
-    this.groupedPermissions = Object.values(grouped);
-  });
-}
-
-
-
-  // 2️⃣ زر القبول
- approvePermission(perm: any) {
-
-  this.stockService.getAllStocks().subscribe(stocks => {
-
-    const stockUpdates = [];
-
-    for (let item of perm.items) {
-
-      const stock = stocks.find(s =>
-        s.itemName === item.itemName &&
-        s.category === perm.category &&
-        s.unit === item.unit &&
-        s.storeType === item.stockStatus
-      );
-
-      if (!stock) {
-        alert(`❌ الصنف ${item.itemName} غير موجود بالمخزن`);
-        return;
-      }
-
-      if (stock.quantity < item.requestedQuantity) {
-        alert(`❌ الكمية غير كافية للصنف ${item.itemName}`);
-        return;
-      }
-
-      // تجهيز خصم المخزن
-      stockUpdates.push(
-        this.stockService.updateStock(stock.id, {
-          ...stock,
-          quantity: stock.quantity - item.requestedQuantity
-        })
-      );
+    if (!this.confirmingPerm.storeKeeperSignature || this.confirmingPerm.storeKeeperSignature.trim() === '') {
+      alert('❌ من فضلك أدخل اسم أمين المخازن أولاً');
+      return;
     }
 
-    // ✅ تنفيذ خصم المخزن مرة واحدة
-    forkJoin(stockUpdates).subscribe(() => {
+    this.approvePermission(this.confirmingPerm);
+  }
 
-      // 2️⃣ تحديث SpendPermissions
-      const permissionUpdates = perm.items.map((item: any) =>
-        this.spendPermissionService.update(item.permissionId, {
-          ...item.fullPermission,
-          permissionStatus: 'تم الصرف',
-          issuedQuantity: item.requestedQuantity
-        })
-      );
+  /* =========================
+      تحميل الأذونات الجديدة
+  ========================= */
+  loadNewPermissions() {
+    this.spendPermissionService.getAll().subscribe({
+      next: (res) => {
+        const newOnes = res.filter(p => p.permissionStatus === 'جديد');
+        const grouped: any = {};
 
-      forkJoin(permissionUpdates).subscribe(() => {
+        newOnes.forEach(p => {
+          const key = `${p.requestorName}|${p.requestDate}|${p.documentDate}|${p.category}`;
 
-        // 3️⃣ تحديث SpendNote
-        this.spendNoteService.update(perm.spendNote.id, {
-          ...perm.spendNote,
-          permissinStatus: 'تم الصرف'
-        }).subscribe(() => {
+          if (!grouped[key]) {
+            grouped[key] = {
+              destinationName: p.destinationName,
+              category: p.category,
+              requestDate: p.requestDate,
+              documentDate: p.documentDate,
+              requestorName: p.requestorName,
+              documentNumber: p.documentNumber,
+              managerSignature: p.managerSignature,
+              spendNote: p.spendNote,
+              permissionStatus: p.permissionStatus,
+              storeKeeperSignature: '',
+              items: []
+            };
+          }
 
-          // 🧹 حذف من الواجهة
-          this.groupedPermissions =
-            this.groupedPermissions.filter(p => p !== perm);
-
-          alert('✅ تم الصرف وتحديث المخزن بنجاح');
+          grouped[key].items.push({
+            permissionId: p.id,
+            fullPermission: p,
+            itemName: p.itemName,
+            unit: p.unit,
+            requestedQuantity: p.requestedQuantity,
+            approvedQuantity: p.approvedQuantity,
+            issuedQuantity: p.issuedQuantity,
+            storeHouse: p.storeHouse,
+            stockStatus: p.stockStatus,
+            unitPrice: p.unitPrice,
+            totalValue: p.totalValue
+          });
         });
 
-      });
+        this.groupedPermissions = Object.values(grouped);
+      },
+      error: (err) => console.error('خطأ في تحميل الأذونات', err)
     });
+  }
+
+  /* =========================
+      تنفيذ عملية الصرف
+  ========================= */
+ approvePermission(perm: any) {
+  if (!perm) return;
+  let completed = 0;
+  let errorOccurred = false;
+  const total = perm.items.length;
+
+  // رسالة للمستخدم أثناء التنفيذ
+  alert('⏳ جاري معالجة إذن الصرف...');
+
+  const handleComplete = () => {
+    completed++;
+    if (completed === total) {
+  if (errorOccurred) {
+    alert('❌ لم يتم الصرف بسبب خطأ في المخزون');
+    this.confirmingPerm = null;
+    return;
+  }
+  updateSpendNote(perm);
+}
+
+  };
+
+  const updateSpendNote = (perm: any) => {
+  const permissionUpdates = perm.items.map((item: any) =>
+    this.spendPermissionService.update(item.permissionId, {
+      id: item.permissionId,
+      permissionStatus: 'تم الصرف',
+      issuedQuantity: item.requestedQuantity,
+      storeKeeperSignature: perm.storeKeeperSignature
+    })
+  );
+
+  forkJoin(permissionUpdates).subscribe({
+    next: () => {
+      if (!perm.spendNote?.id) {
+        finalizeApproval(perm);
+        return;
+      }
+
+      this.spendNoteService.update(perm.spendNote.id, {
+        id: perm.spendNote.id,
+        permissinStatus: 'تم الصرف',
+        confirmationStatus: 'تم الصرف'
+      }).subscribe({
+        next: () => finalizeApproval(perm),
+        error: err => {
+          console.error(err);
+          alert('❌ فشل تحديث SpendNote');
+        }
+      });
+    }
+  });
+};
+
+
+  const finalizeApproval = (perm: any) => {
+    // إزالة الإذن من القائمة فورًا بدون ريستارت الصفحة
+    this.groupedPermissions = this.groupedPermissions.filter(p => p !== perm);
+    this.confirmingPerm = null;
+    alert(' تم الصرف والتحديث   بنجاح');
+  };
+
+  // خصم المخزون
+  this.stockService.getAllStocks().subscribe({
+    next: (stocks) => {
+      perm.items.forEach((item: any) => {
+        const existing = stocks.find(s =>
+          this.normalize(s.itemName) === this.normalize(item.itemName) &&
+          this.normalize(s.category) === this.normalize(perm.category) &&
+          this.normalize(s.unit) === this.normalize(item.unit)
+        );
+
+        if (!existing) {
+          alert(`❌ الصنف ${item.itemName} غير موجود في المخزن`);
+          errorOccurred = true;
+          handleComplete(); 
+          return;
+        }
+
+        if (existing.quantity < item.requestedQuantity) {
+          alert(`❌ الكمية غير كافية للصنف ${item.itemName}. المتوفر: ${existing.quantity}`);
+          errorOccurred = true;
+          handleComplete(); 
+          return;
+        }
+
+        const updatedBody = {
+          stock: {
+            itemName: existing.itemName,
+            category: existing.category,
+            storeType: existing.storeType,
+            unit: existing.unit,
+            quantity: existing.quantity - item.requestedQuantity,
+            storeKeeperSignature: perm.storeKeeperSignature,
+            additionId: existing.additionId,
+            spendPermissionId: item.permissionId
+          }
+        };
+
+        this.stockService.updateStock(existing.id, updatedBody).subscribe({
+          next: () => handleComplete(),
+          error: () => handleComplete()
+        });
+      });
+    },
+    error: err => {
+      console.error('خطأ في جلب المخزون', err);
+      alert('❌ حدث خطأ أثناء جلب بيانات المخزن');
+    }
   });
 }
 
