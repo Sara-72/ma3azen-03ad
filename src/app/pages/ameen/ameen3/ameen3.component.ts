@@ -16,6 +16,9 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, FooterComponent, HeaderComponent, FormsModule]
 })
 export class Ameen3Component implements OnInit {
+userName: string = '';
+  displayName: string = '';
+
 
   groupedPermissions: any[] = [];
   confirmingPerm: any = null;
@@ -28,6 +31,15 @@ export class Ameen3Component implements OnInit {
 
   ngOnInit() {
     this.loadNewPermissions();
+  }
+ getFirstTwoNames(fullName: string): string {
+    if (!fullName) return '';
+
+    return fullName
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .join(' ');
   }
 
   /* =========================

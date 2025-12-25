@@ -13,6 +13,7 @@ import { CommonModule } from '@angular/common';
 import { FooterComponent } from '../../components/footer/footer.component';
 import { Employee1Component } from '../employee/employee1/employee1.component';
 import { AuthService } from '../../services/auth.service';
+import { LoadingService } from '../../services/loading.service'; // Ensure this path is correct
 
 
 function passwordValidator(control: AbstractControl): ValidationErrors | null {
@@ -56,6 +57,9 @@ interface LoginForm {
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.css'
 })
+
+
+
 export class LoginPageComponent {
   // Dependency injection
   private auth = inject(AuthService);
@@ -85,7 +89,8 @@ loginForm: FormGroup<LoginForm> = this.fb.group({
 }) as FormGroup<LoginForm>;
 
 
-constructor() {
+constructor(private loadingService: LoadingService) {
+
     // Effect to clear messages when user starts typing again
     effect(() => {
         const emailValue = this.loginForm.controls.email.value;
@@ -105,27 +110,43 @@ constructor() {
 
 
 onSubmit() {
+  this.loadingService.show();
   if (this.loginForm.invalid) return;
 
   this.isSubmitting.set(true);
 
-  const data = {
-    email: this.loginForm.value.email,
-    password: this.loginForm.value.password
-  };
+  const { email, password, college } = this.loginForm.value;
 
-  this.auth.userLogin(data).subscribe({
-    
+  this.auth.userLogin({ email, password }).subscribe({
     next: (res: any) => {
-       console.log('Login response:', res); 
-      localStorage.setItem('token', res.token);
-      localStorage.setItem('role', 'USER');
-      localStorage.setItem('college', this.loginForm.value.college!);
-      localStorage.setItem('name', res.name);
+console.log('faculty from API:', res.faculty);
+console.log('selected college:', college);
+console.log('API type:', typeof res.faculty);
+console.log('Form type:', typeof college);
 
+      // ✅ التحقق من الكلية
+const apiFaculty = (res.faculty || '').trim().toLowerCase();
+const selectedFaculty = (college || '').trim().toLowerCase();
+
+if (apiFaculty !== selectedFaculty) {
+  this.isSubmitting.set(false);
+  this.message.set({
+    text: 'الكلية التي اخترتها غير صحيحة',
+    type: 'error'
+  });
+  return;
+}
+
+
+      // ✅ كل شيء صحيح
+      localStorage.setItem('token', res.token ?? '');
+      localStorage.setItem('role', res.role ?? 'USER');
+      localStorage.setItem('college', res.faculty);
+      localStorage.setItem('name', res.name);
 
       this.router.navigate(['/employee1']);
     },
+
     error: () => {
       this.isSubmitting.set(false);
       this.message.set({
@@ -135,5 +156,6 @@ onSubmit() {
     }
   });
 }
+
 
 }
