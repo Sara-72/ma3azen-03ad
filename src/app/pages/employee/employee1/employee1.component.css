@@ -351,35 +351,58 @@ input[type="text"] {
     text-align: right;
 }
 
+/* Container for the control buttons */
+.row-controls {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px 0;
+    perspective: 1000px;
+}
 
-
-/* Dynamic Row Button Styles (Exact Overlap) */
+/* Base style for the circular 3D buttons */
 .add-row-button,
 .remove-row-button {
-    position: absolute;
-    bottom: -17.5px; /* Pulls button halfway below the table section */
-    background-color: var(--primary-color);
-    color: white;
-    width: 35px;
-    height: 35px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
-    text-align: center;
-    line-height: 33px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
     cursor: pointer;
-    border: 2px solid white;
-    /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4); */
-    z-index: 10;
-    padding: 0;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transform-style: preserve-3d;
+    position: relative;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
+/* Add Button (+) - Green/Primary */
 .add-row-button {
-    right: 280px; /* Halfway outside the right edge */
-    font-size: 2em;
+    background: var(--primary-color);
+    box-shadow: 0 10px 0 #062642, /* Bottom depth */
+                0 15px 20px rgba(0,0,0,0.2);
 }
 
+/* Remove Button (-) - Red/Danger */
 .remove-row-button {
-    left: 30px; /* Halfway outside the left edge */
-    font-size: 2em;
+    background: var(--primary-color);
+    box-shadow: 0 10px 0 #062642, /* Bottom depth */
+                0 15px 20px rgba(0,0,0,0.2);
+}
+
+/* Hover Effect: "Pressing" the button */
+.add-row-button:hover, .remove-row-button:hover {
+    transform: translateY(3px) scale(1.1);
+}
+
+/* Active Effect: Fully pressed */
+.add-row-button:active, .remove-row-button:active {
+    transform: translateY(8px);
+    box-shadow: 0 2px 0 #000;
 }
 
 
@@ -704,62 +727,80 @@ input[type="text"] {
         justify-content: flex-end;
     }
 }
-/* الطبقة الشفافة للخلفية */
+/* THE MODAL OVERLAY (The dark blur background) */
 .status-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center; /* أفقياً */
-  align-items: center;     /* عمودياً */
-  background-color: rgba(0,0,0,0.2); /* شفافية للخلفية */
-  z-index: 9999;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.4); /* Darker backdrop for focus */
+    backdrop-filter: blur(4px); /* Blurs the background page */
+    z-index: 99999; /* Higher than everything */
+    perspective: 1000px;
 }
 
-/* صندوق الرسالة */
+/* THE MODAL BOX (The centered card) */
 .status-box {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 20px 35px;
-  min-width: 300px;
-  text-align: center;
-  font-weight: 600;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
-  animation: fadeInMsg 0.3s ease-in-out;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    min-width: 400px;
+    max-width: 90%;
+    text-align: center;
+    position: relative;
+
+    /* 3D "Pop-out" Effect */
+    transform-style: preserve-3d;
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.3), /* Deep shadow */
+        inset 0 0 0 1px rgba(255, 255, 255, 0.5); /* Inner highlight */
+
+    /* Animation for appearing */
+    animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
+/* SUCCESS STYLE */
 .status-box.success {
-  color: #0d6efd;
-  border: 2px solid #0d6efd;
+    border-top: 8px solid #28a745;
 }
 
+/* ERROR STYLE */
 .status-box.error {
-  color: #dc3545;
-  border: 2px solid #dc3545;
+    border-top: 8px solid #dc3545;
 }
 
-@keyframes fadeInMsg {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+/* THE BUTTON INSIDE THE MODAL */
 .status-box .close-btn {
-  margin-top: 15px;
-  padding: 6px 15px;
-  border: none;
-  background-color: var(--primary-color);
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
+    margin-top: 25px;
+    padding: 12px 40px;
+    border: none;
+    background: var(--primary-color);
+    color: white;
+    font-size: 1.1em;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, background 0.2s ease;
 }
 
 .status-box .close-btn:hover {
-  background-color: var(--secondary-color);
+    background: var(--secondary-color);
+    transform: translateY(-2px);
 }
-.error {
-  color: red;
-  font-size: 13px;
-  margin-top: 2px;
+
+/* ANIMATION KEYFRAME */
+@keyframes modalPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateZ(-100px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateZ(0);
+    }
 }

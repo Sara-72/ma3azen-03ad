@@ -1,6 +1,6 @@
 {
   "/api": {
-    "target": "http://newwinventoryapi.runasp.net",
+    "target": "https://newwinventoryapi.runasp.net",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
