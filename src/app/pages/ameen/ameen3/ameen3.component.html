@@ -1,6 +1,6 @@
 <app-header></app-header>
 
-<div class="d-flex">
+<div class="page-container">
   <aside class="sidebar">
     <h5>مرحباً بك</h5>
     <span *ngIf="displayName">، {{ displayName }}</span>
@@ -19,12 +19,14 @@
       لا يوجد أذونات صرف
     </div>
     <div *ngFor="let perm of groupedPermissions" class="form-container mb-5" dir="rtl">
-      
+
       <header class="form-header">
         <h2 class="title">طلب و إذن صرف</h2>
         <h3 class="subtitle">مستديم | مستهلك</h3>
       </header>
 
+
+      <div class="info-section">
       <div class="info-section">
         <div class="row">
           <div class="field mb-2">
@@ -111,6 +113,7 @@
           <span>{{ fullName }}</span>
 
         </div>
+      
         <div>كاتب الشطب</div>
         <div>توقيع المستلم</div>
       </div>
@@ -133,9 +136,11 @@
           </div>
         </div>
       </div>
-      
+
     </div>
   </div>
+</div>
+
 </div>
 
 <app-footer></app-footer>
