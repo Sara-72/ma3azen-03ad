@@ -82,9 +82,7 @@ changeStatus(note: any, decision: 'مقبول' | 'مرفوض'): void {
 
 // 2. تحديث دالة confirmNote
 confirmNote(note: any): void {
-  // تحديد الحالة النهائية بناءً على القرار المتخذ
   const finalStatus = note.decision === 'مقبول' ? 'الطلب مقبول' : 'الطلب مرفوض';
-
   const matchedNotes = this.spendNotes.filter(n =>
     n.category === note.category &&
     n.userSignature === note.userSignature &&
@@ -92,18 +90,26 @@ confirmNote(note: any): void {
     n.college === note.college
   );
 
+ let updatedCount = 0;
   matchedNotes.forEach(n => {
-    // إرسال الحالة الجديدة (الطلب مقبول أو الطلب مرفوض) للـ API
     const updatedNote = { ...n, permissinStatus: finalStatus };
-
-    this.modeerService.updateSpendNoteStatus(n.id, updatedNote)
-      .subscribe({
-        next: () => console.log(`Note ${n.id} updated to: ${finalStatus}`),
-        error: err => console.error('Update Error', err)
-      });
+    this.modeerService.updateSpendNoteStatus(n.id, updatedNote).subscribe({
+      next: () => {
+        updatedCount++;
+        // If all items in this group are updated, show the modal
+        if (updatedCount === matchedNotes.length) {
+          this.statusType = 'success';
+          this.statusMessage = `✅ تم قبول الطلب بنجاح`;
+        }
+      },
+      error: err => {
+        console.error('Update Error', err);
+        this.statusType = 'error';
+        this.statusMessage = '❌ حدث خطأ أثناء تحديث حالة الطلب';
+      }
+    });
   });
 
-  // إزالة المذكرة من الواجهة بعد التأكيد
   this.groupedNotes = this.groupedNotes.filter(n => n !== note);
 }
   cancelChange(note: any): void {
@@ -111,5 +117,16 @@ confirmNote(note: any): void {
     note.currentStatus = '';
     note.pendingStatus = '';
   }
+
+
+  // 1. Add these properties to the class
+statusMessage: string | null = null;
+statusType: 'success' | 'error' | null = null;
+
+// 2. Add the close method
+closeStatusMessage(): void {
+  this.statusMessage = null;
+  this.statusType = null;
+}
 
 }

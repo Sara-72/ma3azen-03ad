@@ -35,7 +35,13 @@ export function fourStringsValidator(): ValidatorFn {
   styleUrl: './modeer2.component.css'
 })
 export class Modeer2Component implements OnInit {
+
+
+
   private scrollToFirstInvalidControl(form: FormGroup) {
+
+
+
   setTimeout(() => {
     const firstInvalidControl = document.querySelector(
       'input.ng-invalid, select.ng-invalid, textarea.ng-invalid'
@@ -162,7 +168,7 @@ checkIssuedQuantity(formIndex: number, rowIndex: number) {
       requestorName: ['', [Validators.required, fourStringsValidator()]],
       documentNumber: ['', Validators.required],
        managerSignature: [
-      this.userName, 
+      this.userName,
       [Validators.required, fourStringsValidator()]
     ],
       tableData: this.fb.array([])
@@ -256,7 +262,7 @@ removeRowFromForm(form: FormGroup) {
           itemSearchText: note.itemName,
           category: note.category,
           quantityRequired: note.quantity,
-          unit: this.getItemDefaults(note.itemName).unit,          
+          unit: this.getItemDefaults(note.itemName).unit,
           storeType: this.getItemDefaults(note.itemName).storeType,
           itemCondition: 'جديدة',
           quantityAuthorized: '',
@@ -284,7 +290,7 @@ removeRowFromForm(form: FormGroup) {
   onSubmitForm(form: FormGroup) {
   if (form.invalid) {
   form.markAllAsTouched();
-  this.scrollToFirstInvalidControl(form); 
+  this.scrollToFirstInvalidControl(form);
   return;
 }
 
@@ -302,6 +308,10 @@ removeRowFromForm(form: FormGroup) {
     requestorName: formVal.requestorName,
     documentNumber: formVal.documentNumber
   };
+
+
+
+
 
   const tableData = formVal.tableData;
 
@@ -321,6 +331,8 @@ removeRowFromForm(form: FormGroup) {
       totalValue: Number(row.quantityIssued || 0) * Number(row.unitPrice || 0)
     }).toPromise();
   });
+
+
 
   Promise.all(saveRequests)
     .then(() => this.http.get<any[]>('https://newwinventoryapi.runasp.net/api/SpendNotes').toPromise())
@@ -347,7 +359,8 @@ removeRowFromForm(form: FormGroup) {
       return Promise.all(updateRequests);
     })
     .then(() => {
-  alert('تم الحفظ وتأكيد المذكرات بنجاح ✅');
+  this.statusMessage = 'تم الحفظ وتأكيد المذكرات بنجاح ✅';
+  this.statusType = 'success';
 
   // إزالة الفورم الحالي من الصفحة
   const index = this.consumableForms.indexOf(form);
@@ -360,10 +373,12 @@ removeRowFromForm(form: FormGroup) {
 
     .catch(err => {
       console.error('Save error:', err);
-      alert('حدث خطأ أثناء الحفظ ❌');
+      this.statusMessage = 'حدث خطأ أثناء الحفظ ❌';
+      this.statusType = 'error';
       this.isSubmitting.set(false);
     });
 }
+
 
 
   /** إضافة صف لفورم معين */
@@ -371,5 +386,17 @@ removeRowFromForm(form: FormGroup) {
     const tableArray = form.get('tableData') as FormArray;
     tableArray.push(this.createTableRowFormGroup());
   }
+
+
+  // Inside your class properties:
+statusMessage: string | null = null;
+statusType: 'success' | 'error' | null = null;
+
+// Method to close
+closeStatusMessage(): void {
+  this.statusMessage = null;
+  this.statusType = null;
+}
+
 
 }

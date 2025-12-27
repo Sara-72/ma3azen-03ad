@@ -1,5 +1,26 @@
 <app-header></app-header>
 
+
+
+<div *ngIf="statusMessage" class="status-overlay">
+  <div class="status-box" [ngClass]="statusType">
+
+    <div class="mb-3" style="font-size: 4rem;">
+       {{ statusType === 'success' ? '✅' : '❌' }}
+    </div>
+
+    <h3 class="fw-bold mb-3" [style.color]="statusType === 'success' ? '#28a745' : '#dc3545'">
+       {{ statusType === 'success' ? 'تمت العملية' : 'تنبيه' }}
+    </h3>
+
+    <p class="fs-5 text-dark">
+      {{ statusMessage }}
+    </p>
+
+    <button class="close-btn" (click)="closeStatusMessage()">موافق</button>
+  </div>
+</div>
+
 <div class="page-container">
   <aside class="sidebar">
     <h5>

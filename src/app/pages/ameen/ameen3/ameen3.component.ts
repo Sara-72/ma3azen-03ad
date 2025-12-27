@@ -149,7 +149,7 @@ export class Ameen3Component implements OnInit {
             ...item.fullPermission,
             issueDate: issueDate,
             issuedQuantity: item.issuedQuantity ?? item.requestedQuantity,
-            permissionStatus: 'تم الصرف' 
+            permissionStatus: 'تم الصرف'
           };
 
           return this.spendPermissionService.update(
@@ -250,20 +250,32 @@ export class Ameen3Component implements OnInit {
       next: () => this.finishUI(perm),
       error: err => {
         console.error('❌ خطأ تحديث SpendNotes', err);
-        alert('فشل تحديث بعض مذكرات الصرف');
+        this.statusMessage = '❌ فشل تحديث بعض مذكرات الصرف';
+        this.statusType = 'error';
       }
     });
 
   });
 }
 
+// 1. Add these properties to your class
+statusMessage: string | null = null;
+statusType: 'success' | 'error' | null = null;
 
+// 2. Add the close method
+closeStatusMessage(): void {
+  this.statusMessage = null;
+  this.statusType = null;
+}
 
   /* ================= UI ================= */
+// 3. Update finishUI to set the message instead of alert()
+finishUI(perm: any) {
+  this.groupedPermissions = this.groupedPermissions.filter(p => p !== perm);
+  this.confirmingPerm = null;
 
-  finishUI(perm: any) {
-    this.groupedPermissions = this.groupedPermissions.filter(p => p !== perm);
-    this.confirmingPerm = null;
-    alert('✅ تم الصرف بنجاح');
-  }
+  this.statusMessage = '✅ تم الصرف وتحديث المخزون بنجاح';
+  this.statusType = 'success';
+}
+
 }

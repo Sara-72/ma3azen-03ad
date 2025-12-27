@@ -1,5 +1,26 @@
 <app-header></app-header>
 
+
+
+<div *ngIf="statusMessage" class="status-overlay">
+  <div class="status-box" [ngClass]="statusType">
+
+    <div class="mb-3" style="font-size: 4rem;">
+       {{ statusType === 'success' ? '✅' : '❌' }}
+    </div>
+
+    <h3 class="fw-bold mb-3" [style.color]="statusType === 'success' ? '#28a745' : '#dc3545'">
+       {{ statusType === 'success' ? 'تمت العملية' : 'تنبيه' }}
+    </h3>
+
+    <p class="fs-5 text-dark">
+      {{ statusMessage }}
+    </p>
+
+    <button class="close-btn" (click)="closeStatusMessage()">موافق</button>
+  </div>
+</div>
+
 <div class="page-container">
   <aside class="sidebar">
     <h5>مرحباً بك</h5>
@@ -15,8 +36,8 @@
 
   <div class="big-container m-5">
      <!-- لا يوجد أذونات -->
-    <div *ngIf="!hasPermissions()" class="alert alert-info text-center">
-      لا يوجد أذونات صرف
+    <div *ngIf="!hasPermissions()" class="alert text-center m-auto">
+      لا يوجد أذونات صرف.
     </div>
     <div *ngFor="let perm of groupedPermissions" class="form-container mb-5" dir="rtl">
 
@@ -113,7 +134,7 @@
           <span>{{ fullName }}</span>
 
         </div>
-      
+
         <div>كاتب الشطب</div>
         <div>توقيع المستلم</div>
       </div>
@@ -123,16 +144,20 @@
         <p>(**) جديدة - مستعمل - قابل للإصلاح - كهَن أو خردة</p>
       </div>
 
-      <div class="d-flex mb-4 justify-content-evenly">
+      <hr>
+
+      <div class="my-2">
         <button *ngIf="confirmingPerm !== perm" type="button" class="btn btn-success" (click)="openConfirmInline(perm)">
            قبول اذن الصرف
         </button>
 
-        <div *ngIf="confirmingPerm === perm" class="text-center">
-          <p class="mb-3 fw-bold">هل أنت متأكد من قبول إذن الصرف؟</p>
-          <div class="d-flex justify-content-center gap-3">
-            <button class="btn btn-secondary" (click)="cancelConfirm()">تراجع</button>
-            <button type="button" class="btn btn-success" (click)="confirmApprove()">تأكيد</button>
+        <div *ngIf="confirmingPerm === perm" class="d-flex align-items-center justify-content-between">
+          <p class="fw-bold" style="color:var(--primary-color)">هل أنت متأكد من قبول إذن الصرف؟</p>
+          <div class="d-flex gap-3">
+
+            <button type="button" class="btn btn-primary mx-2" (click)="confirmApprove()">تأكيد</button>
+            <button class="btn btn-warning" (click)="cancelConfirm()">تراجع</button>
+
           </div>
         </div>
       </div>
