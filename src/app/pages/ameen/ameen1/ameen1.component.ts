@@ -163,15 +163,18 @@ export class Ameen1Component implements OnInit ,OnDestroy{
         this.subscriptions.push(sub);
     }
   }
+// 3. Update handleComplete to use showStatus
   private handleComplete(done: number, total: number) {
-  if (done === total) {
-    this.isSubmitting.set(false);
-    alert('تم حفظ البيانات بنجاح');
+    if (done === total) {
+      this.isSubmitting.set(false);
 
-    this.simpleForm.reset();
-    this.tableData.clear();
-    this.addRow();
-  }
+      // Changed from alert() to your custom modal
+      this.showStatus('تم حفظ البيانات بنجاح وتحديث أرصدة المخازن', 'success');
+
+      this.simpleForm.reset();
+      this.tableData.clear();
+      this.addRow();
+    }
 }
 
 
@@ -216,6 +219,7 @@ export class Ameen1Component implements OnInit ,OnDestroy{
 onSubmit(): void {
   if (this.simpleForm.invalid) {
     this.simpleForm.markAllAsTouched();
+
     return;
   }
 
@@ -336,6 +340,22 @@ onSubmit(): void {
 
 
 
+// 1. Add Modal State Variables
+  statusMessage: string | null = null;
+  statusType: 'success' | 'error' | null = null;
+
+
+
+  // 2. Add Modal Helper Methods
+  showStatus(msg: string, type: 'success' | 'error') {
+    this.statusMessage = msg;
+    this.statusType = type;
+  }
+
+  closeStatusMessage() {
+    this.statusMessage = null;
+    this.statusType = null;
+  }
 
 
 
