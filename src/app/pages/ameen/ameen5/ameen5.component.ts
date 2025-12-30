@@ -6,6 +6,7 @@ import {
   StockResponse
 } from '../../../services/store-keeper-stock.service';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-ameen5',
@@ -13,7 +14,8 @@ import { CommonModule } from '@angular/common';
   imports: [
     HeaderComponent,
     FooterComponent,
-    CommonModule
+    CommonModule,
+    FormsModule   // 🔹 مهم للـ ngModel
   ],
   templateUrl: './ameen5.component.html',
   styleUrl: './ameen5.component.css'
@@ -26,6 +28,9 @@ userName: string = '';
   private stockService = inject(StoreKeeperStockService);
 
   stocks: StockResponse[] = [];
+  filteredStocks: StockResponse[] = [];   // 🔹 للعرض
+  categories: string[] = [];              // 🔹 الفئات
+  selectedCategory: string = '';          // 🔹 المختارة
   isLoading = true;
 
   ngOnInit(): void {
@@ -44,10 +49,19 @@ userName: string = '';
       .join(' ');
   }
 
-  loadStocks(): void {
+   loadStocks(): void {
     this.stockService.getAllStocks().subscribe({
       next: (data) => {
         this.stocks = data;
+
+        // 🔹 استخراج الفئات بدون تكرار
+        this.categories = [
+          ...new Set(data.map(stock => stock.category))
+        ];
+
+        // 🔹 في البداية نعرض الكل
+        this.filteredStocks = [...this.stocks];
+
         this.isLoading = false;
       },
       error: (err) => {
@@ -55,5 +69,16 @@ userName: string = '';
         this.isLoading = false;
       }
     });
+  }
+
+  // 🔹 فلترة حسب الفئة (عرض فقط)
+  filterByCategory(): void {
+    if (!this.selectedCategory) {
+      this.filteredStocks = [...this.stocks];
+    } else {
+      this.filteredStocks = this.stocks.filter(
+        stock => stock.category === this.selectedCategory
+      );
+    }
   }
 }

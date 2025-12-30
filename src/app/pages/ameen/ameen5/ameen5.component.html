@@ -3,7 +3,7 @@
 <div class="page-container">
   <aside class="sidebar">
     <h5>
-  مرحبًا بك
+      مرحبًا بك
       <span *ngIf="displayName">، {{ displayName }}</span>
     </h5>
     <ul class="mt-5">
@@ -17,7 +17,24 @@
 
   <main class="content">
     <div class="table-container" dir="rtl">
-      <h2 class="mb-4 fw-bold text-center" style="color: var(--primary-color);">عرض مخزنك</h2>
+      <h2 class="mb-4 fw-bold text-center" style="color: var(--primary-color);">
+        عرض مخزنك
+      </h2>
+
+      <!-- 🔹 فلترة حسب الفئة -->
+      <div class="mb-4 text-center">
+        <label class="form-label fw-bold">اختر الفئة:</label>
+        <select
+          class="form-select w-50 m-auto"
+          [(ngModel)]="selectedCategory"
+          (change)="filterByCategory()"
+        >
+          <option value="">الكل</option>
+          <option *ngFor="let cat of categories" [value]="cat">
+            {{ cat }}
+          </option>
+        </select>
+      </div>
 
       <table class="custom-3d-table text-center">
         <thead>
@@ -31,13 +48,13 @@
         </thead>
 
         <tbody>
-          @if (stocks.length === 0) {
+          @if (filteredStocks.length === 0) {
             <tr>
               <td colspan="5">لا توجد بيانات متوفرة</td>
             </tr>
           }
           @else {
-            @for (stock of stocks; track stock.id) {
+            @for (stock of filteredStocks; track stock.id) {
               <tr>
                 <td>{{ stock.category }}</td>
                 <td>{{ stock.itemName }}</td>
