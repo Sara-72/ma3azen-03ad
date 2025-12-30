@@ -11,6 +11,7 @@ import {
   StoreKeeperStockService,
   StockResponse
 } from '../../../services/store-keeper-stock.service';
+import { CentralStoreService } from '../../../services/central-store.service';
 
 // Assuming you have an ApiService to handle HTTP requests
 // import { ApiService } from '../services/api.service';
@@ -74,6 +75,8 @@ export class Ameen1Component implements OnInit ,OnDestroy{
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private stockService = inject(StoreKeeperStockService);
+  private centralStoreService = inject(CentralStoreService);
+
 
 
   constructor() {
@@ -229,51 +232,103 @@ onSubmit(): void {
     const newQuantity = Number(row.count);
     const unit = row.unit;
 
-    // جلب كل المخزون
+    // ================== StoreKeeperStocks ==================
     this.stockService.getAllStocks().pipe(
       catchError(() => of([]))
-    ).subscribe(stocks => {
-      // البحث عن الصنف بنفس الاسم، الفئة، ونوع الصنف
-      const existing = stocks.find((s: any) =>
-  s.itemName === itemName &&
-  s.category === category &&
-  s.storeType === itemType &&
-  s.unit === unit
-);
+    ).subscribe(storeStocks => {
 
+      const existingStore = storeStocks.find((s: any) =>
+        s.itemName === itemName &&
+        s.category === category &&
+        s.storeType === itemType &&
+        s.unit === unit
+      );
 
-     if (existing) {
-  const updatedBody = {
-    stock: {
-      itemName: existing.itemName,
-      category: existing.category,
-      storeType: existing.storeType,
-      unit: existing.unit, // نفس الوحدة القديمة
-      quantity: existing.quantity + newQuantity
-    }
-  };
+      const afterStoreUpdate = () => {
+        // ================== CentralStore ==================
+        this.centralStoreService.getAll().pipe(
+          catchError(() => of([]))
+        ).subscribe(centralStocks => {
 
-  this.stockService.updateStock(existing.id, updatedBody).subscribe({
-    next: () => this.handleComplete(++completed, total),
-    error: () => this.handleComplete(++completed, total)
-  });
-}
- else {
-        // ADD جديد
-        const addBody = {
+          const existingCentral = centralStocks.find((c: any) =>
+            c.itemName === itemName &&
+            c.category === category &&
+            c.storeType === itemType &&
+            c.unit === unit
+          );
+
+          if (existingCentral) {
+            const updateCentralBody = {
+              itemName: existingCentral.itemName,
+              category: existingCentral.category,
+              storeType: existingCentral.storeType,
+              unit: existingCentral.unit,
+              quantity: existingCentral.quantity + newQuantity,
+              storeKeeperSignature: this.displayName
+            };
+
+            this.centralStoreService
+              .update(existingCentral.id, updateCentralBody)
+              .subscribe({
+                next: () => this.handleComplete(++completed, total),
+                error: () => this.handleComplete(++completed, total)
+              });
+
+          } else {
+            const addCentralBody = {
+              itemName: itemName,
+              category: category,
+              storeType: itemType,
+              unit: unit,
+              quantity: newQuantity,
+              storeKeeperSignature: this.displayName
+            };
+
+            this.centralStoreService
+              .add(addCentralBody)
+              .subscribe({
+                next: () => this.handleComplete(++completed, total),
+                error: () => this.handleComplete(++completed, total)
+              });
+          }
+        });
+      };
+
+      if (existingStore) {
+        const updateStoreBody = {
+          stock: {
+            itemName: existingStore.itemName,
+            category: existingStore.category,
+            storeType: existingStore.storeType,
+            unit: existingStore.unit,
+            quantity: existingStore.quantity + newQuantity
+          }
+        };
+
+        this.stockService
+          .updateStock(existingStore.id, updateStoreBody)
+          .subscribe({
+            next: afterStoreUpdate,
+            error: afterStoreUpdate
+          });
+
+      } else {
+        const addStoreBody = {
           stock: {
             itemName: itemName,
             category: category,
             storeType: itemType,
-            quantity: newQuantity,
-            unit: unit
+            unit: unit,
+            quantity: newQuantity
           }
         };
 
-        this.stockService.addStock(addBody).subscribe({
-          next: () => this.handleComplete(++completed, total),
-          error: () => this.handleComplete(++completed, total)
-        });
+        this.stockService
+          .addStock(addStoreBody)
+          .subscribe({
+            next: afterStoreUpdate,
+            error: afterStoreUpdate
+          });
       }
     });
   });
