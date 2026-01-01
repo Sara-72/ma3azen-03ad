@@ -1,56 +1,60 @@
-import { Component ,OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
 import { HeaderComponent } from '../../../components/header/header.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
-import { CommonModule } from '@angular/common'; // 1. Import this
-import { FormsModule } from '@angular/forms';
-import { StoreKeeperStockService } from '../../../services/store-keeper-stock.service';
+import { ModeerSercive } from '../../../services/modeer.service';
 
-
-
-
-// 1. Define the structure of your item
+/* ===== Interface المعتمدة على الجرد ===== */
 export interface InventoryItem {
-  itemName: string;
-  totalQuantity: number;
-  issuedQuantity: number;
-  remainingQuantity: number;
-  category: string;
-  itemType: string; // <--- Make sure this is here!
+  itemName: string;            // من StoreKeeperStocks
+  remainingQuantity: number;   // من StoreKeeperStocks
+  issuedQuantity: number;      // من SpendPermissions
+  totalQuantity: number;       // من CentralStore
+  category: string;            // من StoreKeeperStocks
+  itemType: string;            // من StoreKeeperStocks
 }
 
 @Component({
   selector: 'app-modeer5',
   standalone: true,
   imports: [
-    HeaderComponent, FooterComponent,
-    CommonModule,FormsModule
+    CommonModule,
+    FormsModule,
+    HeaderComponent,
+    FooterComponent
   ],
   templateUrl: './modeer5.component.html',
   styleUrl: './modeer5.component.css'
 })
-
-
-
 export class Modeer5Component implements OnInit {
 
-fullName: string = '';
+  fullName: string = '';
   displayName: string = '';
   today: Date = new Date();
 
-  inventoryData: any[] = [];
-  filteredInventory: any[] = [];
+  inventoryData: InventoryItem[] = [];
+  filteredInventory: InventoryItem[] = [];
 
   startDate: string = '';
 endDate: string = '';
 
-  // Filter variables
-  categories: string[] = []; // Will hold ['أدوات مكتبية', 'إلكترونيات', etc.]
+  /* Filters */
+  categories: string[] = [];
   selectedCategory: string = 'الكل';
 
+  /* Status Modal */
   statusMessage: string | null = null;
   statusType: 'success' | 'error' | null = null;
 
-  constructor(private stockService: StoreKeeperStockService) {}
+  /* View Mode */
+  viewMode: 'live' | 'history' = 'live';
+  selectedHistoryDate: string = '';
+  historyRecords: any[] = [];
+
+constructor(private stockService: ModeerSercive) {}
+
 
   ngOnInit(): void {
     this.fullName = localStorage.getItem('name') || 'أمين المخزن';
@@ -58,72 +62,103 @@ endDate: string = '';
     this.loadInventory();
   }
 
+  /* ===== تحميل بيانات الجرد من StoreKeeperStocks ===== */
 loadInventory(): void {
-  this.stockService.getAllStocks().subscribe({
-    next: (data) => {
-      this.inventoryData = data.map(item => ({
-        itemName: item.itemName,
-        totalQuantity: item.initialQuantity || item.quantity,
-        issuedQuantity: (item.initialQuantity || item.quantity) - item.quantity,
-        remainingQuantity: item.quantity,
-        category: item.category || 'غير مصنف', // e.g., أدوات مكتبية
-        itemType: item.storeType || 'مستهلك'   // e.g., مستديم أو مستهلك
-      }));
 
-        // Dynamically extract unique categories for the dropdown
-        this.categories = [...new Set(this.inventoryData.map(item => item.category))];
+  // 1️⃣ المخزن المركزي
+  this.stockService.getCentralStore().subscribe({
+    next: (centralStore) => {
 
-        this.filteredInventory = [...this.inventoryData];
-      },
+      // 2️⃣ مخزن أمين المخزن
+      this.stockService.getStoreKeeperStocks().subscribe({
+        next: (storeStocks) => {
 
+          // 3️⃣ أذونات الصرف
+          this.stockService.getSpendPermissions().subscribe({
+            next: (spendPermissions) => {
 
+              this.inventoryData = storeStocks.map(stock => {
 
-      error: (err) => this.showStatus('❌ فشل في تحميل بيانات المخزن', 'error')
-    });
-  }
+                // 🔹 الكمية الكلية من CentralStore
+                const centralItem = centralStore.find(
+                  (c: any) => c.itemName === stock.itemName
+                );
 
+                // 🔹 حساب الكمية المنصرفة من SpendPermissions
+                const issuedTotal = spendPermissions
+                  .filter((p: any) => p.itemName === stock.itemName)
+                  .reduce(
+                    (sum: number, p: any) => sum + (p.issuedQuantity || 0),
+                    0
+                  );
+
+                return {
+                  itemName: stock.itemName,
+                  category: stock.category || 'غير مصنف',
+                  itemType: stock.storeType || 'غير محدد',
+
+                  // من CentralStore
+                  totalQuantity: centralItem ? centralItem.quantity : 0,
+
+                  // من SpendPermissions (مجمعة)
+                  issuedQuantity: issuedTotal,
+
+                  // من StoreKeeperStocks
+                  remainingQuantity: stock.quantity
+                };
+              });
+
+              // استخراج الفئات
+              this.categories = [
+                ...new Set(this.inventoryData.map(i => i.category))
+              ];
+
+              this.applyFilter();
+            },
+            error: () => {
+              this.showStatus('❌ فشل تحميل أذونات الصرف', 'error');
+            }
+          });
+
+        },
+        error: () => {
+          this.showStatus('❌ فشل تحميل مخزن أمين المخزن', 'error');
+        }
+      });
+
+    },
+    error: () => {
+      this.showStatus('❌ فشل تحميل المخزن المركزي', 'error');
+    }
+  });
+}
+  /* ===== فلترة حسب الفئة ===== */
   applyFilter(): void {
     if (this.selectedCategory === 'الكل') {
       this.filteredInventory = [...this.inventoryData];
     } else {
-      this.filteredInventory = this.inventoryData.filter(item =>
-        item.category === this.selectedCategory
+      this.filteredInventory = this.inventoryData.filter(
+        item => item.category === this.selectedCategory
       );
     }
   }
 
-
-  // 1. Add these variables to your class
-viewMode: 'live' | 'history' = 'live';
-selectedHistoryDate: string = '';
-historyRecords: any[] = []; // This would normally come from your database
-
-// 2. Add a method to switch data
-onViewModeChange(): void {
-  if (this.viewMode === 'live') {
-    this.loadInventory(); // Reload current data
-
-  } else {
-    // Logic to fetch history based on selectedHistoryDate
-    this.loadHistoryData();
-  }
-}
-
-loadHistoryData(): void {
-if (!this.startDate || !this.endDate) {
-    // Optionally show a message asking to pick both dates
-    return;
+  /* ===== تغيير وضع العرض ===== */
+  onViewModeChange(): void {
+    if (this.viewMode === 'live') {
+      this.loadInventory();
+    } else {
+      this.loadHistoryData();
+    }
   }
 
-  console.log(`Searching records from ${this.startDate} to ${this.endDate}`);
-
-}
-
-  getDeficit(item: any): number {
-    const diff = item.totalQuantity - (item.issuedQuantity + item.remainingQuantity);
-    return diff > 0 ? diff : 0;
+  /* ===== بيانات أرشيف (مستقبلي) ===== */
+  loadHistoryData(): void {
+    this.filteredInventory = [];
+    this.showStatus('⚠️ عرض الأرشيف غير متاح حاليًا', 'error');
   }
 
+  /* ===== Status Helpers ===== */
   showStatus(msg: string, type: 'success' | 'error') {
     this.statusMessage = msg;
     this.statusType = type;
@@ -134,17 +169,22 @@ if (!this.startDate || !this.endDate) {
     this.statusType = null;
   }
 
+  /* ===== اعتماد الجرد ===== */
+  confirmInventoryAudit(): void {
+    console.log('Saving inventory audit...');
 
-confirmInventoryAudit(): void {
-  // 1. Show a loading message (optional)
-  console.log('Saving audit...');
+    setTimeout(() => {
+      this.showStatus(
+        '✅ تم اعتماد كشف الجرد وحفظه في سجلات النظام بنجاح',
+        'success'
+      );
+    }, 1000);
+  }
+getDeficit(item: InventoryItem): number {
+  const deficit =
+    item.totalQuantity -
+    (item.issuedQuantity + item.remainingQuantity);
 
-  // 2. Simulate a network delay of 1 second
-  setTimeout(() => {
-    // 3. This is what triggers the overlay to show
-    this.showStatus('✅ تم اعتماد كشف الجرد وحفظه في سجلات النظام بنجاح', 'success');
-  }, 1000);
-
+  return deficit > 0 ? deficit : 0;
 }
-
 }

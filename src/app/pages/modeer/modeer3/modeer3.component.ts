@@ -3,12 +3,13 @@ import { ModeerSercive } from '../../../services/modeer.service';
 import { CommonModule } from '@angular/common';
 import { FooterComponent } from "../../../components/footer/footer.component";
 import { HeaderComponent } from "../../../components/header/header.component";
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-modeer3',
   templateUrl: './modeer3.component.html',
   styleUrls: ['./modeer3.component.css'],
-  imports: [CommonModule, FooterComponent, HeaderComponent]
+  imports: [CommonModule, FooterComponent, HeaderComponent, FormsModule]
 })
 export class Modeer3Component implements OnInit {
 userName: string = '';
@@ -72,46 +73,68 @@ userName: string = '';
 // 1. تحديث دالة changeStatus
 changeStatus(note: any, decision: 'مقبول' | 'مرفوض'): void {
   note.showButtons = false;
-
-  // تخزين القرار لاتخاذ الإجراء المناسب عند التأكيد
   note.decision = decision;
+  note.rejectionReason = '';
+  note.showReasonError = false;
 
-  // النص الذي يظهر للمستخدم في الواجهة
-  note.currentStatus = decision === 'مقبول' ? 'هل تريد قبول الطلب ؟' : 'هل تريد رفض الطلب ؟';
+  note.currentStatus =
+    decision === 'مقبول'
+      ? 'هل تريد قبول الطلب ؟'
+      : 'هل تريد رفض الطلب ؟';
 }
+
 
 // 2. تحديث دالة confirmNote
 confirmNote(note: any): void {
-  const finalStatus = note.decision === 'مقبول' ? 'الطلب مقبول' : 'الطلب مرفوض';
+
+  // ❌ منع التأكيد بدون سبب رفض
+  if (note.decision === 'مرفوض' && !note.rejectionReason?.trim()) {
+    note.showReasonError = true;
+    return;
+  }
+
+  const finalStatus =
+    note.decision === 'مقبول' ? 'الطلب مقبول' : 'الطلب مرفوض';
+
   const matchedNotes = this.spendNotes.filter(n =>
     n.category === note.category &&
     n.userSignature === note.userSignature &&
-    new Date(n.requestDate).toDateString() === new Date(note.requestDate).toDateString() &&
+    new Date(n.requestDate).toDateString() ===
+      new Date(note.requestDate).toDateString() &&
     n.college === note.college
   );
 
- let updatedCount = 0;
+  let updatedCount = 0;
+
   matchedNotes.forEach(n => {
-    const updatedNote = { ...n, permissinStatus: finalStatus };
+    const updatedNote = {
+      ...n,
+      permissinStatus: finalStatus,
+      rejectionReason:
+        note.decision === 'مرفوض' ? note.rejectionReason : null
+    };
+
     this.modeerService.updateSpendNoteStatus(n.id, updatedNote).subscribe({
       next: () => {
         updatedCount++;
-        // If all items in this group are updated, show the modal
         if (updatedCount === matchedNotes.length) {
           this.statusType = 'success';
-          this.statusMessage = `✅ تم قبول الطلب بنجاح`;
+          this.statusMessage =
+            note.decision === 'مقبول'
+              ? '✅ تم قبول الطلب بنجاح'
+              : '❌ تم رفض الطلب وتسجيل سبب الرفض';
         }
       },
-      error: err => {
-        console.error('Update Error', err);
+      error: () => {
         this.statusType = 'error';
-        this.statusMessage = '❌ حدث خطأ أثناء تحديث حالة الطلب';
+        this.statusMessage = '❌ حدث خطأ أثناء تحديث الطلب';
       }
     });
   });
 
   this.groupedNotes = this.groupedNotes.filter(n => n !== note);
 }
+
   cancelChange(note: any): void {
     note.showButtons = true;
     note.currentStatus = '';

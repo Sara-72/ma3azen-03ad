@@ -23,6 +23,10 @@ export class ModeerSercive {
   getSpendPermissions(): Observable<any[]> {
     return this.http.get<any[]>(`${this.api}/SpendPermissions`);
   }
+  //Central Store service
+  getCentralStore(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.api}/CentralStore`);
+  }
 
   // (اختياري) get permission by id
   getSpendPermissionById(id: number): Observable<any> {
