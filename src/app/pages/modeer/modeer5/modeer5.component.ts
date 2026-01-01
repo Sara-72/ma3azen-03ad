@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit,signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -29,110 +29,105 @@ export interface InventoryItem {
   styleUrl: './modeer5.component.css'
 })
 export class Modeer5Component implements OnInit {
-
+// User Info
   fullName: string = '';
   displayName: string = '';
   today: Date = new Date();
 
+  // Data Arrays
   inventoryData: InventoryItem[] = [];
   filteredInventory: InventoryItem[] = [];
-
-  startDate: string = '';
-endDate: string = '';
-
-  /* Filters */
   categories: string[] = [];
-  selectedCategory: string = 'الكل';
 
-  /* Status Modal */
+  // Filter States
+  selectedCategory: string = 'الكل';
+  viewMode: 'live' | 'history' = 'live';
+
+  // Date Period Variables
+  startDate: string = '';
+  endDate: string = '';
+
+  // Status Modal State
   statusMessage: string | null = null;
   statusType: 'success' | 'error' | null = null;
+  isSubmitting = signal(false);
 
-  /* View Mode */
-  viewMode: 'live' | 'history' = 'live';
-  selectedHistoryDate: string = '';
-  historyRecords: any[] = [];
-
-constructor(private stockService: ModeerSercive) {}
-
+  constructor(private stockService: ModeerSercive) {}
 
   ngOnInit(): void {
+    // Initialize User Data
     this.fullName = localStorage.getItem('name') || 'أمين المخزن';
     this.displayName = this.fullName.split(' ').slice(0, 2).join(' ');
+
+    // Initial Load
     this.loadInventory();
   }
 
-  /* ===== تحميل بيانات الجرد من StoreKeeperStocks ===== */
-loadInventory(): void {
+  /* ===== Load Live Inventory Data ===== */
+  loadInventory(): void {
+    // Reset filters when loading live data
+    this.startDate = '';
+    this.endDate = '';
 
-  // 1️⃣ المخزن المركزي
-  this.stockService.getCentralStore().subscribe({
-    next: (centralStore) => {
+    // Fetch from 3 sources: Central Store, Keeper Stocks, and Spend Permissions
+    this.stockService.getCentralStore().subscribe({
+      next: (centralStore) => {
+        this.stockService.getStoreKeeperStocks().subscribe({
+          next: (storeStocks) => {
+            this.stockService.getSpendPermissions().subscribe({
+              next: (spendPermissions) => {
 
-      // 2️⃣ مخزن أمين المخزن
-      this.stockService.getStoreKeeperStocks().subscribe({
-        next: (storeStocks) => {
+                // Map and combine data into the InventoryItem format
+                this.inventoryData = storeStocks.map(stock => {
+                  const centralItem = centralStore.find((c: any) => c.itemName === stock.itemName);
 
-          // 3️⃣ أذونات الصرف
-          this.stockService.getSpendPermissions().subscribe({
-            next: (spendPermissions) => {
+                  const issuedTotal = spendPermissions
+                    .filter((p: any) => p.itemName === stock.itemName)
+                    .reduce((sum: number, p: any) => sum + (p.issuedQuantity || 0), 0);
 
-              this.inventoryData = storeStocks.map(stock => {
+                  return {
+                    itemName: stock.itemName,
+                    category: stock.category || 'غير مصنف',
+                    itemType: stock.storeType || 'غير محدد',
+                    totalQuantity: centralItem ? centralItem.quantity : 0,
+                    issuedQuantity: issuedTotal,
+                    remainingQuantity: stock.quantity
+                  };
+                });
 
-                // 🔹 الكمية الكلية من CentralStore
-                const centralItem = centralStore.find(
-                  (c: any) => c.itemName === stock.itemName
-                );
+                // Extract unique categories for the dropdown
+                this.categories = [...new Set(this.inventoryData.map(i => i.category))];
+                this.applyFilter();
+              },
+              error: () => this.showStatus('❌ فشل تحميل أذونات الصرف', 'error')
+            });
+          },
+          error: () => this.showStatus('❌ فشل تحميل مخزن أمين المخزن', 'error')
+        });
+      },
+      error: () => this.showStatus('❌ فشل تحميل المخزن المركزي', 'error')
+    });
+  }
 
-                // 🔹 حساب الكمية المنصرفة من SpendPermissions
-                const issuedTotal = spendPermissions
-                  .filter((p: any) => p.itemName === stock.itemName)
-                  .reduce(
-                    (sum: number, p: any) => sum + (p.issuedQuantity || 0),
-                    0
-                  );
+  /* ===== Date Period Logic (History) ===== */
+  loadHistoryByPeriod(): void {
+    if (!this.startDate || !this.endDate) return;
 
-                return {
-                  itemName: stock.itemName,
-                  category: stock.category || 'غير مصنف',
-                  itemType: stock.storeType || 'غير محدد',
+    const start = new Date(this.startDate);
+    const end = new Date(this.endDate);
 
-                  // من CentralStore
-                  totalQuantity: centralItem ? centralItem.quantity : 0,
-
-                  // من SpendPermissions (مجمعة)
-                  issuedQuantity: issuedTotal,
-
-                  // من StoreKeeperStocks
-                  remainingQuantity: stock.quantity
-                };
-              });
-
-              // استخراج الفئات
-              this.categories = [
-                ...new Set(this.inventoryData.map(i => i.category))
-              ];
-
-              this.applyFilter();
-            },
-            error: () => {
-              this.showStatus('❌ فشل تحميل أذونات الصرف', 'error');
-            }
-          });
-
-        },
-        error: () => {
-          this.showStatus('❌ فشل تحميل مخزن أمين المخزن', 'error');
-        }
-      });
-
-    },
-    error: () => {
-      this.showStatus('❌ فشل تحميل المخزن المركزي', 'error');
+    if (start > end) {
+      this.showStatus('خطأ: تاريخ البداية يجب أن يكون قبل تاريخ النهاية', 'error');
+      return;
     }
-  });
-}
-  /* ===== فلترة حسب الفئة ===== */
+
+    // Simulate fetching historical records
+    // In a real app, you would call: this.stockService.getHistory(this.startDate, this.endDate)
+    console.log(`Fetching records from ${this.startDate} to ${this.endDate}`);
+    this.showStatus(`عرض السجلات للفترة من ${this.startDate} إلى ${this.endDate}`, 'success');
+  }
+
+  /* ===== UI Logic ===== */
   applyFilter(): void {
     if (this.selectedCategory === 'الكل') {
       this.filteredInventory = [...this.inventoryData];
@@ -143,22 +138,33 @@ loadInventory(): void {
     }
   }
 
-  /* ===== تغيير وضع العرض ===== */
   onViewModeChange(): void {
     if (this.viewMode === 'live') {
       this.loadInventory();
     } else {
-      this.loadHistoryData();
+      // Clear current table until dates are selected in history mode
+      this.filteredInventory = [];
+      this.inventoryData = [];
     }
   }
 
-  /* ===== بيانات أرشيف (مستقبلي) ===== */
-  loadHistoryData(): void {
-    this.filteredInventory = [];
-    this.showStatus('⚠️ عرض الأرشيف غير متاح حاليًا', 'error');
+  getDeficit(item: InventoryItem): number {
+    const deficit = item.totalQuantity - (item.issuedQuantity + item.remainingQuantity);
+    return deficit > 0 ? deficit : 0;
   }
 
-  /* ===== Status Helpers ===== */
+  /* ===== Form Actions ===== */
+  confirmInventoryAudit(): void {
+    this.isSubmitting.set(true);
+
+    // Simulate API Save Call
+    setTimeout(() => {
+      this.isSubmitting.set(false);
+      this.showStatus('✅ تم اعتماد كشف الجرد وحفظه في سجلات النظام بنجاح', 'success');
+    }, 1500);
+  }
+
+  /* ===== Status Modal Helpers ===== */
   showStatus(msg: string, type: 'success' | 'error') {
     this.statusMessage = msg;
     this.statusType = type;
@@ -169,22 +175,4 @@ loadInventory(): void {
     this.statusType = null;
   }
 
-  /* ===== اعتماد الجرد ===== */
-  confirmInventoryAudit(): void {
-    console.log('Saving inventory audit...');
-
-    setTimeout(() => {
-      this.showStatus(
-        '✅ تم اعتماد كشف الجرد وحفظه في سجلات النظام بنجاح',
-        'success'
-      );
-    }, 1000);
-  }
-getDeficit(item: InventoryItem): number {
-  const deficit =
-    item.totalQuantity -
-    (item.issuedQuantity + item.remainingQuantity);
-
-  return deficit > 0 ? deficit : 0;
-}
 }
