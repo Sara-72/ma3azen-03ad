@@ -17,6 +17,7 @@ export interface InventoryItem {
   category: string;
   itemType: string; // <--- Make sure this is here!
 }
+
 @Component({
   selector: 'app-modeer5',
   standalone: true,
