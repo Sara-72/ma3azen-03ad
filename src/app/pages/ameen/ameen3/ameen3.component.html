@@ -35,11 +35,14 @@
     </ul>
   </aside>
 
-  <div class="big-container m-5">
+  <div class="big-container m-auto">
      <!-- لا يوجد أذونات -->
-    <div *ngIf="!hasPermissions()" class="alert text-center m-auto">
-      لا يوجد أذونات صرف.
+<div *ngIf="!hasPermissions()" class="no-data-wrapper">
+    <div class="text-center">
+        <i class="fas fa-clipboard-list d-block mb-3 empty-icon"></i>
+        <p class="m-auto fw-bold fs-4 text-muted">لا توجد أذونات صرف حالياً.</p>
     </div>
+</div>
     <div *ngFor="let perm of groupedPermissions" class="form-container mb-5" dir="rtl">
 
       <header class="form-header">

@@ -6,7 +6,7 @@
       مرحبًا بك
       <span *ngIf="displayName">، {{ displayName }}</span>
     </h5>
-    <ul>
+    <ul class="mt-5">
       <li><a href="/employee1">مذكرة الصرف</a></li>
       <li class="active">العهد</li>
       <li><a href="/employee3">استعلم عن مذكراتك</a></li>
@@ -33,9 +33,14 @@
       </table>
     </div>
 
-    <ng-template #noData>
-      <p>لا توجد عهد متاحة حالياً.</p>
-    </ng-template>
+<ng-template #noData>
+  <div class="no-data-wrapper">
+    <div class="text-center">
+      <i class="fas fa-box-open d-block mb-3 empty-icon"></i>
+      <p class="m-auto fw-bold fs-4 text-muted">لا توجد عهد متاحة حالياً.</p>
+    </div>
+  </div>
+</ng-template>
   </main>
 </div>
 
