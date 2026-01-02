@@ -1,32 +1,22 @@
-import { Component ,OnInit, inject, signal ,OnDestroy} from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../../components/header/header.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
 import { CommonModule } from '@angular/common';
-import { catchError, of } from 'rxjs';
-import { FormsModule, FormBuilder, ReactiveFormsModule, FormGroup, Validators, FormArray } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { HttpErrorResponse } from '@angular/common/http';
+import { catchError, of, Subscription } from 'rxjs';
 import {
-  StoreKeeperStockService,
-  StockResponse
+  FormsModule,
+  FormBuilder,
+  ReactiveFormsModule,
+  FormGroup,
+  Validators,
+  FormArray
+} from '@angular/forms';
+
+import {
+  StoreKeeperStockService
 } from '../../../services/store-keeper-stock.service';
 import { CentralStoreService } from '../../../services/central-store.service';
-
-// Assuming you have an ApiService to handle HTTP requests
-// import { ApiService } from '../services/api.service';
-
-
-
-
-interface SimpleRow {
-  item: string;      // الصنف
-  category: string;  // الفئة
-  // date: string;      // التاريخ
-  count: string;     // العدد
-  unit:string;
-}
-
 
 interface CategoryItemMap {
   [key: string]: string[];
@@ -39,16 +29,16 @@ interface CategoryItemMap {
     HeaderComponent,
     FooterComponent,
     FormsModule,
-    ReactiveFormsModule,CommonModule
+    ReactiveFormsModule,
+    CommonModule
   ],
   templateUrl: './ameen1.component.html',
   styleUrl: './ameen1.component.css'
 })
+export class Ameen1Component implements OnInit, OnDestroy {
 
-
-export class Ameen1Component implements OnInit ,OnDestroy{
-
-    categoryItemMap: CategoryItemMap = {
+  /* ===================== Static Data ===================== */
+  categoryItemMap: CategoryItemMap = {
     'أثاث مكتبي': ['مكتب مدير', 'كرسي دوار', 'خزانة ملفات'],
     'قرطاسية': ['أقلام حبر', 'أوراق A4', 'دفاتر ملاحظات'],
     'إلكترونيات': ['حاسوب محمول', 'طابعة ليزر', 'شاشة عرض'],
@@ -56,299 +46,237 @@ export class Ameen1Component implements OnInit ,OnDestroy{
   };
 
   categories: string[] = Object.keys(this.categoryItemMap);
-
-  // NEW: Array to hold available items for each *specific* row
-  availableItemsByRow: string[][] = [];
   itemTypes: string[] = ['مستهلك', 'مستديم'];
+  availableItemsByRow: string[][] = [];
 
-  // NEW: Array to hold subscriptions for cleaning up when the component is destroyed
-  private subscriptions: Subscription[] = [];
-  userName: string = '';
-  displayName: string = '';
-
-
-
+  /* ===================== State ===================== */
   simpleForm!: FormGroup;
   isSubmitting = signal(false);
 
-  // Dependency Injection
+  userName = '';
+  displayName = '';
+
+  statusMessage: string | null = null;
+  statusType: 'success' | 'error' | null = null;
+
+  private subscriptions: Subscription[] = [];
+
+  /* ===================== DI ===================== */
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private stockService = inject(StoreKeeperStockService);
   private centralStoreService = inject(CentralStoreService);
 
-
-
   constructor() {
     this.simpleForm = this.fb.group({
-      // The only control is the FormArray for the table data
-
-
       tableData: this.fb.array([])
     });
-
-
-
   }
+
+  /* ===================== Lifecycle ===================== */
   ngOnInit(): void {
     this.userName = localStorage.getItem('name') || '';
     this.displayName = this.getFirstTwoNames(this.userName);
 
-    // 1. Create the single instance of the first row
-    const initialRowGroup = this.createTableRowFormGroup();
-
-    // 2. Push this instance into the FormArray
-    this.tableData.push(initialRowGroup);
-
-    // 3. Initialize available items for index 0
+    const firstRow = this.createTableRowFormGroup();
+    this.tableData.push(firstRow);
     this.availableItemsByRow.push([]);
-
-    // 4. Attach the listener to the correct instance (initialRowGroup) at the correct index (0)
-    this.addCategoryListener(initialRowGroup, 0);
-  }
-  getFirstTwoNames(fullName: string): string {
-    if (!fullName) return '';
-
-    return fullName
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .join(' ');
+    this.addCategoryListener(firstRow, 0);
   }
 
   ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach(s => s.unsubscribe());
   }
 
-  // Helper getter to easily access the FormArray
+  /* ===================== Helpers ===================== */
   get tableData(): FormArray {
     return this.simpleForm.get('tableData') as FormArray;
   }
 
+  private getFirstTwoNames(fullName: string): string {
+    return fullName?.trim().split(/\s+/).slice(0, 2).join(' ') || '';
+  }
 
-  // 1. Add this helper to get the date string
-private getTodayDate(): string {
-  return new Date().toISOString().split('T')[0];
+  private sameDay(d1: string, d2: string): boolean {
+  const day1 = d1.split('T')[0];
+  const day2 = d2.split('T')[0];
+  return day1 === day2;
 }
 
 
-  // Helper function to create the form group for a single table row (4 columns)
   private createTableRowFormGroup(): FormGroup {
     return this.fb.group({
-      item: [null,Validators.required],
-      category: ['',Validators.required],
-
+      category: ['', Validators.required],
+      item: [null, Validators.required],
+      itemType: ['', Validators.required],
+      unit: ['', Validators.required],
       count: ['', Validators.required],
-      itemType: ['', Validators.required], // نوع الصنف
-      unit:['',Validators.required],
       entryDate: ['', Validators.required]
     });
   }
 
-
-
-
-
-  // Helper function to handle the cascading logic
   private addCategoryListener(rowGroup: FormGroup, index: number): void {
-    const sub = rowGroup.get('category')?.valueChanges.subscribe(selectedCategory => {
-      // 1. Get the list of items for the selected category
-      const items = this.categoryItemMap[selectedCategory] || [];
-
-      // 2. Update the available items list for this specific row index
-      this.availableItemsByRow[index] = items;
-
-      // 3. Reset the itemName dropdown for this row, forcing the user to select a new item
+    const sub = rowGroup.get('category')?.valueChanges.subscribe(cat => {
+      this.availableItemsByRow[index] = this.categoryItemMap[cat] || [];
       rowGroup.get('item')?.reset(null, { emitEvent: false });
     });
-
-    if (sub) {
-        this.subscriptions.push(sub);
-    }
+    if (sub) this.subscriptions.push(sub);
   }
-// 3. Update handleComplete to use showStatus
-  private handleComplete(done: number, total: number) {
-    if (done === total) {
-      this.isSubmitting.set(false);
 
-      // Changed from alert() to your custom modal
-      this.showStatus('تم حفظ البيانات بنجاح وتحديث أرصدة المخازن', 'success');
-
-      this.simpleForm.reset();
-      this.tableData.clear();
-      this.addRow();
-    }
-}
-
-
-  // ➕ Method to add a new row
+  /* ===================== Rows ===================== */
   addRow(): void {
-    const newRowGroup = this.createTableRowFormGroup();
-    const newIndex = this.tableData.length; // Get the index BEFORE pushing
-
-    this.tableData.push(newRowGroup);
-
-    //  Initialize new slot for items
+    const row = this.createTableRowFormGroup();
+    const index = this.tableData.length;
+    this.tableData.push(row);
     this.availableItemsByRow.push([]);
-
-    // Attach listener to the new row
-    this.addCategoryListener(newRowGroup, newIndex);
+    this.addCategoryListener(row, index);
   }
 
-
-// ➖ Method to remove the last row
-    removeRow(): void {
-      if (this.tableData.length > 1) {
-        const lastIndex = this.tableData.length - 1;
-
-        // Clean up the subscription
-        if (this.subscriptions.length > 0) {
-          this.subscriptions.pop()?.unsubscribe();
-        }
-
-        // Remove the available items array slot
-        this.availableItemsByRow.pop();
-
-        this.tableData.removeAt(lastIndex);
-      } else if (this.tableData.length === 1) {
-        this.tableData.at(0).reset();
-      }
+  removeRow(): void {
+    if (this.tableData.length > 1) {
+      this.tableData.removeAt(this.tableData.length - 1);
+      this.availableItemsByRow.pop();
+      this.subscriptions.pop()?.unsubscribe();
+    } else {
+      this.tableData.at(0).reset();
     }
+  }
 
-  // --- SAVE BUTTON LOGIC ---
-
-
-
-onSubmit(): void {
+  /* ===================== Submit ===================== */
+  onSubmit(): void {
   if (this.simpleForm.invalid) {
     this.simpleForm.markAllAsTouched();
-
     return;
   }
 
   this.isSubmitting.set(true);
 
-const rows = this.simpleForm.getRawValue().tableData;  let completed = 0;
+  /* ========== STEP 1: GROUP FORM ROWS ========== */
+  const rawRows = this.simpleForm.getRawValue().tableData;
+
+  const groupedMap = new Map<string, any>();
+
+  rawRows.forEach((row: any) => {
+    const key = [
+      row.item,
+      row.category,
+      row.itemType,
+      row.unit,
+      row.entryDate
+    ].join('|');
+
+    if (groupedMap.has(key)) {
+      groupedMap.get(key).count += Number(row.count);
+    } else {
+      groupedMap.set(key, {
+        ...row,
+        count: Number(row.count)
+      });
+    }
+  });
+
+  const rows = Array.from(groupedMap.values());
+
+  /* ========== STEP 2: SAVE TO DATABASE ========== */
+  let completed = 0;
   const total = rows.length;
 
   rows.forEach((row: any) => {
-    const itemName = row.item;
-    const category = row.category;
-    const itemType = row.itemType;
-    const newQuantity = Number(row.count);
-    const unit = row.unit;
+    const { item, category, itemType, unit, entryDate, count } = row;
+    const newQuantity = Number(count);
 
-    // ================== StoreKeeperStocks ==================
+    /* ========== StoreKeeperStocks ========== */
     this.stockService.getAllStocks().pipe(
       catchError(() => of([]))
     ).subscribe(storeStocks => {
 
       const existingStore = storeStocks.find((s: any) =>
-        s.itemName === itemName &&
+        s.itemName === item &&
         s.category === category &&
         s.storeType === itemType &&
-        s.unit === unit
+        s.unit === unit &&
+        this.sameDay(s.date, entryDate)
       );
 
-      const afterStoreUpdate = () => {
-        // ================== CentralStore ==================
+      const afterStore = () => {
+        /* ========== CentralStore ========== */
         this.centralStoreService.getAll().pipe(
           catchError(() => of([]))
         ).subscribe(centralStocks => {
 
           const existingCentral = centralStocks.find((c: any) =>
-            c.itemName === itemName &&
+            c.itemName === item &&
             c.category === category &&
             c.storeType === itemType &&
-            c.unit === unit
+            c.unit === unit &&
+            this.sameDay(c.date, entryDate)
           );
 
           if (existingCentral) {
-            const updateCentralBody = {
-              itemName: existingCentral.itemName,
-              category: existingCentral.category,
-              storeType: existingCentral.storeType,
-              unit: existingCentral.unit,
-              quantity: existingCentral.quantity + newQuantity,
-              storeKeeperSignature: this.displayName
-            };
-
-            this.centralStoreService
-              .update(existingCentral.id, updateCentralBody)
-              .subscribe({
-                next: () => this.handleComplete(++completed, total),
-                error: () => this.handleComplete(++completed, total)
-              });
-
-          } else {
-            const addCentralBody = {
-              itemName: itemName,
-              category: category,
+            this.centralStoreService.update(existingCentral.id, {
+              itemName: item,
+              category,
               storeType: itemType,
-              unit: unit,
-              quantity: newQuantity,
+              unit,
+              quantity: existingCentral.quantity + newQuantity,
+              date: entryDate,
               storeKeeperSignature: this.displayName
-            };
-
-            this.centralStoreService
-              .add(addCentralBody)
-              .subscribe({
-                next: () => this.handleComplete(++completed, total),
-                error: () => this.handleComplete(++completed, total)
-              });
+            }).subscribe(() => this.handleComplete(++completed, total));
+          } else {
+            this.centralStoreService.add({
+              itemName: item,
+              category,
+              storeType: itemType,
+              unit,
+              quantity: newQuantity,
+              date: entryDate,
+              storeKeeperSignature: this.displayName
+            }).subscribe(() => this.handleComplete(++completed, total));
           }
         });
       };
 
       if (existingStore) {
-        const updateStoreBody = {
+        this.stockService.updateStock(existingStore.id, {
           stock: {
-            itemName: existingStore.itemName,
-            category: existingStore.category,
-            storeType: existingStore.storeType,
-            unit: existingStore.unit,
-            quantity: existingStore.quantity + newQuantity
-          }
-        };
-
-        this.stockService
-          .updateStock(existingStore.id, updateStoreBody)
-          .subscribe({
-            next: afterStoreUpdate,
-            error: afterStoreUpdate
-          });
-
-      } else {
-        const addStoreBody = {
-          stock: {
-            itemName: itemName,
-            category: category,
+            itemName: item,
+            category,
             storeType: itemType,
-            unit: unit,
-            quantity: newQuantity
+            unit,
+            quantity: existingStore.quantity + newQuantity,
+            date: entryDate,
+            storeKeeperSignature: this.displayName
           }
-        };
-
-        this.stockService
-          .addStock(addStoreBody)
-          .subscribe({
-            next: afterStoreUpdate,
-            error: afterStoreUpdate
-          });
+        }).subscribe(afterStore);
+      } else {
+        this.stockService.addStock({
+          stock: {
+            itemName: item,
+            category,
+            storeType: itemType,
+            unit,
+            quantity: newQuantity,
+            date: entryDate,
+            storeKeeperSignature: this.displayName
+          }
+        }).subscribe(afterStore);
       }
     });
   });
 }
 
 
+  /* ===================== UI ===================== */
+  private handleComplete(done: number, total: number) {
+    if (done === total) {
+      this.isSubmitting.set(false);
+      this.showStatus('تم حفظ البيانات بنجاح وتحديث أرصدة المخازن', 'success');
+      this.simpleForm.reset();
+      this.tableData.clear();
+      this.addRow();
+    }
+  }
 
-// 1. Add Modal State Variables
-  statusMessage: string | null = null;
-  statusType: 'success' | 'error' | null = null;
-
-
-
-  // 2. Add Modal Helper Methods
   showStatus(msg: string, type: 'success' | 'error') {
     this.statusMessage = msg;
     this.statusType = type;
@@ -358,10 +286,4 @@ const rows = this.simpleForm.getRawValue().tableData;  let completed = 0;
     this.statusMessage = null;
     this.statusType = null;
   }
-
-
-
-
-
-
 }
