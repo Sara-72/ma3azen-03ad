@@ -1,0 +1,100 @@
+<app-header>
+
+</app-header>
+
+
+<div class="page-container">
+  <aside class="sidebar">
+    <h5>
+      مرحبًا بك
+      <!-- <span *ngIf="displayName">، {{ displayName }}</span> -->
+    </h5>
+    <ul class="mt-5">
+      <li><a href="/ameen1">المخزن</a></li>
+      <li><a href="/ameen2">دفتر اليومية</a></li>
+      <li><a href="/ameen3">أذونات الصرف</a></li>
+      <li><a href="/ameen4">دفاتر اليومية</a></li>
+      <li><a href="/ameen5">مخزنك</a></li>
+      <li><a href="/ameen6">الجرد</a></li>
+      <li class="active"><a>عهد الموظفين</a></li>
+    </ul>
+  </aside>
+
+<div class="container py-5">
+
+    <div class="header-section text-center mb-5 fade-in">
+      <h2 class="title fw-bold">سجل عهد الموظفين</h2>
+
+
+      <div class="search-container mt-4 mx-auto shadow-3d">
+        <div class="input-group">
+          <span class="input-group-text bg-white border-0">
+            <i class="fas fa-search" style="color:var(--primary-color)"></i>
+          </span>
+          <input type="text"
+                 class="form-control border-0 shadow-none"
+                 placeholder="ابحث باسم الموظف أو الصنف..."
+                 [(ngModel)]="searchTerm">
+        </div>
+      </div>
+    </div>
+
+    <div class="table-card shadow-3d mb-5" *ngIf="filteredCustody().length > 0; else noData">
+      <div class="table-responsive">
+        <table class="custom-table align-middle mb-0">
+          <thead>
+            <tr>
+              <th>اسم الموظف</th>
+              <th>الصنف المستلم</th>
+              <th>الكمية</th>
+              <th>تاريخ الاستلام</th>
+              <th>حالة العهدة</th>
+
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of filteredCustody(); let i = index"
+                [style.animation-delay]="(i * 0.1) + 's'"
+               class="row-animate">
+
+              <td class="fw-bold text-dark">{{ item.employeeName }}</td>
+              <td>
+                <div class="item-cell">
+
+                  {{ item.itemName }}
+                </div>
+              </td>
+              <td><span class="badge-3d-qty">{{ item.quantity }}</span></td>
+              <td>{{ item.receivedDate }}</td>
+              <td>
+                <span class="status-received-3d">
+                  <i class="fas fa-check-double me-1"></i> تم الاستلام
+                </span>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <ng-template #noData>
+      <div class="no-data-wrapper">
+        <div class="text-center">
+          <i class="fas fa-layer-group d-block mb-3 empty-icon m-auto"></i>
+          <p class="m-auto fw-bold fs-4 text-muted">لا توجد عهد مسجلة حالياً.</p>
+        </div>
+      </div>
+    </ng-template>
+
+</div>
+
+</div>
+
+
+
+
+
+<app-footer>
+
+</app-footer>
