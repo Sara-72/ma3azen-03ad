@@ -37,9 +37,9 @@
           <thead>
             <tr>
               <th>التاريخ</th>
+              <th>الصنف</th>
               <th>وارد من / منصرف إلى</th>
-              <th>قيمة الأصناف المضافة</th>
-              <th>قيمة الأصناف المنصرفة</th>
+              <th>قيمة الأصناف (وارد / منصرف)</th>
             </tr>
           </thead>
 
@@ -47,9 +47,24 @@
             @for (rowGroup of tableData.controls; track $index) {
             <tr [formGroupName]="$index">
               <td><input type="date" formControlName="date" class="form-control table-input"></td>
-              <td><input type="text" formControlName="sourceOrDestination" class="form-control table-input"></td>
-              <td><input type="text" formControlName="addedValue" class="form-control table-input"></td>
-              <td><input type="text" formControlName="issuedValue" class="form-control table-input"></td>
+<td>
+          <select formControlName="itemName" class="form-select table-select">
+            <option value="" disabled selected>اختر الصنف</option>
+            <option *ngFor="let item of availableItems" [value]="item">{{ item }}</option>
+          </select>
+        </td>
+        <td>
+          <select formControlName="sourceOrDestination" class="form-select table-select">
+            <option value="" disabled selected>اختر </option>
+            <option *ngFor="let opt of sourceDestinationOptions" [value]="opt">{{ opt }}</option>
+          </select>
+        </td>
+        <td>
+          <div class="input-group-3d">
+            <input type="number" formControlName="itemValue" class="form-control table-input no-spin" placeholder="0.00">
+
+          </div>
+        </td>
             </tr>
             }
           </tbody>

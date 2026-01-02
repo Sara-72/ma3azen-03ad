@@ -21,10 +21,27 @@ import { LedgerService, LedgerEntry } from '../../../services/ledger.service';
 export class Ameen2Component implements OnInit {
 
  userName: string = '';
-  displayName: string = '';
+displayName: string = '';
+
+
+  // 1. Define your item options
+  availableItems: string[] = [
+    'جهاز كمبيوتر لاب توب',
+    'طابعة ليزر',
+    'ورق A4',
+    'كراسي مكتب',
+    'أحبار طابعات'
+  ];
 
 
   assetTypes: string[] = ['مستهلك', 'مستديم'];
+
+
+  sourceDestinationOptions: string[] = [
+    'وارد من',
+    'منصرف الى'
+
+  ];
 
   inventoryLogForm!: FormGroup;
   isSubmitting = signal(false);
@@ -41,12 +58,14 @@ export class Ameen2Component implements OnInit {
 }
 
   ngOnInit(): void {
-     this.userName = localStorage.getItem('name') || '';
+    this.userName = localStorage.getItem('name') || '';
     this.displayName = this.getFirstTwoNames(this.userName);
 
     // Start with one empty row
     this.tableData.push(this.createTableRowFormGroup());
   }
+
+
  getFirstTwoNames(fullName: string): string {
     if (!fullName) return '';
 
@@ -66,10 +85,14 @@ export class Ameen2Component implements OnInit {
   private createTableRowFormGroup(): FormGroup {
     return this.fb.group({
       date: ['',Validators.required],             // التاريخ
+      itemName: ['', Validators.required],
 
       sourceOrDestination: ['',Validators.required], // وارد من / منصرف إلى
       addedValue: ['',Validators.required],       // قيمة الأصناف المضافة
       issuedValue: ['',Validators.required],      // قيمة الأصناف المنصرفة
+
+      itemValue: ['', [Validators.required, Validators.min(0)]], // Number input
+      transactionType: ['added', Validators.required] // To keep logic clean
 
 
 
@@ -92,11 +115,12 @@ export class Ameen2Component implements OnInit {
 
   // --- SAVE BUTTON LOGIC ---
 
- onSubmit(): void {
-  if (this.inventoryLogForm.invalid) {
-    this.inventoryLogForm.markAllAsTouched();
-    return;
-  }
+// Update your onSubmit mapping to handle the new structure
+  onSubmit(): void {
+    if (this.inventoryLogForm.invalid) {
+      this.inventoryLogForm.markAllAsTouched();
+      return;
+    }
 
   this.isSubmitting.set(true);
 

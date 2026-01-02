@@ -34,17 +34,19 @@
           <thead>
             <tr>
               <th style="width: 20%;">التاريخ</th>
+              <th style="width: 20%;">الصنف</th>
               <th style="width: 40%;">وارد من / منصرف إلى</th>
-              <th style="width: 20%;">قيمة الأصناف المضافة</th>
-              <th style="width: 20%;">قيمة الأصناف المنصرفة</th>
+              <th style="width: 20%;">قيمة الأصناف المضافة/المنصرفة</th>
+
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let entry of consumerEntries()">
               <td>{{ entry.date | date:'dd/MM/yyyy' }}</td>
+              <td></td>
               <td>{{ entry.documentReference }}</td>
-              <td>{{ entry.addedItemsValue }}</td>
-              <td>{{ entry.issuedItemsValue }}</td>
+              <td></td>
+
             </tr>
           </tbody>
         </table>
@@ -66,17 +68,19 @@
           <thead>
             <tr>
               <th style="width: 20%;">التاريخ</th>
+                <th style="width: 20%;">الصنف</th>
               <th style="width: 40%;">وارد من / منصرف إلى</th>
-              <th style="width: 20%;">قيمة الأصناف المضافة</th>
-              <th style="width: 20%;">قيمة الأصناف المنصرفة</th>
+              <th style="width: 20%;">قيمة الأصناف المضافة/المنصرفة</th>
+
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let entry of durableEntries()">
               <td>{{ entry.date | date:'dd/MM/yyyy' }}</td>
+              <td></td>
               <td>{{ entry.documentReference }}</td>
-              <td>{{ entry.addedItemsValue }}</td>
-              <td>{{ entry.issuedItemsValue }}</td>
+              <td></td>
+
             </tr>
           </tbody>
         </table>

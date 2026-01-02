@@ -141,7 +141,7 @@ private getTodayDate(): string {
       count: ['', Validators.required],
       itemType: ['', Validators.required], // نوع الصنف
       unit:['',Validators.required],
-      entryDate: [{ value: this.getTodayDate(), disabled: true }, Validators.required]
+      entryDate: ['', Validators.required]
     });
   }
 

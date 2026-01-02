@@ -50,11 +50,7 @@ getFirstTwoNames(fullName: string): string {
     .join(' ');
 }
 
-    // days: string[] = Array.from({ length: 31 }, (_, i) => String(i + 1).padStart(2, '0')); // "01" to "31"
-    // months: string[] = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0')); // "01" to "12"
-    // years: string[] = Array.from({ length: 100 }, (_, i) => String(2000 + i));// "00" to "99" (Last 2 digits of year)
-
-
+ 
     categoryItemMap: CategoryItemMap = {
     'أثاث مكتبي': ['مكتب مدير', 'كرسي دوار', 'خزانة ملفات'],
     'قرطاسية': ['أقلام حبر', 'أوراق A4', 'دفاتر ملاحظات'],
@@ -132,7 +128,7 @@ private getTodayDate(): string {
       count: ['', Validators.required],
       itemType: ['', Validators.required], // نوع الصنف
       unit:[ '',Validators.required],
-entryDate: [{ value: this.getTodayDate(), disabled: true }, Validators.required]
+      entryDate: ['' ,Validators.required]
     });
   }
 
