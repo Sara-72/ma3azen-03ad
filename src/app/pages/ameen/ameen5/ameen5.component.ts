@@ -47,38 +47,73 @@ export class Ameen5Component implements OnInit {
       .slice(0, 2)
       .join(' ');
   }
+  private groupStocks(stocks: StockResponse[]): StockResponse[] {
+  const grouped = new Map<string, StockResponse>();
+
+  stocks.forEach(stock => {
+    // 🔹 المفتاح اللي بيحدد التجميع
+    const key = `${stock.category}|${stock.itemName}|${stock.storeType}|${stock.unit}`;
+
+    if (grouped.has(key)) {
+      // 🔹 لو موجود قبل كده → نجمع الكمية
+      grouped.get(key)!.quantity += stock.quantity;
+    } else {
+      // 🔹 أول مرة → نخزن نسخة
+      grouped.set(key, {
+        ...stock,
+        quantity: stock.quantity,
+        // اختياري: نخلي التاريخ أحدث تاريخ
+        date: stock.date
+      });
+    }
+  });
+
+  return Array.from(grouped.values());
+}
+
 
   loadStocks(): void {
-    this.isLoading = true;
-    this.stockService.getAllStocks().subscribe({
-      next: (data) => {
-        this.stocks = data;
+  this.isLoading = true;
+  this.stockService.getAllStocks().subscribe({
+    next: (data) => {
 
-        // 🔹 استخراج الفئات بدون تكرار
-        this.categories = [...new Set(data.map(stock => stock.category))];
+      // 🔹 تخزين الداتا الأصلية لو احتجناها
+      this.stocks = data;
 
-        // 🔹 في البداية نعرض الكل
-        this.filteredStocks = [...this.stocks];
+      // 🔹 تجميع المخزن
+      const groupedStocks = this.groupStocks(data);
 
-        this.isLoading = false;
-      },
-      error: (err) => {
-        console.error('Error loading stocks', err);
-        this.isLoading = false;
-      }
-    });
-  }
+      // 🔹 استخراج الفئات من الداتا المجمعة
+      this.categories = [
+        ...new Set(groupedStocks.map(stock => stock.category))
+      ];
+
+      // 🔹 العرض يكون من الداتا المجمعة
+      this.filteredStocks = groupedStocks;
+
+      this.isLoading = false;
+    },
+    error: (err) => {
+      console.error('Error loading stocks', err);
+      this.isLoading = false;
+    }
+  });
+}
+
 
   // 🔹 فلترة حسب الفئة (عرض فقط)
   filterByCategory(): void {
-    if (!this.selectedCategory) {
-      this.filteredStocks = [...this.stocks];
-    } else {
-      this.filteredStocks = this.stocks.filter(
-        stock => stock.category === this.selectedCategory
-      );
-    }
+  const groupedStocks = this.groupStocks(this.stocks);
+
+  if (!this.selectedCategory) {
+    this.filteredStocks = groupedStocks;
+  } else {
+    this.filteredStocks = groupedStocks.filter(
+      stock => stock.category === this.selectedCategory
+    );
   }
+}
+
 
   // 🔹 trackBy لتحسين الأداء في *ngFor
   trackById(index: number, item: StockResponse) {
