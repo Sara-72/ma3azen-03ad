@@ -3,12 +3,13 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../../../components/header/header.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
 import { FormBuilder, ReactiveFormsModule, FormGroup, Validators, FormArray } from '@angular/forms';
-import { catchError, lastValueFrom, Observable, of } from 'rxjs';
+import { catchError, lastValueFrom, of } from 'rxjs';
 import { LedgerService, LedgerEntry } from '../../../services/ledger.service';
-
+import { CentralStoreService, CentralStoreResponse } from '../../../services/central-store.service';
 
 @Component({
   selector: 'app-ameen2',
+  standalone: true,
   imports: [
     HeaderComponent,
     FooterComponent,
@@ -16,153 +17,204 @@ import { LedgerService, LedgerEntry } from '../../../services/ledger.service';
     ReactiveFormsModule
   ],
   templateUrl: './ameen2.component.html',
-  styleUrl: './ameen2.component.css'
+  styleUrls: ['./ameen2.component.css']
 })
 export class Ameen2Component implements OnInit {
 
- userName: string = '';
-displayName: string = '';
-
-
-  // 1. Define your item options
-  availableItems: string[] = [
-    'جهاز كمبيوتر لاب توب',
-    'طابعة ليزر',
-    'ورق A4',
-    'كراسي مكتب',
-    'أحبار طابعات'
-  ];
+  userName: string = '';
+  displayName: string = '';
+  statusMessage: string | null = null;
+  statusType: 'success' | 'error' | null = null;
+  simpleForm!: FormGroup;
 
 
   assetTypes: string[] = ['مستهلك', 'مستديم'];
+  sourceDestinationOptions: string[] = ['وارد من', 'منصرف الى'];
 
-
-  sourceDestinationOptions: string[] = [
-    'وارد من',
-    'منصرف الى'
-
-  ];
+  // ✅ هنا قائمة الأصناف ستأتي من المخزن المركزي
+  availableItems: string[] = [];
 
   inventoryLogForm!: FormGroup;
   isSubmitting = signal(false);
 
   private fb = inject(FormBuilder);
   private ledgerService = inject(LedgerService);
+  private centralStoreService = inject(CentralStoreService);
 
   constructor() {
-  this.inventoryLogForm = this.fb.group({
-
-    assetType: ['', Validators.required],
-    tableData: this.fb.array([])
-  });
-}
+    this.inventoryLogForm = this.fb.group({
+      assetType: ['', Validators.required],
+      tableData: this.fb.array([])
+    });
+  }
 
   ngOnInit(): void {
     this.userName = localStorage.getItem('name') || '';
     this.displayName = this.getFirstTwoNames(this.userName);
 
+    // جلب الأصناف من المخزن المركزي
+    this.loadAvailableItems();
+
     // Start with one empty row
     this.tableData.push(this.createTableRowFormGroup());
   }
 
-
- getFirstTwoNames(fullName: string): string {
-    if (!fullName) return '';
-
-    return fullName
-      .trim()
-      .split(/\s+/)
-      .slice(0, 2)
-      .join(' ');
+  getFirstTwoNames(fullName: string): string {
+    return fullName ? fullName.trim().split(/\s+/).slice(0, 2).join(' ') : '';
   }
 
-  // Helper getter to easily access the FormArray
+  private loadAvailableItems(): void {
+  this.centralStoreService.getAll().subscribe({
+    next: (data: CentralStoreResponse[]) => {
+      // استخدم Set لإزالة التكرارات
+      const uniqueItems = new Set<string>();
+      data.forEach(d => uniqueItems.add(d.itemName));
+      this.availableItems = Array.from(uniqueItems).sort(); // optional: ترتيب الأبجدي
+    },
+    error: (err) => {
+      console.error('Failed to load central store items:', err);
+    }
+  });
+}
+
+
+  // --- FormArray Helper ---
   get tableData(): FormArray {
     return this.inventoryLogForm.get('tableData') as FormArray;
   }
 
-  // Helper function to create the form group for a single table row (7 columns)
   private createTableRowFormGroup(): FormGroup {
     return this.fb.group({
-      date: ['',Validators.required],             // التاريخ
+      date: ['', Validators.required],
       itemName: ['', Validators.required],
-
-      sourceOrDestination: ['',Validators.required], // وارد من / منصرف إلى
-      addedValue: ['',Validators.required],       // قيمة الأصناف المضافة
-      issuedValue: ['',Validators.required],      // قيمة الأصناف المنصرفة
-
-      itemValue: ['', [Validators.required, Validators.min(0)]], // Number input
-      transactionType: ['added', Validators.required] // To keep logic clean
-
-
-
+      sourceOrDestination: ['', Validators.required],
+      addedValue: [''],
+      issuedValue: [''],
+      transactionType: ['added', Validators.required] // 'added' = وارد | 'issued' = منصرف
     });
   }
+  private sameDay(d1: string, d2: string): boolean {
+  return d1.split('T')[0] === d2.split('T')[0];
+}
 
-  //  Method to add a new row
+
   addRow(): void {
     this.tableData.push(this.createTableRowFormGroup());
   }
 
-  // Method to remove the last row
   removeRow(): void {
     if (this.tableData.length > 1) {
       this.tableData.removeAt(this.tableData.length - 1);
-    } else if (this.tableData.length === 1) {
+    } else {
       this.tableData.at(0).reset();
     }
   }
 
-  // --- SAVE BUTTON LOGIC ---
-
-// Update your onSubmit mapping to handle the new structure
-  onSubmit(): void {
-    if (this.inventoryLogForm.invalid) {
-      this.inventoryLogForm.markAllAsTouched();
-      return;
-    }
+ onSubmit(): void {
+  if (this.inventoryLogForm.invalid) {
+    this.inventoryLogForm.markAllAsTouched();
+    return;
+  }
 
   this.isSubmitting.set(true);
 
-  const requests = this.tableData.value.map((row: any, index: number) => {
+  const assetTypeIndex =
+    this.assetTypes.indexOf(this.inventoryLogForm.value.assetType);
 
-  const entry: LedgerEntry = {
-  date: new Date(row.date).toISOString(),
-  documentReference: row.sourceOrDestination,
-  addedItemsValue: Number(row.addedValue) || 0,
-  issuedItemsValue: Number(row.issuedValue) || 0,
-  storeType: this.assetTypes.indexOf(
-    this.inventoryLogForm.value.assetType
-  ) + 1, // 1 أو 2 زي Swagger
-  spendPermissionId: null
-};
+  /* ========== STEP 1: GROUP FORM ROWS ========== */
+  const rawRows = this.inventoryLogForm.getRawValue().tableData;
 
+  const groupedMap = new Map<string, any>();
 
+  rawRows.forEach((row: any) => {
+    const value =
+      row.transactionType === 'added'
+        ? Number(row.addedValue || 0)
+        : -(Number(row.issuedValue || 0));
 
+    const key = [
+      row.date,
+      row.itemName,
+      assetTypeIndex,
+      row.sourceOrDestination
+    ].join('|');
 
-    return lastValueFrom(
-      this.ledgerService.addLedgerEntry(entry).pipe(
-        catchError(err => {
-          console.error('API Error:', err);
-          throw err; // ✅ فشل حقيقي
-        })
-      )
-    );
+    if (groupedMap.has(key)) {
+      groupedMap.get(key).itemsValue += value;
+    } else {
+      groupedMap.set(key, {
+        date: row.date,
+        itemName: row.itemName,
+        documentReference: row.sourceOrDestination,
+        storeType: assetTypeIndex,
+        itemsValue: value
+      });
+    }
   });
 
-  Promise.all(requests)
-    .then(() => {
-      alert('تم حفظ البيانات بنجاح');
-      this.inventoryLogForm.reset();
-      this.tableData.clear();
-      this.addRow();
-    })
-    .catch(() => {
-      alert('فشل حفظ البيانات');
-    })
-    .finally(() => this.isSubmitting.set(false));
+  const rows = Array.from(groupedMap.values());
+
+  /* ========== STEP 2: SAVE TO DATABASE ========== */
+  let completed = 0;
+  const total = rows.length;
+
+  this.ledgerService.getLedgerEntries().pipe(
+    catchError(() => of([]))
+  ).subscribe(existingEntries => {
+
+    rows.forEach(row => {
+
+      const existing = existingEntries.find(e =>
+        e.itemName === row.itemName &&
+        e.documentReference === row.documentReference &&
+        e.storeType === row.storeType &&
+        this.sameDay(e.date, row.date)
+      );
+
+      /* ===== UPDATE ===== */
+      if (existing) {
+        this.ledgerService.updateLedgerEntry(existing.id!, {
+          ...existing,
+          itemsValue: existing.itemsValue + row.itemsValue
+        }).subscribe(() => {
+          this.handleComplete(++completed, total);
+        });
+
+      /* ===== ADD ===== */
+      } else {
+        this.ledgerService.addLedgerEntry({
+          date: new Date(row.date).toISOString(),
+          itemName: row.itemName,
+          documentReference: row.documentReference,
+          itemsValue: row.itemsValue,
+          storeType: row.storeType,
+          spendPermissionId: null,
+          spendPermission: null
+        }).subscribe(() => {
+          this.handleComplete(++completed, total);
+        });
+      }
+    });
+  });
 }
+private handleComplete(done: number, total: number) {
+  if (done === total) {
+    this.isSubmitting.set(false);
+    alert('تم حفظ البيانات بنجاح');
+    this.showStatus('تم حفظ البيانات بنجاح', 'success');
+    this.simpleForm.reset();
+    this.tableData.clear();
+    this.addRow();
+  }
+}
+ showStatus(msg: string, type: 'success' | 'error') {
+    this.statusMessage = msg;
+    this.statusType = type;
+  }
 
-
+  closeStatusMessage() {
+    this.statusMessage = null;
+    this.statusType = null;
+  }
 
 }
