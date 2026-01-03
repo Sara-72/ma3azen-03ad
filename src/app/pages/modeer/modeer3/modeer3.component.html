@@ -114,12 +114,12 @@
 
                         <!-- Rejection Reason -->
                         <div *ngIf="note.decision === 'مرفوض'" class="mb-3">
-                            <label class="fw-bold">سبب الرفض</label>
+
                             <textarea class="form-control" rows="3" [(ngModel)]="note.rejectionReason"
-                                placeholder="اكتب سبب الرفض"></textarea>
+                                placeholder="اكتب سبب الرفض.."></textarea>
 
                             <small class="text-danger" *ngIf="note.showReasonError">
-                                سبب الرفض مطلوب
+                                من فضلك أدخل سبب الرفض
                             </small>
                         </div>
 
