@@ -117,34 +117,38 @@ displayName: string = '';
 
 // Update your onSubmit mapping to handle the new structure
   onSubmit(): void {
-    if (this.inventoryLogForm.invalid) {
-      this.inventoryLogForm.markAllAsTouched();
-      return;
-    }
+  if (this.inventoryLogForm.invalid) {
+    this.inventoryLogForm.markAllAsTouched();
+    return;
+  }
 
   this.isSubmitting.set(true);
 
-  const requests = this.tableData.value.map((row: any, index: number) => {
+  const assetTypeIndex = this.assetTypes.indexOf(this.inventoryLogForm.value.assetType);
 
-  const entry: LedgerEntry = {
-  date: new Date(row.date).toISOString(),
-  documentReference: row.sourceOrDestination,
-  addedItemsValue: Number(row.addedValue) || 0,
-  issuedItemsValue: Number(row.issuedValue) || 0,
-  storeType: this.assetTypes.indexOf(
-    this.inventoryLogForm.value.assetType
-  ) + 1, // 1 أو 2 زي Swagger
-  spendPermissionId: null
-};
+  const requests = this.tableData.value.map((row: any) => {
 
+    // تحديد قيمة itemsValue بناءً على نوع المعاملة
+    const itemsValue =
+      row.transactionType === 'added'
+        ? Number(row.addedValue) || 0
+        : -(Number(row.issuedValue) || 0); // سالب لو منصرف
 
-
+    const entry: LedgerEntry = {
+      date: new Date(row.date).toISOString(),
+      itemName: row.itemName,
+      documentReference: row.sourceOrDestination,
+      itemsValue: itemsValue,
+      storeType: assetTypeIndex,  // 0 = مستهلك | 1 = مستديم
+      spendPermissionId: null,
+      spendPermission: null
+    };
 
     return lastValueFrom(
       this.ledgerService.addLedgerEntry(entry).pipe(
         catchError(err => {
           console.error('API Error:', err);
-          throw err; // ✅ فشل حقيقي
+          throw err; 
         })
       )
     );
@@ -162,6 +166,7 @@ displayName: string = '';
     })
     .finally(() => this.isSubmitting.set(false));
 }
+
 
 
 
