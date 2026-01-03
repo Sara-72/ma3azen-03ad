@@ -80,6 +80,26 @@ export class Modeer2Component implements OnInit {
   });
 }
 
+public syncIssuedQuantity(formIndex: number, rowIndex: number): void {
+  const row = (this.consumableForms[formIndex]
+    .get('tableData') as FormArray).at(rowIndex) as FormGroup;
+
+  const required = Number(row.get('quantityRequired')?.value || 0);
+  const approved = Number(row.get('quantityAuthorized')?.value || 0);
+
+  if (required <= approved) {
+    row.get('quantityIssued')?.setValue(required, { emitEvent: false });
+  } else {
+    row.get('quantityIssued')?.setValue(approved, { emitEvent: false });
+  }
+
+  // تحديث القيمة الإجمالية
+  const unitPrice = Number(row.get('unitPrice')?.value || 0);
+  row.patchValue(
+    { value: row.get('quantityIssued')?.value * unitPrice },
+    { emitEvent: false }
+  );
+}
 
   private getAvailableQuantity(itemName: string, storeType: string): number {
   const stockItem = this.storeKeeperStocks.find(
@@ -88,30 +108,81 @@ export class Modeer2Component implements OnInit {
 
   return stockItem?.quantity || 0;
 }
+public checkStockForForm(form: FormGroup): boolean {
 
-checkIssuedQuantity(formIndex: number, rowIndex: number) {
-  const row = (this.consumableForms[formIndex].get('tableData') as FormArray).at(rowIndex);
+  const tableArray = form.get('tableData') as FormArray;
+  let hasError = false;
 
-  const issued = Number(row.get('quantityIssued')?.value || 0);
-  const itemName = row.get('itemName')?.value;
-  const storeType = row.get('storeType')?.value;
+  // 🔹 مسح أي أخطاء قديمة
+  tableArray.controls.forEach(ctrl => {
+    (ctrl as FormGroup).setErrors(null);
+  });
 
-  const available = this.getAvailableQuantity(itemName, storeType);
+  // 1️⃣ تجميع الكمية المطلوبة لكل صنف
+  const requiredMap = new Map<string, number>();
 
-  if (issued > available) {
-    row.get('quantityIssued')?.setErrors({
-      exceedStock: { available }
-    });
-  } else {
-    const errors = row.get('quantityIssued')?.errors;
-    if (errors) {
-      delete errors['exceedStock'];
-      if (Object.keys(errors).length === 0) {
-        row.get('quantityIssued')?.setErrors(null);
-      }
+  tableArray.controls.forEach(ctrl => {
+    const row = ctrl as FormGroup;
+
+    const itemName = row.get('itemName')?.value;
+    const storeType = row.get('storeType')?.value;
+    const category = form.get('category')?.value;
+    const qty = Number(row.get('quantityIssued')?.value || 0);
+
+    const key = `${itemName}|${storeType}|${category}`;
+    requiredMap.set(key, (requiredMap.get(key) || 0) + qty);
+  });
+
+  //  فحص المخزون
+  requiredMap.forEach((totalRequired, key) => {
+    const [itemName, storeType, category] = key.split('|');
+
+    const matchingStocks = this.storeKeeperStocks.filter(s =>
+  s.itemName?.trim() === itemName?.trim() &&
+  s.storeType?.trim() === storeType?.trim() &&
+  s.category?.trim() === category?.trim()
+);
+
+
+    //  الصنف غير موجود
+    if (matchingStocks.length === 0) {
+      hasError = true;
+
+      tableArray.controls.forEach(ctrl => {
+        const row = ctrl as FormGroup;
+        if (row.get('itemName')?.value === itemName) {
+          row.setErrors({ stockError: true });
+        }
+      });
+
+      return;
     }
-  }
+
+    const totalAvailable = matchingStocks
+      .reduce((sum, s) => sum + Number(s.quantity || 0), 0);
+
+    // ❌ الكمية غير كافية
+    if (totalRequired > totalAvailable) {
+      hasError = true;
+
+      tableArray.controls.forEach(ctrl => {
+        const row = ctrl as FormGroup;
+        if (row.get('itemName')?.value === itemName) {
+          row.setErrors({
+            exceedStock: {
+              required: totalRequired,
+              available: totalAvailable
+            }
+          });
+        }
+      });
+    }
+  });
+
+  return hasError;
 }
+
+
 
   private getItemDefaults(itemName: string): { unit: string; storeType: string } {
   if (!itemName) {
@@ -443,6 +514,13 @@ onSubmitForm(form: FormGroup) {
       console.error('Save error:', err);
       this.statusMessage = 'حدث خطأ أثناء الحفظ ❌';
       this.statusType = 'error';
+      const hasStockError = this.checkStockForForm(form);
+
+if (hasStockError) {
+  this.scrollToFirstInvalidControl(form);
+  return;
+}
+
       this.isSubmitting.set(false);
     });
 }
