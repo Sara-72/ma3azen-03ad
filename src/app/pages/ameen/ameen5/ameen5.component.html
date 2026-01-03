@@ -27,7 +27,7 @@
       <div class="mb-4 text-end">
         <label class="form-label fw-medium">اختر الفئة:</label>
         <select
-          class="form-select w-50 "
+          class="form-select w-50"
           [(ngModel)]="selectedCategory"
           (change)="filterByCategory()"
         >
@@ -51,23 +51,20 @@
         </thead>
 
         <tbody>
-          @if (filteredStocks.length === 0) {
-            <tr>
-              <td colspan="5">لا توجد بيانات متوفرة</td>
-            </tr>
-          }
-          @else {
-            @for (stock of filteredStocks; track stock.id) {
-              <tr>
-                <td>{{ stock.category }}</td>
-                <td>{{ stock.itemName }}</td>
-                <td>{{ stock.storeType }}</td>
-                <td>{{ stock.unit }}</td>
-                <td>{{ stock.quantity }}</td>
-                <td></td>
-              </tr>
-            }
-          }
+          <!-- 🔹 حالة عدم وجود بيانات -->
+          <tr *ngIf="filteredStocks.length === 0">
+            <td colspan="6">لا توجد بيانات متوفرة</td>
+          </tr>
+
+          <!-- 🔹 عرض البيانات -->
+          <tr *ngFor="let stock of filteredStocks; trackBy: trackById">
+            <td>{{ stock.category }}</td>
+            <td>{{ stock.itemName }}</td>
+            <td>{{ stock.storeType }}</td>
+            <td>{{ stock.unit }}</td>
+            <td>{{ stock.quantity }}</td>
+            <td>{{ stock.date | date:'yyyy-MM-dd' }}</td>
+          </tr>
         </tbody>
       </table>
     </div>

@@ -18,12 +18,11 @@ import { FormsModule } from '@angular/forms';
     FormsModule   // 🔹 مهم للـ ngModel
   ],
   templateUrl: './ameen5.component.html',
-  styleUrl: './ameen5.component.css'
+  styleUrls: ['./ameen5.component.css']
 })
 export class Ameen5Component implements OnInit {
-userName: string = '';
+  userName: string = '';
   displayName: string = '';
-
 
   private stockService = inject(StoreKeeperStockService);
 
@@ -34,14 +33,14 @@ userName: string = '';
   isLoading = true;
 
   ngOnInit(): void {
-     this.userName = localStorage.getItem('name') || '';
+    this.userName = localStorage.getItem('name') || '';
     this.displayName = this.getFirstTwoNames(this.userName);
 
     this.loadStocks();
   }
- getFirstTwoNames(fullName: string): string {
-    if (!fullName) return '';
 
+  getFirstTwoNames(fullName: string): string {
+    if (!fullName) return '';
     return fullName
       .trim()
       .split(/\s+/)
@@ -49,15 +48,14 @@ userName: string = '';
       .join(' ');
   }
 
-   loadStocks(): void {
+  loadStocks(): void {
+    this.isLoading = true;
     this.stockService.getAllStocks().subscribe({
       next: (data) => {
         this.stocks = data;
 
         // 🔹 استخراج الفئات بدون تكرار
-        this.categories = [
-          ...new Set(data.map(stock => stock.category))
-        ];
+        this.categories = [...new Set(data.map(stock => stock.category))];
 
         // 🔹 في البداية نعرض الكل
         this.filteredStocks = [...this.stocks];
@@ -80,5 +78,15 @@ userName: string = '';
         stock => stock.category === this.selectedCategory
       );
     }
+  }
+
+  // 🔹 trackBy لتحسين الأداء في *ngFor
+  trackById(index: number, item: StockResponse) {
+    return item.id;
+  }
+
+  // 🔹 يمكن استدعاؤها بعد أي إضافة أو تعديل
+  reloadStocks() {
+    this.loadStocks();
   }
 }
