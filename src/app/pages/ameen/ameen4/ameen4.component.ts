@@ -32,10 +32,7 @@ export class Ameen4Component implements OnInit {
     this.userName = localStorage.getItem('name') || '';
     this.displayName = this.getFirstTwoNames(this.userName);
 
-    // 1️⃣ تحميل كل الدفاتر من LedgerEntries أولًا
     this.loadLedgerEntries();
-
-    // 2️⃣ جلب أي جديد من المخازن وSpendPermissions وحفظه في LedgerEntries
     this.updateLedgerFromStores();
   }
 
@@ -47,26 +44,23 @@ export class Ameen4Component implements OnInit {
     this.ledgerService.getLedgerEntries().pipe(
       catchError(() => of([]))
     ).subscribe((ledgerEntries: LedgerEntry[]) => {
+
       const consumer: any[] = [];
       const durable: any[] = [];
 
       ledgerEntries
-  .sort((a, b) => {
-    return new Date(a.date).getTime() - new Date(b.date).getTime();
-  })
-  .forEach(entry => {
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .forEach(entry => {
+          const row = {
+            date: entry.date ? new Date(entry.date) : new Date(),
+            itemName: entry.itemName,
+            category: entry.storeType === 0 ? 'مستهلك' : 'مستديم',
+            quantity: entry.itemsValue,
+            source: entry.documentReference
+          };
 
-    const row = {
-      date: entry.date ? new Date(entry.date) : new Date(),
-      itemName: entry.itemName,
-      category: entry.storeType === 0 ? 'مستهلك' : 'مستديم',
-      quantity: entry.itemsValue,
-      source: entry.documentReference
-    };
-
-    entry.storeType === 0 ? consumer.push(row) : durable.push(row);
-  });
-
+          entry.storeType === 0 ? consumer.push(row) : durable.push(row);
+        });
 
       this.consumerEntries.set(consumer);
       this.durableEntries.set(durable);
@@ -79,66 +73,91 @@ export class Ameen4Component implements OnInit {
   private updateLedgerFromStores() {
     forkJoin({
       central: this.centralStoreService.getAll().pipe(catchError(() => of([]))),
-      spend: this.spendService.getAll().pipe(catchError(() => of([])))
-    }).subscribe(async ({ central, spend }) => {
+      spend: this.spendService.getAll().pipe(catchError(() => of([]))),
+      ledger: this.ledgerService.getLedgerEntries().pipe(catchError(() => of([])))
+    }).subscribe(async ({ central, spend, ledger }) => {
 
       const requests: Promise<any>[] = [];
 
-      // 1️⃣ Central Store
+      // فقط المخزن المركزي يحتاج تفادي duplicates
+      const ledgerKeys = new Set(
+        ledger.map(l => `${l.itemName}|${l.date}|${l.documentReference}|${l.storeType}`)
+      );
+
+      /* ======================
+         1️⃣ المخزن المركزي
+      ====================== */
       central.forEach(entry => {
-        const e = entry as any; // type assertion لتجنب خطأ TS
+        const e = entry as any;
 
         if (e.ledgerEntriesStatus !== 'لم يسجل') return;
+
+        const key = `${e.itemName}|${e.date}|وارد من|${e.storeType === 'مستهلك' ? 0 : 1}`;
+        if (ledgerKeys.has(key)) return;
 
         const ledgerEntry: LedgerEntry = {
           date: e.date || new Date(),
           itemName: e.itemName,
           documentReference: 'وارد من',
-          itemsValue: e.quantity || 0,
+          itemsValue: Math.abs(e.quantity || 0),
           storeType: e.storeType === 'مستهلك' ? 0 : 1,
           spendPermissionId: null,
           spendPermission: null
         };
 
+        ledgerKeys.add(key);
+
         requests.push(
           lastValueFrom(this.ledgerService.addLedgerEntry(ledgerEntry))
-            .then(() => lastValueFrom(this.centralStoreService.update(e.id, {
-              ...e,
-              ledgerEntriesStatus: 'تم التسجيل'
-            })))
+            .then(() =>
+              lastValueFrom(
+                this.centralStoreService.update(e.id, {
+                  ...e,
+                  ledgerEntriesStatus: 'تم التسجيل'
+                })
+              )
+            )
         );
       });
 
-      // 2️⃣ Spend Permissions
+      /* ======================
+         2️⃣ أذونات الصرف
+         ✅ كل الصرف يتم تسجيله بالقيمة الموجبة حتى لو نفس العنصر والفئة والتاريخ
+      ====================== */
       spend.forEach(sp => {
         const s = sp as any;
 
-        if (s.ledgerEntriesStatus !== 'لم يسجل' ||
-            (s.permissionStatus !== 'تم الصرف' && s.permissionStatus !== 'تم الاسترجاع')) return;
+        if (
+          s.ledgerEntriesStatus === 'تم التسجيل' || 
+          (s.permissionStatus !== 'تم الصرف' && s.permissionStatus !== 'تم الاسترجاع')
+        ) return;
 
         const sourceText = s.permissionStatus === 'تم الصرف' ? 'منصرف إلى' : 'وارد من';
-        const storeHouse = (s.storeHouse || '').toLowerCase();
+        const storeType = (s.storeHouse || '').toLowerCase().includes('مستهلك') ? 0 : 1;
 
         const ledgerEntry: LedgerEntry = {
           date: s.issueDate || new Date(),
           itemName: s.itemName,
           documentReference: sourceText,
-          itemsValue: s.issuedQuantity || 0,
-          storeType: storeHouse.includes('مستهلك') ? 0 : 1,
+          itemsValue: Math.abs(s.issuedQuantity || 0), // ✅ دائمًا موجبة
+          storeType,
           spendPermissionId: s.id,
           spendPermission: null
         };
 
         requests.push(
           lastValueFrom(this.ledgerService.addLedgerEntry(ledgerEntry))
-            .then(() => lastValueFrom(this.spendService.update(s.id, {
-              ...s,
-              ledgerEntriesStatus: 'تم التسجيل'
-            })))
+            .then(() =>
+              lastValueFrom(
+                this.spendService.update(s.id, {
+                  ...s,
+                  ledgerEntriesStatus: 'تم التسجيل'
+                })
+              )
+            )
         );
       });
 
-      // بعد حفظ كل السجلات الجديدة، نعيد تحميل الدفاتر من LedgerEntries
       await Promise.all(requests);
       this.loadLedgerEntries();
     });
