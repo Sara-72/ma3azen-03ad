@@ -246,3 +246,105 @@
 .btn-3d:hover {
     transform: translateY(-3px) scale(1.1);
 }
+
+
+
+
+/* --- RESPONSIVE ADJUSTMENTS --- */
+
+/* 1. Global Page Padding */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .admin-header h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* 2. Responsive Table (Mobile View) */
+@media (max-width: 992px) {
+    /* Hide the original table headers on mobile */
+    .custom-table thead {
+        display: none;
+    }
+
+    .custom-table, .custom-table tbody, .custom-table tr, .custom-table td {
+        display: block;
+        width: 100%;
+    }
+
+    .custom-table tr {
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 15px;
+        padding: 10px;
+        background: white;
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .custom-table td {
+        text-align: right !important;
+        padding-right: 50% !important;
+        position: relative;
+        border: none;
+        padding-top: 10px;
+        padding-bottom: 10px;
+    }
+
+    /* Add labels before the data */
+    .custom-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        right: 15px;
+        width: 45%;
+        font-weight: bold;
+        color: var(--primary-color);
+        text-align: right;
+    }
+
+    /* Center the action buttons on mobile */
+    .custom-table td:last-child {
+        padding-right: 15px !important;
+        text-align: center !important;
+        border-top: 1px solid #eee;
+        margin-top: 10px;
+    }
+
+    .custom-table td:last-child::before {
+        display: none;
+    }
+}
+
+/* 3. Search Box & Buttons Responsiveness */
+@media (max-width: 576px) {
+    .search-container {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    .add-btn {
+        width: 100%; /* Full width button on phones */
+        font-size: 1rem;
+        padding: 15px;
+    }
+
+    .modal-card {
+        padding: 20px;
+        width: 95%;
+    }
+}
+
+/* 4. Fix for the 3D Search Box focus on mobile */
+.search-container {
+    width: 95%;
+    max-width: 600px;
+    transition: all 0.3s ease;
+}
+
+/* 5. Ensure the Card doesn't cut off shadows */
+.table-card {
+    margin: 10px !important;
+    overflow-x: hidden; /* Prevent horizontal scroll bar */
+}

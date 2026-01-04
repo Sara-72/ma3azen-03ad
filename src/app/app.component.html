@@ -1,5 +1,7 @@
-<main>
-
+<div style="display: flex; flex-direction: column; min-height: 100vh;">
+  <main style="flex: 1;">
     <router-outlet></router-outlet>
-    <app-global-loader></app-global-loader>
-</main>
+  </main>
+
+  <app-footer *ngIf="showFooter()"></app-footer>
+</div>

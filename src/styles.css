@@ -9,37 +9,52 @@ html, body {
   margin: 0;
 }
 
-/* In global styles.css */
+/* The parent container needs to be a flex column */
 app-root {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
 }
 
-.page-container {
-    /* ... existing styles ... */
-    flex-grow: 1 !important;
+/* This targets your main sections */
+/* On Home (no footer), it fills 100% height */
+/* On Login (with footer), it pushes footer to bottom */
+.login-container,
+.home-page-container,
+.page-container,
+main {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
 }
+
+/* Standard Desktop */
+.paper {
+  width: 800px;
+}
+
+/* Small Laptop / Tablet (Your laptop) */
+@media (max-width: 1200px) {
+  .paper {
+    width: 90% !important;
+    margin: 10px auto;
+  }
+  .field {
+    flex-direction: column;
+  }
+}
+
 :root {
-
-    /*colors*/
-
   --primary-color:#084667;
   --secondary-color:#1693B3;
   --third-color:#F9B938;
   --grey-color:#A5A5A5;
   --black-color:#000000;
   --white-color:#FFFFFF;
-
-    --bg-light: #f4f7f6;
-
-
-  /*fonts*/
+  --bg-light: #f4f7f6;
   --font-arabic: "Tajawal", sans-serif;
-
-
 }
 
-body{
-  font-family: var(--font-arabic)   !important;
+body {
+  font-family: var(--font-arabic) !important;
 }

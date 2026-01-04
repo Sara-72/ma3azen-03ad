@@ -27,28 +27,35 @@
               <th class="text-center">الإجراءات</th>
             </tr>
           </thead>
-          <tbody>
-            <tr *ngFor="let user of filteredAccounts(); let i = index"
-                [style.animation-delay]="(i * 0.05) + 's'"
-                class="row-animate">
-              <td class="fw-bold">{{ user.name }}</td>
-              <td class="text-muted">{{ user.email }}</td>
-              <td><span [ngClass]="getRoleClass(user.role)" class="role-pill shadow-sm">{{ user.role }}</span></td>
-              <td>{{ user.faculty || 'إدارة مركزية' }}</td>
-              <td>
-                <div class="d-flex justify-content-center gap-3">
-                  <button (click)="openEditModal(user)" class="btn-3d edit"><i class="fas fa-edit"></i></button>
-                  <button (click)="openDeleteModal(user)" class="btn-3d delete"><i class="fas fa-trash"></i></button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
+         <tbody>
+  <tr *ngFor="let user of filteredAccounts(); let i = index"
+      [style.animation-delay]="(i * 0.05) + 's'"
+      class="row-animate">
+
+    <td data-label="الاسم رباعي" class="fw-bold">{{ user.name }}</td>
+
+    <td data-label="البريد الإلكتروني" class="text-muted">{{ user.email }}</td>
+
+    <td data-label="الصلاحية">
+      <span [ngClass]="getRoleClass(user.role)" class="role-pill shadow-sm">{{ user.role }}</span>
+    </td>
+
+    <td data-label="الجهة">{{ user.faculty || 'إدارة مركزية' }}</td>
+
+    <td data-label="الإجراءات">
+      <div class="d-flex justify-content-center gap-3">
+        <button (click)="openEditModal(user)" class="btn-3d edit"><i class="fas fa-edit"></i></button>
+        <button (click)="openDeleteModal(user)" class="btn-3d delete"><i class="fas fa-trash"></i></button>
+      </div>
+    </td>
+  </tr>
+</tbody>
         </table>
       </div>
     </div>
 
     <div class="text-center">
-      <button routerLink="/admin" class="add-btn btn btn-lg px-5 shadow-3d pulse-btn">
+      <button routerLink="/admin" class="add-btn btn btn-lg px-5 shadow-3d pulse-btn mt-4">
         إضافة حساب جديد <i class="fas fa-plus-circle ms-2"></i>
       </button>
     </div>
@@ -124,6 +131,3 @@
 
 
 
-<app-footer>
-
-</app-footer>

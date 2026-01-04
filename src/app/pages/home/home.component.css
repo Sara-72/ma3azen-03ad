@@ -3,18 +3,6 @@
   min-height: 100vh;
   width: 100%;
 }
-/* Ensure the parent is the anchor */
-.home-page-container {
-    position: relative;
-    min-height: 100vh;
-    width: 100%;
-    /* background-image: url("/assets/images/storage5.jpg"); */
-    background-repeat: no-repeat;
-    background-size: cover;
-    overflow: hidden; /* Important! */
-    z-index: 1;
-}
-
 
 /* Ensure the parent is the anchor */
 .home-page-container {
@@ -32,8 +20,9 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 600px; /* Adjust size of watermark */
-    height: 600px; /* Adjust size of watermark */
+    /* Made size responsive so it doesn't overflow small screens */
+    width: clamp(300px, 80vw, 600px);
+    height: clamp(300px, 80vw, 600px);
     background-image: url("/assets/images/Hurghada-University.png");
     background-repeat: no-repeat;
     background-size: contain;
@@ -49,37 +38,32 @@
     animation: watermarkBreath 10s ease-in-out infinite alternate;
 }
 
-
-
-
 /* Add this to your keyframes section */
 @keyframes watermarkBreath {
     from { transform: translate(-50%, -50%) scale(1); opacity: 0.06; }
     to { transform: translate(-50%, -50%) scale(1.1); opacity: 0.1; }
 }
 
-
 /* --- ORIGINAL STYLES --- */
 p { color: var(--primary-color); }
 
 .content {
   max-width: 1000px;
-  width: 51%;
+  /* Changed 51% to a responsive range to fit your smaller laptop */
+  width: clamp(60%, 80%, 90%);
   margin: 0 auto;
   position: relative;
   z-index: 5;
-  margin-top:12%;
-
+  margin-top: 12%;
 }
-
-
-
 
 /* Parent container needs perspective for the 3D effect to work */
 .text-3d-parent {
   perspective: 1200px;
   perspective-origin: center;
   line-height: 1.4;
+  /* Font size now scales so it doesn't break on small laptops */
+  font-size: clamp(1rem, 4vw, 3rem) !important;
 }
 
 .flip-line {
@@ -126,6 +110,8 @@ p { color: var(--primary-color); }
   background-color: var(--primary-color);
   animation: pulseGlow 2s infinite;
   transition: 0.5s;
+  /* Added min-width so button doesn't shrink too much */
+  min-width: 180px;
 }
 
 .btn:hover { background-color: var(--secondary-color); }
@@ -173,4 +159,41 @@ p { color: var(--primary-color); }
   0% { box-shadow: 0 0 0 0 var(--secondary-color); }
   70% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+}
+
+/* --- NEW RESPONSIVE BREAKPOINTS --- */
+
+/* For Small Laptops and Tablets */
+@media (max-width: 1024px) {
+  .content {
+    width: 90%;
+    margin-top: 15%; /* Adjust vertical spacing for smaller screens */
+    text-align: center;
+  }
+
+  .social-icons {
+    margin-top: 2rem;
+    align-items: center !important;
+  }
+}
+
+/* For Mobile Devices */
+@media (max-width: 576px) {
+  .home-page-container {
+    padding: 1rem;
+  }
+
+  .content {
+    margin-top: 25%;
+  }
+
+  .social-icons {
+    flex-direction: row !important; /* Horizontal icons on mobile */
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .social-icons img {
+    margin-top: 0 !important;
+  }
 }
