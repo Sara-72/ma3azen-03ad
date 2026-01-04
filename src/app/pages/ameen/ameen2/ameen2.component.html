@@ -40,6 +40,7 @@
               <th>الصنف</th>
               <th>وارد من / منصرف إلى</th>
               <th>قيمة الأصناف</th>
+              <th>الوحده</th>
             </tr>
           </thead>
 
@@ -65,13 +66,19 @@
                          [formControlName]="rowGroup.get('transactionType')?.value === 'added' ? 'addedValue' : 'issuedValue'">
                 </div>
               </td>
+               <!-- الوحدة (جديد) -->
+              <td>
+                <input type="text"
+                 formControlName="unit"
+                 class="form-control table-input"
+                 placeholder=" كجم / قطعة">
+        </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <button type="button" class="remove-row-button" (click)="removeRow()">-</button>
-      <button type="button" class="add-row-button" (click)="addRow()">+</button>
+    
     </div>
 
     <div class="button-section">

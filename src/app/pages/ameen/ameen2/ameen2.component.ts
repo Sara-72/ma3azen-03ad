@@ -90,7 +90,8 @@ export class Ameen2Component implements OnInit {
       sourceOrDestination: ['', Validators.required],
       addedValue: [''],
       issuedValue: [''],
-      transactionType: ['added', Validators.required] // 'added' = وارد | 'issued' = منصرف
+      transactionType: ['added', Validators.required], // 'added' = وارد | 'issued' = منصرف
+      unit: ['',Validators.required]
     });
   }
   private sameDay(d1: string, d2: string): boolean {
