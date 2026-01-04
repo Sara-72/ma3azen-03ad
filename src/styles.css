@@ -33,6 +33,16 @@ main {
   width: 800px;
 }
 
+
+/* The Modern Gray Icon Style */
+.empty-icon {
+    font-size: 5rem;
+    color: var(--primary-color);
+    opacity: 0.3;      /* Makes it look subtle/modern */
+
+    margin: 0 auto;
+}
+
 /* Small Laptop / Tablet (Your laptop) */
 @media (max-width: 1200px) {
   .paper {

@@ -8,6 +8,7 @@ a {
 /* PAGE LAYOUT */
 .page-container {
     display: flex;
+    background-color: #f4f7f6; 
 }
 
 
@@ -263,9 +264,9 @@ a {
 /* The Modern Gray Icon Style */
 .empty-icon {
     font-size: 5rem;
-    color: var(--primary-color);    
+    color: var(--primary-color);
     opacity: 0.3;      /* Makes it look subtle/modern */
-    filter: drop-shadow(2px 4px 6px rgba(0,0,0,0.1));
+
     margin: 0 auto;
 }
 
