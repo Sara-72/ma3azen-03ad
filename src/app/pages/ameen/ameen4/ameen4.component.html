@@ -3,7 +3,7 @@
 <div class="page-container">
   <aside class="sidebar">
     <h5>
-  مرحبًا بك
+      مرحبًا بك
       <span *ngIf="displayName">، {{ displayName }}</span>
     </h5>
     <ul class="mt-5">
@@ -19,6 +19,7 @@
 
   <form dir="rtl" class="m-auto">
 
+    <!-- جدول المستهلك -->
     <div class="log-container">
       <header class="log-header text-center">
         <h2>يومية المخزن</h2>
@@ -37,22 +38,21 @@
               <th style="width: 20%;">الصنف</th>
               <th style="width: 40%;">وارد من / منصرف إلى</th>
               <th style="width: 20%;">قيمة الأصناف المضافة/المنصرفة</th>
-
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let entry of consumerEntries()">
               <td>{{ entry.date | date:'dd/MM/yyyy' }}</td>
-              <td></td>
-              <td>{{ entry.documentReference }}</td>
-              <td></td>
-
+              <td>{{ entry.itemName }}</td>
+              <td>{{ entry.source }}</td>
+              <td>{{ entry.quantity }}</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
 
+    <!-- جدول المستديم -->
     <div class="log-container">
       <header class="log-header text-center">
         <h2>يومية المخزن</h2>
@@ -68,19 +68,17 @@
           <thead>
             <tr>
               <th style="width: 20%;">التاريخ</th>
-                <th style="width: 20%;">الصنف</th>
+              <th style="width: 20%;">الصنف</th>
               <th style="width: 40%;">وارد من / منصرف إلى</th>
               <th style="width: 20%;">قيمة الأصناف المضافة/المنصرفة</th>
-
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let entry of durableEntries()">
               <td>{{ entry.date | date:'dd/MM/yyyy' }}</td>
-              <td></td>
-              <td>{{ entry.documentReference }}</td>
-              <td></td>
-
+              <td>{{ entry.itemName }}</td>
+              <td>{{ entry.source }}</td>
+              <td>{{ entry.quantity }}</td>
             </tr>
           </tbody>
         </table>

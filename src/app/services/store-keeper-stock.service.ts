@@ -9,9 +9,11 @@ export interface StockResponse {
   storeType: string; // مستهلك أو مستديم
   unit: string;
   quantity: number;
+  date: string; // 🔹 اضفنا التاريخ
   additionId?: number;
   spendPermissionId?: number;
 }
+
 
 @Injectable({
   providedIn: 'root'
