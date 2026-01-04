@@ -21,7 +21,7 @@ app-root {
 /* On Login (with footer), it pushes footer to bottom */
 .login-container,
 .home-page-container,
-.page-container,
+
 main {
     flex: 1 0 auto;
     display: flex;
