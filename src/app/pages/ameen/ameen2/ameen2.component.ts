@@ -186,6 +186,7 @@ export class Ameen2Component implements OnInit {
         this.ledgerService.addLedgerEntry({
           date: new Date(row.date).toISOString(),
           itemName: row.itemName,
+          unit: row.unit,                   // ✅
           documentReference: row.documentReference,
           itemsValue: row.itemsValue,
           storeType: row.storeType,

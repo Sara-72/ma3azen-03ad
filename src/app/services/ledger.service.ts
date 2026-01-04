@@ -6,12 +6,14 @@ export interface LedgerEntry {
   id?: number;
   date: string;
   itemName: string;
+  unit: string;                 // ✅ تمت الإضافة
   documentReference: string;
-  itemsValue: number;        // + وارد | - منصرف
-  storeType: number;         // 0 = مستهلك | 1 = مستديم
+  itemsValue: number;           // + وارد | - منصرف
+  storeType: number;            // 0 = مستهلك | 1 = مستديم
   spendPermissionId: number | null;
   spendPermission?: any;
 }
+
 
 @Injectable({
   providedIn: 'root'
@@ -30,28 +32,32 @@ export class LedgerService {
     return this.http.get<LedgerEntry>(`${this.apiUrl}/${id}`);
   }
 
-  addLedgerEntry(entry: LedgerEntry): Observable<LedgerEntry> {
-    return this.http.post<LedgerEntry>(this.apiUrl, {
-      date: entry.date,
-      itemName: entry.itemName,
-      documentReference: entry.documentReference,
-      itemsValue: entry.itemsValue,
-      storeType: entry.storeType,
-      spendPermissionId: entry.spendPermissionId,
-      spendPermission: null
-    });
-  }
+ addLedgerEntry(entry: LedgerEntry): Observable<LedgerEntry> {
+  return this.http.post<LedgerEntry>(this.apiUrl, {
+    date: entry.date,
+    itemName: entry.itemName,
+    unit: entry.unit,                   // ✅
+    documentReference: entry.documentReference,
+    itemsValue: entry.itemsValue,
+    storeType: entry.storeType,
+    spendPermissionId: entry.spendPermissionId,
+    spendPermission: null
+  });
+}
+
 
   updateLedgerEntry(id: number, entry: LedgerEntry): Observable<LedgerEntry> {
-    return this.http.put<LedgerEntry>(`${this.apiUrl}/${id}`, {
-      id,
-      date: entry.date,
-      itemName: entry.itemName,
-      documentReference: entry.documentReference,
-      itemsValue: entry.itemsValue,
-      storeType: entry.storeType,
-      spendPermissionId: entry.spendPermissionId,
-      spendPermission: null
-    });
-  }
+  return this.http.put<LedgerEntry>(`${this.apiUrl}/${id}`, {
+    id,
+    date: entry.date,
+    itemName: entry.itemName,
+    unit: entry.unit,                   // ✅
+    documentReference: entry.documentReference,
+    itemsValue: entry.itemsValue,
+    storeType: entry.storeType,
+    spendPermissionId: entry.spendPermissionId,
+    spendPermission: null
+  });
+}
+
 }
