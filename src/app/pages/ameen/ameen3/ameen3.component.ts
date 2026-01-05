@@ -161,23 +161,16 @@ export class Ameen3Component implements OnInit {
 
         const newQty = stock.quantity - qtyToDeduct;
 
-if (newQty > 0) {
-  // ✔️ تحديث عادي
-  updates.push(
-    this.stockService.updateStock(stock.id, {
-      stock: {
-        ...stock,
-        quantity: newQty,
-        storeKeeperSignature: this.fullName
-      }
-    })
-  );
-} else {
-  // 🔥 newQty === 0 → لا Update
-  // بس نكمل العملية عادي
-  updates.push(of(true));
-}
-
+updates.push(
+  this.stockService.updateStock(stock.id, {
+    stock: {
+      ...stock,
+      quantity: newQty < 0 ? 0 : newQty, // ✅ يكتب 0 صراحة
+      storeKeeperSignature: this.fullName,
+      lastUpdated: new Date().toISOString() // 🔥 يجبر الـ backend على التحديث
+    }
+  })
+);
 
 
         remainingQty -= qtyToDeduct;
