@@ -1,37 +1,22 @@
-import { Component ,OnInit, inject, signal} from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../../../components/header/header.component';
 import { FooterComponent } from '../../../components/footer/footer.component';
-import { FormBuilder, ReactiveFormsModule, FormGroup, Validators, FormArray } from '@angular/forms';
-import { catchError, lastValueFrom, of } from 'rxjs';
+import { FormBuilder, ReactiveFormsModule, FormGroup, FormArray } from '@angular/forms';
 import { LedgerService, LedgerEntry } from '../../../services/ledger.service';
 import { CentralStoreService, CentralStoreResponse } from '../../../services/central-store.service';
 
 @Component({
   selector: 'app-ameen2',
   standalone: true,
-  imports: [
-    HeaderComponent,
-    FooterComponent,
-    CommonModule,
-    ReactiveFormsModule
-  ],
+  imports: [HeaderComponent, FooterComponent, CommonModule, ReactiveFormsModule],
   templateUrl: './ameen2.component.html',
   styleUrls: ['./ameen2.component.css']
 })
 export class Ameen2Component implements OnInit {
-
   userName: string = '';
   displayName: string = '';
-  statusMessage: string | null = null;
-  statusType: 'success' | 'error' | null = null;
-  simpleForm!: FormGroup;
-
-
   assetTypes: string[] = ['مستهلك', 'مستديم'];
-  sourceDestinationOptions: string[] = ['وارد من', 'منصرف الى'];
-
-  // ✅ هنا قائمة الأصناف ستأتي من المخزن المركزي
   availableItems: string[] = [];
 
   inventoryLogForm!: FormGroup;
@@ -43,180 +28,138 @@ export class Ameen2Component implements OnInit {
 
   constructor() {
     this.inventoryLogForm = this.fb.group({
-      assetType: ['', Validators.required],
-      tableData: this.fb.array([])
+      dates: this.fb.array([])
     });
   }
 
   ngOnInit(): void {
     this.userName = localStorage.getItem('name') || '';
-    this.displayName = this.getFirstTwoNames(this.userName);
+    this.displayName = this.userName.split(' ').slice(0, 2).join(' ');
 
-    // جلب الأصناف من المخزن المركزي
     this.loadAvailableItems();
-
-    // Start with one empty row
-    this.tableData.push(this.createTableRowFormGroup());
+    this.loadPendingLedgerEntries();
   }
 
-  getFirstTwoNames(fullName: string): string {
-    return fullName ? fullName.trim().split(/\s+/).slice(0, 2).join(' ') : '';
+  get dates(): FormArray {
+    return this.inventoryLogForm.get('dates') as FormArray;
   }
 
-  private loadAvailableItems(): void {
-  this.centralStoreService.getAll().subscribe({
-    next: (data: CentralStoreResponse[]) => {
-      // استخدم Set لإزالة التكرارات
-      const uniqueItems = new Set<string>();
-      data.forEach(d => uniqueItems.add(d.itemName));
-      this.availableItems = Array.from(uniqueItems).sort(); // optional: ترتيب الأبجدي
-    },
-    error: (err) => {
-      console.error('Failed to load central store items:', err);
-    }
-  });
-}
-
-
-  // --- FormArray Helper ---
-  get tableData(): FormArray {
-    return this.inventoryLogForm.get('tableData') as FormArray;
+  getDateRows(dateIndex: number): FormArray {
+    return this.dates.at(dateIndex).get('rows') as FormArray;
   }
 
-  private createTableRowFormGroup(): FormGroup {
+  private createRowGroup(item: LedgerEntry): FormGroup {
     return this.fb.group({
-      date: ['', Validators.required],
-      itemName: ['', Validators.required],
-      sourceOrDestination: ['', Validators.required],
-      addedValue: [''],
-      issuedValue: [''],
-      transactionType: ['added', Validators.required], // 'added' = وارد | 'issued' = منصرف
-      unit: ['',Validators.required]
+      id: [item.id],
+      itemName: [{ value: item.itemName, disabled: true }],
+      documentReference: [{ value: item.documentReference, disabled: true }],
+      addedValue: [{ value: item.itemsValue > 0 ? item.itemsValue : 0, disabled: true }],
+      issuedValue: [{ value: item.itemsValue < 0 ? -item.itemsValue : 0, disabled: true }],
+      transactionType: [{ value: item.itemsValue > 0 ? 'added' : 'issued', disabled: true }],
+      unit: [{ value: item.unit, disabled: true }],
+      storeType: [{ value: item.storeType, disabled: true }],
+      status: [item.status]
     });
   }
-  private sameDay(d1: string, d2: string): boolean {
-  return d1.split('T')[0] === d2.split('T')[0];
-}
 
-
-  addRow(): void {
-    this.tableData.push(this.createTableRowFormGroup());
+  private createDateGroup(date: string, rows: LedgerEntry[]): FormGroup {
+    const rowsArray = this.fb.array(rows.map(r => this.createRowGroup(r)));
+    return this.fb.group({ date: [date], rows: rowsArray });
   }
 
-  removeRow(): void {
-    if (this.tableData.length > 1) {
-      this.tableData.removeAt(this.tableData.length - 1);
-    } else {
-      this.tableData.at(0).reset();
-    }
+  private loadAvailableItems() {
+    this.centralStoreService.getAll().subscribe({
+      next: (data: CentralStoreResponse[]) => {
+        this.availableItems = Array.from(new Set(data.map(d => d.itemName))).sort();
+      },
+      error: err => console.error(err)
+    });
   }
 
- onSubmit(): void {
-  if (this.inventoryLogForm.invalid) {
-    this.inventoryLogForm.markAllAsTouched();
+  private loadPendingLedgerEntries() {
+    this.ledgerService.getLedgerEntries().subscribe({
+      next: (entries) => {
+        const pending = entries.filter(e => e.status?.trim().toLowerCase() === 'لم يؤكد');
+        const groupedMap = new Map<string, LedgerEntry[]>();
+
+        pending.forEach(e => {
+          const dateKey = e.date ? e.date.split('T')[0] : 'غير محدد';
+          if (!groupedMap.has(dateKey)) groupedMap.set(dateKey, []);
+          groupedMap.get(dateKey)!.push(e);
+        });
+
+        this.dates.clear();
+        groupedMap.forEach((rows, date) => {
+          if (rows.length > 0) {
+            this.dates.push(this.createDateGroup(date, rows));
+          }
+        });
+      },
+      error: err => console.error(err)
+    });
+  }
+
+  getStoreTypeText(storeType: number): string {
+    return this.assetTypes[storeType] || '';
+  }
+
+ onSubmit() {
+  if (this.isSubmitting()) return;
+  this.isSubmitting.set(true);
+
+  // نجمع كل الـ IDs اللي موجودة
+  const allEntries: { id: number; status: string }[] = [];
+
+  this.dates.controls.forEach(dateGroup => {
+    const rows = dateGroup.get('rows') as FormArray;
+    rows.controls.forEach(r => {
+      if (r.value.id) {
+        allEntries.push({ id: r.value.id, status: 'تم التأكيد' });
+      }
+    });
+  });
+
+  if (allEntries.length === 0) {
+    this.isSubmitting.set(false);
     return;
   }
 
-  this.isSubmitting.set(true);
-
-  const assetTypeIndex =
-    this.assetTypes.indexOf(this.inventoryLogForm.value.assetType);
-
-  /* ========== STEP 1: GROUP FORM ROWS ========== */
-  const rawRows = this.inventoryLogForm.getRawValue().tableData;
-
-  const groupedMap = new Map<string, any>();
-
-  rawRows.forEach((row: any) => {
-    const value =
-      row.transactionType === 'added'
-        ? Number(row.addedValue || 0)
-        : -(Number(row.issuedValue || 0));
-
-    const key = [
-      row.date,
-      row.itemName,
-      assetTypeIndex,
-      row.sourceOrDestination
-    ].join('|');
-
-    if (groupedMap.has(key)) {
-      groupedMap.get(key).itemsValue += value;
-    } else {
-      groupedMap.set(key, {
-        date: row.date,
-        itemName: row.itemName,
-        documentReference: row.sourceOrDestination,
-        storeType: assetTypeIndex,
-        itemsValue: value
-      });
-    }
-  });
-
-  const rows = Array.from(groupedMap.values());
-
-  /* ========== STEP 2: SAVE TO DATABASE ========== */
   let completed = 0;
-  const total = rows.length;
+  const total = allEntries.length;
 
-  this.ledgerService.getLedgerEntries().pipe(
-    catchError(() => of([]))
-  ).subscribe(existingEntries => {
-
-    rows.forEach(row => {
-
-      const existing = existingEntries.find(e =>
-        e.itemName === row.itemName &&
-        e.documentReference === row.documentReference &&
-        e.storeType === row.storeType &&
-        this.sameDay(e.date, row.date)
-      );
-
-      /* ===== UPDATE ===== */
-      if (existing) {
-        this.ledgerService.updateLedgerEntry(existing.id!, {
-          ...existing,
-          itemsValue: existing.itemsValue + row.itemsValue
-        }).subscribe(() => {
-          this.handleComplete(++completed, total);
-        });
-
-      /* ===== ADD ===== */
-      } else {
-        this.ledgerService.addLedgerEntry({
-          date: new Date(row.date).toISOString(),
-          itemName: row.itemName,
-          unit: row.unit,                   // ✅
-          documentReference: row.documentReference,
-          itemsValue: row.itemsValue,
-          storeType: row.storeType,
-          spendPermissionId: null,
-          spendPermission: null
-        }).subscribe(() => {
-          this.handleComplete(++completed, total);
-        });
+  allEntries.forEach(entry => {
+    this.ledgerService.updateLedgerStatus(entry.id, entry.status).subscribe({
+      next: () => {
+        completed++;
+        if (completed === total) {
+          // بعد انتهاء كل التحديثات، نفرغ الجدول كله مباشرة
+          this.dates.clear();
+          this.isSubmitting.set(false);
+          alert('تم تأكيد جميع الدفاتر بنجاح');
+        }
+      },
+      error: err => {
+        console.error(err);
+        completed++;
+        if (completed === total) this.isSubmitting.set(false);
       }
     });
   });
 }
-private handleComplete(done: number, total: number) {
-  if (done === total) {
-    this.isSubmitting.set(false);
-    alert('تم حفظ البيانات بنجاح');
-    this.showStatus('تم حفظ البيانات بنجاح', 'success');
-    this.simpleForm.reset();
-    this.tableData.clear();
-    this.addRow();
-  }
-}
- showStatus(msg: string, type: 'success' | 'error') {
-    this.statusMessage = msg;
-    this.statusType = type;
-  }
 
-  closeStatusMessage() {
-    this.statusMessage = null;
-    this.statusType = null;
-  }
 
+
+  private removeConfirmedEntries() {
+    for (let i = this.dates.length - 1; i >= 0; i--) {
+      const rows = this.getDateRows(i);
+      for (let j = rows.length - 1; j >= 0; j--) {
+        if (rows.at(j).value.status === 'تم التأكيد') {
+          rows.removeAt(j);
+        }
+      }
+      if (rows.length === 0) {
+        this.dates.removeAt(i);
+      }
+    }
+  }
 }

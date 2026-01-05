@@ -247,6 +247,7 @@ private mapStoreType(type: string): number {
       date: entryDate,
       itemName: item,
       unit: unit,
+      status: ' لم يؤكد',
       documentReference: 'وارد من ',
       itemsValue: newQuantity,
       storeType: this.mapStoreType(itemType),

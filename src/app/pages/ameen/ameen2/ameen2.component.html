@@ -2,10 +2,7 @@
 
 <div class="page-container">
   <aside class="sidebar">
-    <h5>
-      مرحبًا بك
-      <span *ngIf="displayName">، {{ displayName }}</span>
-    </h5>
+    <h5>مرحبًا بك <span *ngIf="displayName">، {{ displayName }}</span></h5>
     <ul class="mt-5">
       <li><a href="/ameen1">المخزن</a></li>
       <li class="active"><a>دفتر اليومية</a></li>
@@ -17,75 +14,64 @@
     </ul>
   </aside>
 
-  <form [formGroup]="inventoryLogForm" (ngSubmit)="onSubmit()" dir="rtl" class="flex-grow-1 d-flex flex-column align-items-center">
+  <!-- الشرط هنا -->
+  <ng-container *ngIf="dates.length > 0; else noDataTemplate">
+    <form [formGroup]="inventoryLogForm" class="flex-grow-1 d-flex flex-column align-items-center" dir="rtl">
+      <ng-container formArrayName="dates">
+        <div *ngFor="let dateGroup of dates.controls; let di = index" [formGroupName]="di" class="table-container-3d mb-4">
+          <header class="log-header text-center">
+            <h3>التاريخ: {{ dateGroup.get('date')?.value }}</h3>
+          </header>
 
-    <div class="table-container-3d">
-      <header class="log-header text-center">
-        <h2>يومية المخزن</h2>
-      </header>
+          <div class="table-responsive">
+            <table class="custom-table text-center">
+              <thead>
+                <tr>
+                  <th>الصنف</th>
+                  <th>وارد من / منصرف إلى</th>
+                  <th>قيمة الأصناف</th>
+                  <th>الوحدة</th>
+                  <th>نوع المخزن</th>
+                </tr>
+              </thead>
+              <tbody formArrayName="rows">
+                <tr *ngFor="let row of getDateRows(di).controls; let ri = index" [formGroupName]="ri">
+                  <td>
+                    <select formControlName="itemName" class="form-select table-select">
+                      <option value="" disabled>اختر الصنف</option>
+                      <option *ngFor="let item of availableItems" [value]="item">{{ item }}</option>
+                    </select>
+                  </td>
+                  <td>
+                    <input type="text" formControlName="documentReference" class="form-control-plaintext text-center">
+                  </td>
+                  <td>
+                    <input type="number" formControlName="addedValue" class="form-control">
+                  </td>
+                  <td>
+                    <input type="text" formControlName="unit" class="form-control" placeholder="كجم / قطعة">
+                  </td>
+                  <td>
+                    {{ getStoreTypeText(row.get('storeType')?.value) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </ng-container>
 
-      <div class="mb-4 text-end px-3">
-        <label for="assetTypeSelect" class="form-label fw-bold">المخزن</label>
-        <select id="assetTypeSelect" formControlName="assetType" class="form-select custom-select">
-          <option value="" disabled>اختر نوع المخزن</option>
-          <option *ngFor="let type of assetTypes" [value]="type">{{ type }}</option>
-        </select>
+      <div class="button-section">
+        <button type="button" (click)="onSubmit()" [disabled]="isSubmitting()" class="submit-btn mt-4">
+          {{ isSubmitting() ? 'جاري الحفظ...' : 'حفظ البيانات' }}
+        </button>
       </div>
+    </form>
+  </ng-container>
 
-      <div class="table-responsive">
-        <table class="custom-table text-center">
-          <thead>
-            <tr>
-              <th>التاريخ</th>
-              <th>الصنف</th>
-              <th>وارد من / منصرف إلى</th>
-              <th>قيمة الأصناف</th>
-              <th>الوحده</th>
-            </tr>
-          </thead>
-
-          <tbody formArrayName="tableData">
-            <tr *ngFor="let rowGroup of tableData.controls; let i = index" [formGroupName]="i">
-              <td><input type="date" formControlName="date" class="form-control table-input"></td>
-              <td>
-                <select formControlName="itemName" class="form-select table-select">
-                  <option value="" disabled>اختر الصنف</option>
-                  <option *ngFor="let item of availableItems" [value]="item">{{ item }}</option>
-                </select>
-              </td>
-              <td>
-                <select formControlName="sourceOrDestination" class="form-select table-select">
-                  <option value="" disabled>اختر</option>
-                  <option *ngFor="let opt of sourceDestinationOptions" [value]="opt">{{ opt }}</option>
-                </select>
-              </td>
-              <td>
-                <div class="input-group-3d">
-                  <input type="number" class="form-control table-input no-spin"
-                         placeholder="0.00"
-                         [formControlName]="rowGroup.get('transactionType')?.value === 'added' ? 'addedValue' : 'issuedValue'">
-                </div>
-              </td>
-               <!-- الوحدة (جديد) -->
-              <td>
-                <input type="text"
-                 formControlName="unit"
-                 class="form-control table-input"
-                 placeholder=" كجم / قطعة">
-        </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-    
+  <ng-template #noDataTemplate>
+    <div class="text-center my-5">
+      <h4>لا يوجد دفتر جديد</h4>
     </div>
-
-    <div class="button-section">
-      <button type="submit" [disabled]="isSubmitting() || inventoryLogForm.invalid" class="submit-btn mt-4">
-        {{ isSubmitting() ? 'جاري الحفظ...' : 'حفظ البيانات' }}
-      </button>
-    </div>
-  </form>
+  </ng-template>
 </div>
-

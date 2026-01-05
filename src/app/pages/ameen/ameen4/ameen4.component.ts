@@ -38,35 +38,36 @@ export class Ameen4Component implements OnInit {
   }
 
   private loadLedgerEntries() {
-    this.ledgerService.getLedgerEntries().pipe(
-      catchError(() => of([]))
-    ).subscribe((ledgerEntries: LedgerEntry[]) => {
+  this.ledgerService.getLedgerEntries().pipe(
+    catchError(() => of([]))
+  ).subscribe((ledgerEntries: LedgerEntry[]) => {
 
-      const consumer: any[] = [];
-      const durable: any[] = [];
+    // فلترة فقط اللي status = "تم التاكيد"
+    const confirmedEntries = ledgerEntries.filter(entry => entry.status === 'تم التأكيد');
 
-      ledgerEntries
-        .sort(
-          (a, b) =>
-            new Date(a.date).getTime() - new Date(b.date).getTime()
-        )
-        .forEach(entry => {
+    const consumer: any[] = [];
+    const durable: any[] = [];
 
-          const row = {
-            date: entry.date,
-            itemName: entry.itemName,
-            unit: entry.unit,                         // ✅
-            source: entry.documentReference,
-            quantity: entry.itemsValue
-          };
+    confirmedEntries
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+      .forEach(entry => {
+        const row = {
+          date: entry.date,
+          itemName: entry.itemName,
+          unit: entry.unit,
+          source: entry.documentReference,
+          quantity: entry.itemsValue,
+          storeType: entry.storeType
+        };
 
-          entry.storeType === 0
-            ? consumer.push(row)
-            : durable.push(row);
-        });
+        entry.storeType === 0
+          ? consumer.push(row)
+          : durable.push(row);
+      });
 
-      this.consumerEntries.set(consumer);
-      this.durableEntries.set(durable);
-    });
-  }
+    this.consumerEntries.set(consumer);
+    this.durableEntries.set(durable);
+  });
+}
+
 }

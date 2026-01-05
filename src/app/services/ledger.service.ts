@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 
 export interface LedgerEntry {
   id?: number;
@@ -12,6 +12,7 @@ export interface LedgerEntry {
   storeType: number;            // 0 = مستهلك | 1 = مستديم
   spendPermissionId: number | null;
   spendPermission?: any;
+  status: string;
 }
 
 
@@ -41,7 +42,8 @@ export class LedgerService {
     itemsValue: entry.itemsValue,
     storeType: entry.storeType,
     spendPermissionId: entry.spendPermissionId,
-    spendPermission: null
+    spendPermission: null,
+    status: entry.status
   });
 }
 
@@ -56,8 +58,18 @@ export class LedgerService {
     itemsValue: entry.itemsValue,
     storeType: entry.storeType,
     spendPermissionId: entry.spendPermissionId,
-    spendPermission: null
+    spendPermission: null,
+    status: entry.status
   });
 }
+updateLedgerStatus(id: number, status: string): Observable<LedgerEntry> {
+    return this.getLedgerEntryById(id).pipe(
+      switchMap(entry => {
+        const updatedEntry: LedgerEntry = { ...entry, status };
+        return this.updateLedgerEntry(id, updatedEntry);
+      })
+    );
+  }
+
 
 }
