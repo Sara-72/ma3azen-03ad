@@ -17,6 +17,7 @@ import {
   StoreKeeperStockService
 } from '../../../services/store-keeper-stock.service';
 import { CentralStoreService } from '../../../services/central-store.service';
+import { LedgerService } from '../../../services/ledger.service';
 
 interface CategoryItemMap {
   [key: string]: string[];
@@ -66,6 +67,8 @@ export class Ameen1Component implements OnInit, OnDestroy {
   private router = inject(Router);
   private stockService = inject(StoreKeeperStockService);
   private centralStoreService = inject(CentralStoreService);
+  private ledgerService = inject(LedgerService);
+
 
   constructor() {
     this.simpleForm = this.fb.group({
@@ -102,6 +105,10 @@ export class Ameen1Component implements OnInit, OnDestroy {
   const day2 = d2.split('T')[0];
   return day1 === day2;
 }
+private mapStoreType(type: string): number {
+  return type === 'مستهلك' ? 0 : 1;
+}
+
 
 
   private createTableRowFormGroup(): FormGroup {
@@ -199,42 +206,87 @@ export class Ameen1Component implements OnInit, OnDestroy {
       );
 
       const afterStore = () => {
-        /* ========== CentralStore ========== */
-        this.centralStoreService.getAll().pipe(
-          catchError(() => of([]))
-        ).subscribe(centralStocks => {
+  this.centralStoreService.getAll().pipe(
+    catchError(() => of([]))
+  ).subscribe(centralStocks => {
 
-          const existingCentral = centralStocks.find((c: any) =>
-            c.itemName === item &&
-            c.category === category &&
-            c.storeType === itemType &&
-            c.unit === unit &&
-            this.sameDay(c.date, entryDate)
-          );
+    const existingCentral = centralStocks.find((c: any) =>
+      c.itemName === item &&
+      c.category === category &&
+      c.storeType === itemType &&
+      c.unit === unit &&
+      this.sameDay(c.date, entryDate)
+    );
 
-          if (existingCentral) {
-            this.centralStoreService.update(existingCentral.id, {
-              itemName: item,
-              category,
-              storeType: itemType,
-              unit,
-              quantity: existingCentral.quantity + newQuantity,
-              date: entryDate,
-              storeKeeperSignature: this.displayName
-            }).subscribe(() => this.handleComplete(++completed, total));
-          } else {
-            this.centralStoreService.add({
-              itemName: item,
-              category,
-              storeType: itemType,
-              unit,
-              quantity: newQuantity,
-              date: entryDate,
-              storeKeeperSignature: this.displayName
-            }).subscribe(() => this.handleComplete(++completed, total));
-          }
-        });
-      };
+    const afterCentral = () => {
+      /* ========== LedgerEntries (وارد) ========== */
+      this.ledgerService.getLedgerEntries().pipe(
+  catchError(() => of([]))
+).subscribe(ledgerEntries => {
+
+  const existingLedger = ledgerEntries.find((l: any) =>
+    l.itemName === item &&
+    l.unit === unit &&
+    l.storeType === this.mapStoreType(itemType) &&
+    l.documentReference === 'وارد من ' &&
+    this.sameDay(l.date, entryDate)
+  );
+
+  if (existingLedger) {
+    // ✅ UPDATE (تجميع)
+    this.ledgerService.updateLedgerEntry(existingLedger.id!, {
+      ...existingLedger,
+      itemsValue: existingLedger.itemsValue + newQuantity
+    }).subscribe(() => {
+      this.handleComplete(++completed, total);
+    });
+
+  } else {
+    // ➕ ADD جديد
+    this.ledgerService.addLedgerEntry({
+      date: entryDate,
+      itemName: item,
+      unit: unit,
+      status: ' لم يؤكد',
+      documentReference: 'وارد من ',
+      itemsValue: newQuantity,
+      storeType: this.mapStoreType(itemType),
+      spendPermissionId: null
+    }).subscribe(() => {
+      this.handleComplete(++completed, total);
+    });
+  }
+
+});
+
+    };
+
+    if (existingCentral) {
+      this.centralStoreService.update(existingCentral.id, {
+        itemName: item,
+        category,
+        storeType: itemType,
+        unit,
+        quantity: existingCentral.quantity + newQuantity,
+        date: entryDate,
+        storeKeeperSignature: this.displayName,
+        ledgerEntriesStatus: 'تم التسجيل'
+      }).subscribe(afterCentral);
+    } else {
+      this.centralStoreService.add({
+        itemName: item,
+        category,
+        storeType: itemType,
+        unit,
+        quantity: newQuantity,
+        date: entryDate,
+        storeKeeperSignature: this.displayName,
+        ledgerEntriesStatus: 'تم التسجيل'
+      }).subscribe(afterCentral);
+    }
+  });
+};
+
 
       if (existingStore) {
         this.stockService.updateStock(existingStore.id, {

@@ -2,10 +2,7 @@
 
 <div class="page-container">
   <aside class="sidebar">
-    <h5>
-      مرحبًا بك
-      <span *ngIf="displayName">، {{ displayName }}</span>
-    </h5>
+    <h5>مرحبًا بك <span *ngIf="displayName">، {{ displayName }}</span></h5>
     <ul class="mt-5">
       <li><a href="/ameen1">المخزن</a></li>
       <li><a href="/ameen2">دفتر اليومية</a></li>
@@ -22,7 +19,7 @@
     <!-- جدول المستهلك -->
     <div class="log-container">
       <header class="log-header text-center">
-        <h2>يومية المخزن</h2>
+        <h2>يومية المخزن </h2>
       </header>
 
       <div class="storehouse-field text-end">
@@ -30,14 +27,29 @@
         <span>مستهلك</span>
       </div>
 
+      <!-- فلترة حسب التاريخ -->
+      <div class="mb-4 text-end">
+        <label class="form-label fw-medium">اختر التاريخ:</label>
+        <select
+          class="form-select w-50"
+          [(ngModel)]="selectedConsumerDate"
+          [ngModelOptions]="{standalone: true}"
+          (change)="filterConsumerByDate()"
+        >
+          <option value="">الكل</option>
+          <option *ngFor="let d of consumerDates" [value]="d.value">{{ d.display }}</option>
+        </select>
+      </div>
+
       <div class="table-section">
         <table>
           <thead>
             <tr>
-              <th style="width: 20%;">التاريخ</th>
-              <th style="width: 20%;">الصنف</th>
-              <th style="width: 40%;">وارد من / منصرف إلى</th>
-              <th style="width: 20%;">قيمة الأصناف المضافة/المنصرفة</th>
+              <th>التاريخ</th>
+              <th>الصنف</th>
+              <th>وارد من / منصرف إلى</th>
+              <th>قيمة الأصناف المضافة/المنصرفة</th>
+              <th>الوحده</th>
             </tr>
           </thead>
           <tbody>
@@ -46,6 +58,10 @@
               <td>{{ entry.itemName }}</td>
               <td>{{ entry.source }}</td>
               <td>{{ entry.quantity }}</td>
+              <td>{{ entry.unit }}</td>
+            </tr>
+            <tr *ngIf="consumerEntries().length === 0">
+              <td colspan="5">لا توجد بيانات لهذا التاريخ</td>
             </tr>
           </tbody>
         </table>
@@ -63,14 +79,29 @@
         <span>مستديم</span>
       </div>
 
+      <!-- فلترة حسب التاريخ -->
+      <div class="mb-4 text-end">
+        <label class="form-label fw-medium">اختر التاريخ:</label>
+        <select
+          class="form-select w-50"
+          [(ngModel)]="selectedDurableDate"
+          [ngModelOptions]="{standalone: true}"
+          (change)="filterDurableByDate()"
+        >
+          <option value="">الكل</option>
+          <option *ngFor="let d of durableDates" [value]="d.value">{{ d.display }}</option>
+        </select>
+      </div>
+
       <div class="table-section">
         <table>
           <thead>
             <tr>
-              <th style="width: 20%;">التاريخ</th>
-              <th style="width: 20%;">الصنف</th>
-              <th style="width: 40%;">وارد من / منصرف إلى</th>
-              <th style="width: 20%;">قيمة الأصناف المضافة/المنصرفة</th>
+              <th>التاريخ</th>
+              <th>الصنف</th>
+              <th>وارد من / منصرف إلى</th>
+              <th>قيمة الأصناف المضافة/المنصرفة</th>
+              <th>الوحده</th>
             </tr>
           </thead>
           <tbody>
@@ -79,6 +110,10 @@
               <td>{{ entry.itemName }}</td>
               <td>{{ entry.source }}</td>
               <td>{{ entry.quantity }}</td>
+              <td>{{ entry.unit }}</td>
+            </tr>
+            <tr *ngIf="durableEntries().length === 0">
+              <td colspan="5">لا توجد بيانات لهذا التاريخ</td>
             </tr>
           </tbody>
         </table>
@@ -87,5 +122,3 @@
 
   </form>
 </div>
-
-
