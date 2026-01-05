@@ -179,7 +179,7 @@ if (role === 'USER') {
   }
 
   private fillFixedData(memoGroup: FormGroup): void {
-    const displayCollege = this.userCollege === 'مركزية' ? 'المركز الرئيسي' : this.userCollege;
+    const displayCollege = this.userCollege === 'مركزية' ?  'مركزية': this.userCollege;
     const adminName = this.userCollege === 'مركزية' ? 'حمدي محمد علي' : this.collegeAdmin;
 
     memoGroup.patchValue({
