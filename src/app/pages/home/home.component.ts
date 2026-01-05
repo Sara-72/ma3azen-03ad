@@ -12,18 +12,6 @@ import { LoadingService } from '../../services/loading.service'; // Ensure this 
 })
 export class HomeComponent {
 
- @ViewChild('stage') stage!: ElementRef;
-@HostListener('document:mousemove', ['$event'])
-onMouseMove(e: MouseEvent) {
-  const x = (e.clientX / window.innerWidth) - 0.5;
-  const y = (e.clientY / window.innerHeight) - 0.5;
-
-  // This tilts the entire left-side scene
-  if (this.stage) {
-    this.stage.nativeElement.style.transform =
-      `rotateX(${y * -15}deg) rotateY(${x * 15}deg)`;
-  }
-}
 
   translateX = 0;
   translateY = 0;
