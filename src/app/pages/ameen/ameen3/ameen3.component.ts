@@ -7,6 +7,7 @@ import { FooterComponent } from '../../../components/footer/footer.component';
 import { HeaderComponent } from '../../../components/header/header.component';
 import { forkJoin } from 'rxjs';
 import { FormsModule } from '@angular/forms';
+import { LedgerService } from '../../../services/ledger.service';
 
 @Component({
   selector: 'app-ameen3',
@@ -27,7 +28,8 @@ export class Ameen3Component implements OnInit {
   constructor(
     private spendPermissionService: SpendPermissionService,
     private stockService: StoreKeeperStockService,
-    private spendNoteService: SpendNoteService
+    private spendNoteService: SpendNoteService,
+    private ledgerService: LedgerService
   ) {}
 
   ngOnInit(): void {
@@ -105,108 +107,115 @@ export class Ameen3Component implements OnInit {
   /* ================= تنفيذ الصرف ================= */
 
   approvePermission(perm: any) {
-    const issueDate = new Date().toISOString();
+  const issueDate = new Date().toISOString();
 
-    this.stockService.getAllStocks().subscribe(stocks => {
+  this.stockService.getAllStocks().subscribe(stocks => {
 
-      const groupedItems = new Map<string, any>();
+    const groupedItems = new Map<string, any>();
 
-      perm.items.forEach((item: any) => {
-        const key = `${item.itemName}|${item.storeHouse}|${item.unit}`;
-        if (!groupedItems.has(key)) {
-          groupedItems.set(key, { ...item, totalQuantity: 0 });
-        }
+    perm.items.forEach((item: any) => {
+      const key = `${item.itemName}|${item.storeHouse}|${item.unit}`;
+      if (!groupedItems.has(key)) {
+        groupedItems.set(key, { ...item, totalQuantity: 0 });
+      }
 
-        groupedItems.get(key).totalQuantity +=
-          (item.issuedQuantity ?? item.requestedQuantity);
-      });
-
-      const stockRequests = Array.from(groupedItems.values()).map(group => {
-        const matchedStocks = stocks
-  .filter(s =>
-    this.normalize(s.itemName) === this.normalize(group.itemName) &&
-    this.normalize(s.category) === this.normalize(perm.category) &&
-    this.normalize(s.storeType) === this.normalize(group.storeHouse) &&
-    this.normalize(s.unit) === this.normalize(group.unit)
-  )
-  .sort(
-    (a, b) =>
-      new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
-
-if (matchedStocks.length === 0) {
-  throw new Error(`الصنف ${group.itemName} غير موجود بالمخزن`);
-}
-
-let remainingQty = group.totalQuantity;
-const updates: any[] = [];
-
-for (const stock of matchedStocks) {
-  if (remainingQty <= 0) break;
-
-  if (stock.quantity <= remainingQty) {
-    // نخصم كل الكمية من السجل ده
-    updates.push(
-      this.stockService.updateStock(stock.id, {
-        stock: {
-          ...stock,
-          quantity: 0,
-          storeKeeperSignature: this.fullName
-        }
-      })
-    );
-
-    remainingQty -= stock.quantity;
-  } else {
-    // نخصم جزء ونقف
-    updates.push(
-      this.stockService.updateStock(stock.id, {
-        stock: {
-          ...stock,
-          quantity: stock.quantity - remainingQty,
-          storeKeeperSignature: this.fullName
-        }
-      })
-    );
-
-    remainingQty = 0;
-  }
-}
-
-if (remainingQty > 0) {
-  throw new Error(`الكمية غير كافية للصنف ${group.itemName}`);
-}
-
-return forkJoin(updates);
-
-      });
-
-      forkJoin(stockRequests).subscribe(() => {
-
-        const permissionUpdates = perm.items.map((item: any) => {
-
-          const updatedPermission = {
-            ...item.fullPermission,
-            issueDate: issueDate,
-            issuedQuantity: item.issuedQuantity ?? item.requestedQuantity,
-            permissionStatus: 'تم الصرف'
-          };
-
-          return this.spendPermissionService.update(
-            item.permissionId,
-            updatedPermission
-          );
-        });
-
-        forkJoin(permissionUpdates).subscribe(() => {
-
-          this.updateSpendNotesLikeModeer(perm);
-
-        });
-
-      });
+      groupedItems.get(key).totalQuantity +=
+        (item.issuedQuantity ?? item.requestedQuantity);
     });
-  }
+
+    const stockRequests = Array.from(groupedItems.values()).map(group => {
+      const matchedStocks = stocks
+        .filter(s =>
+          this.normalize(s.itemName) === this.normalize(group.itemName) &&
+          this.normalize(s.category) === this.normalize(perm.category) &&
+          this.normalize(s.storeType) === this.normalize(group.storeHouse) &&
+          this.normalize(s.unit) === this.normalize(group.unit)
+        )
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+      if (matchedStocks.length === 0) {
+        throw new Error(`الصنف ${group.itemName} غير موجود بالمخزن`);
+      }
+
+      let remainingQty = group.totalQuantity;
+      const updates: any[] = [];
+
+      for (const stock of matchedStocks) {
+        if (remainingQty <= 0) break;
+        const qtyToDeduct = Math.min(stock.quantity, remainingQty);
+
+        if (stock.quantity <= remainingQty) {
+          updates.push(
+            this.stockService.updateStock(stock.id, {
+              stock: { ...stock, quantity: 0, storeKeeperSignature: this.fullName }
+            })
+          );
+          remainingQty -= stock.quantity;
+        } else {
+          updates.push(
+            this.stockService.updateStock(stock.id, {
+              stock: { ...stock, quantity: stock.quantity - remainingQty, storeKeeperSignature: this.fullName }
+            })
+          );
+          remainingQty = 0;
+        }
+      }
+
+      if (remainingQty > 0) {
+        throw new Error(`الكمية غير كافية للصنف ${group.itemName}`);
+      }
+
+      return forkJoin(updates);
+    });
+
+    forkJoin(stockRequests).subscribe(() => {
+
+      const permissionUpdates = perm.items.map((item: any) => {
+        const updatedPermission = {
+          ...item.fullPermission,
+          issueDate: issueDate,
+          issuedQuantity: item.issuedQuantity ?? item.requestedQuantity,
+          permissionStatus: 'تم الصرف'
+        };
+        return this.spendPermissionService.update(item.permissionId, updatedPermission);
+      });
+
+      forkJoin(permissionUpdates).subscribe(() => {
+
+        // ✅ إضافة LedgerEntries لكل صنف
+        const ledgerRequests = perm.items.map((item: any) => {
+          const ledgerEntry = {
+            date: new Date().toISOString(),
+            itemName: item.itemName,
+            unit: item.unit,
+            documentReference: ' منصرف الي', // هنا حسب طلبك
+            itemsValue: item.issuedQuantity ?? item.requestedQuantity,
+            storeType: perm.category === 'مستديم' ? 1 : 0,
+            spendPermissionId: item.permissionId,
+            status: 'لم يؤكد'
+          };
+          return this.ledgerService.addLedgerEntry(ledgerEntry);
+        });
+
+        forkJoin(ledgerRequests).subscribe({
+          next: () => {
+            // بعد تسجيل LedgerEntries حدث الـ SpendNotes كما هو
+            this.updateSpendNotesLikeModeer(perm);
+          },
+          error: err => {
+            console.error('❌ خطأ حفظ LedgerEntries', err);
+            this.statusMessage = '❌ فشل تسجيل سندات اليومية';
+            this.statusType = 'error';
+          }
+        });
+
+      });
+
+    });
+
+  });
+}
+
 
   /* ================= تحديث SpendNotes (نفس طريقة المدير) ================= */
 
