@@ -1,4 +1,4 @@
-import { Component ,HostListener} from '@angular/core';
+import { Component, HostListener, ElementRef, ViewChild, ViewChildren, QueryList} from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoadingService } from '../../services/loading.service'; // Ensure this path is correct
@@ -12,6 +12,18 @@ import { LoadingService } from '../../services/loading.service'; // Ensure this 
 })
 export class HomeComponent {
 
+ @ViewChild('stage') stage!: ElementRef;
+@HostListener('document:mousemove', ['$event'])
+onMouseMove(e: MouseEvent) {
+  const x = (e.clientX / window.innerWidth) - 0.5;
+  const y = (e.clientY / window.innerHeight) - 0.5;
+
+  // This tilts the entire left-side scene
+  if (this.stage) {
+    this.stage.nativeElement.style.transform =
+      `rotateX(${y * -15}deg) rotateY(${x * 15}deg)`;
+  }
+}
 
   translateX = 0;
   translateY = 0;
@@ -19,16 +31,6 @@ export class HomeComponent {
   shadowY = 0; // New
 
 
-  @HostListener('document:mousemove', ['$event'])
-  onMouseMove(e: MouseEvent) {
-    // Moves the boxes layer (Sensitive)
-    this.translateX = (e.clientX - window.innerWidth / 2) / 50;
-    this.translateY = (e.clientY - window.innerHeight / 2) / 30;
-
-    // Moves the text shadow (Subtle)
-    this.shadowX = (e.clientX - window.innerWidth / 2) / 80;
-    this.shadowY = (e.clientY - window.innerHeight / 2) / 80;
-  }
   constructor(
     private router: Router,
     private loadingService: LoadingService // Inject the service

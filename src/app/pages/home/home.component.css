@@ -4,16 +4,16 @@
   width: 100%;
 }
 
-/* Ensure the parent is the anchor */
 .home-page-container {
     position: relative;
     min-height: 100vh;
     width: 100%;
-    background-color: var(--bg-light); /* Or any base color */
+    background-color: var(--bg-light);
     overflow: hidden;
     z-index: 1;
+    /* This creates the 3D depth for the whole page */
+    perspective: 2000px;
 }
-
 /* --- WATERMARK BACKGROUND --- */
 .home-page-container::before {
     content: "";
@@ -196,4 +196,70 @@ p { color: var(--primary-color); }
   .social-icons img {
     margin-top: 0 !important;
   }
+}
+
+
+/**********************************************************/
+/* Positioning the new box scene on the left */
+.scene {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%; /* Keeps it on the left side */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2; /* Sits above watermark, below text */
+  pointer-events: none; /* Mouse passes through to background */
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.box-3d {
+  position: absolute;
+  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15));
+  transition: transform 0.1s ease-out;
+}
+
+/* The Main Box */
+.b1 {
+  width: 320px;
+  transform: translateZ(50px);
+  animation: boxFloat 5s infinite ease-in-out;
+}
+
+/* Background/Small Boxes */
+.b2 {
+  width: 140px;
+  top: 20%;
+  left: 15%;
+  opacity: 0.6;
+  transform: translateZ(-200px) rotate(-15deg);
+}
+
+.b3 {
+  width: 110px;
+  bottom: 25%;
+  left: 25%;
+  opacity: 0.4;
+  transform: translateZ(-300px) rotate(10deg);
+}
+
+@keyframes boxFloat {
+  0%, 100% { margin-top: 0; }
+  50% { margin-top: -20px; }
+}
+
+/* Hide boxes on very small mobile screens so they don't cover text */
+@media (max-width: 768px) {
+  .scene { display: none; }
 }
