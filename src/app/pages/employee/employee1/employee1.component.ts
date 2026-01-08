@@ -182,24 +182,25 @@ addItemLine(memoIndex: number, isOtherCategory: boolean = false): void {
   });
 
   if (!isOtherCategory) {
-    itemGroup.get('itemName')?.valueChanges.subscribe(value => {
-      const customItemCtrl = itemGroup.get('customItemName');
-      const unitCtrl = itemGroup.get('customUnit');
+    itemGroup.get('itemName')?.valueChanges.subscribe((value: any) => {
+  const customItemCtrl = itemGroup.get('customItemName');
+  const unitCtrl = itemGroup.get('customUnit');
 
-      if (value === 'OTHER') {
-        customItemCtrl?.setValidators([Validators.required]);
-        unitCtrl?.setValidators([Validators.required]);
-      } else {
-        customItemCtrl?.clearValidators();
-        customItemCtrl?.setValue(null);
+  if (value && typeof value === 'object' && value.itemName === 'OTHER') {
+    customItemCtrl?.setValidators([Validators.required]);
+    unitCtrl?.setValidators([Validators.required]);
+  } else {
+    customItemCtrl?.clearValidators();
+    customItemCtrl?.setValue(null);
 
-        unitCtrl?.clearValidators();
-        unitCtrl?.setValue(null);
-      }
+    unitCtrl?.clearValidators();
+    unitCtrl?.setValue(null);
+  }
 
-      customItemCtrl?.updateValueAndValidity({ emitEvent: false });
-      unitCtrl?.updateValueAndValidity({ emitEvent: false });
-    });
+  customItemCtrl?.updateValueAndValidity({ emitEvent: false });
+  unitCtrl?.updateValueAndValidity({ emitEvent: false });
+});
+
   }
 
   this.getItemLines(memoIndex).push(itemGroup);
@@ -301,24 +302,32 @@ onSubmit(): void {
 
 let finalItemName = '';
 let unit: string | null = null;
-let categoryValue = memo.category;
 
-// 🟠 حالة OTHER للفئة
-if (categoryValue === 'OTHER') {
-  categoryValue = memo.customCategory; // استخدم الاسم الجديد للفئة
-}
-
-// 🟠 حالة OTHER للصنف
-if (item.itemName === 'OTHER') {
+// 🟠 شراء مباشر (فئة OTHER)
+if (memo.category === 'OTHER') {
   finalItemName = item.customItemName;
   unit = item.customUnit;
 }
-// 🟢 حالة الصنف من المخزن
+
+// 🟠 صنف OTHER داخل فئة موجودة
+else if (item.itemName && item.itemName.itemName === 'OTHER') {
+  finalItemName = item.customItemName;
+  unit = item.customUnit;
+}
+
+// 🟢 صنف من المخزن
 else if (item.itemName?.itemName) {
   finalItemName = item.itemName.itemName;
   unit = item.itemName.unit;
 }
 
+
+
+let finalCategory = memo.category;
+
+if (memo.category === 'OTHER') {
+  finalCategory = memo.customCategory; // 👈 اسم الفئة اللي الموظف كتبها
+}
 
 
 const payload = {
@@ -328,11 +337,15 @@ const payload = {
   requestDate: new Date(memo.requestDate).toISOString(),
   userSignature: memo.employeeSignature,
   college: memo.collegeName,
-  category: categoryValue === 'OTHER' ? 'أخرى' : categoryValue,
+  category: memo.category === 'OTHER'
+    ? memo.customCategory
+    : memo.category,
   permissinStatus: 'قيد المراجعة',
   collageKeeper: memo.collegeAdminName,
   employeeId: 1
 };
+
+
 
 
       this.spendNotesService.createSpendNote(payload).subscribe({

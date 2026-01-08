@@ -147,12 +147,23 @@ getStatusText(note: SpendNote): string {
   const permStatus = note.permissinStatus.toLowerCase().trim();
   const confStatus = note.confirmationStatus?.toLowerCase().trim();
 
-  // ✅ حالة مقبول ومؤكد
-  if ((permStatus === 'approved' || permStatus.includes('الطلب مقبول')) && confStatus === 'مؤكد') {
+  // 🟢 تم الصرف ومؤكد
+  if (
+    (permStatus.includes('تم الصرف') || permStatus === 'spent')
+    && confStatus === 'مؤكد'
+  ) {
+    return 'تم الصرف';
+  }
+
+  // ✅ مقبول لكن لسه ما اتصرفش
+  if (
+    (permStatus === 'approved' || permStatus.includes('الطلب مقبول'))
+    && confStatus === 'مؤكد'
+  ) {
     return 'الطلب مقبول';
   }
 
-  // ❌ حالة مرفوض
+  // ❌ مرفوض
   if (permStatus === 'rejected' || permStatus.includes('الطلب مرفوض')) {
     return 'الطلب مرفوض';
   }
@@ -160,5 +171,6 @@ getStatusText(note: SpendNote): string {
   // ⏳ باقي الحالات
   return 'قيد المراجعة';
 }
+
 
 }
