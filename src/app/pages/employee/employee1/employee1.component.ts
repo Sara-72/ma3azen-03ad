@@ -81,13 +81,15 @@ ngOnInit(): void {
     this.displayName = this.getFirstTwoNames(this.userName);
     const role = (localStorage.getItem('role') || 'USER').toUpperCase();
 
-    if (role !== 'USER' && role !== 'ADMIN') {
-      this.userCollege = 'مركزية';
-      this.collegeAdmin = 'حمدي محمد علي';
-    } else {
-      this.userCollege = localStorage.getItem('faculty') || 'مركزية';
-      this.collegeAdmin = this.collegeAdminMap[this.userCollege] || '';
-    }
+if (role === 'USER') {
+  // موظف عادي
+  this.userCollege = localStorage.getItem('faculty') || 'مركزية';
+  this.collegeAdmin = this.collegeAdminMap[this.userCollege] || '';
+} else {
+  // أي حد غير الموظف
+  this.userCollege = 'مركزية';
+  this.collegeAdmin = 'حمدي محمد علي';
+}
 
     this.todayDate = new Date().toISOString().substring(0, 10);
 
@@ -238,7 +240,7 @@ addItemLine(memoIndex: number, isOtherCategory: boolean = false): void {
 
 
   private fillFixedData(memoGroup: FormGroup): void {
-    const displayCollege = this.userCollege === 'مركزية' ? 'المركز الرئيسي' : this.userCollege;
+    const displayCollege = this.userCollege === 'مركزية' ?  'مركزية': this.userCollege;
     const adminName = this.userCollege === 'مركزية' ? 'حمدي محمد علي' : this.collegeAdmin;
 
     memoGroup.patchValue({
