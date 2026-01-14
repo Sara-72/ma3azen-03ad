@@ -414,7 +414,26 @@ input[type="date"] {
         font-size: 0.9rem;
     }
 
+<<<<<<< HEAD
     /* 2. Adjust Filter Bar for stacking */
+=======
+
+    .big-container {
+        margin: 0 !important;
+        width: 100%;
+    }
+}
+
+/* 3. Mobile Phones */
+@media (max-width: 768px) {
+    /* Disable 3D tilt on mobile for better usability */
+    .form-container, .sidebar, .sidebar li {
+        transform: none !important;
+        transition: none !important;
+        perspective: none !important;
+    }
+
+>>>>>>> main
     .filter-bar {
         flex-direction: column;
         align-items: stretch !important;
@@ -475,3 +494,29 @@ input[type="date"] {
         max-width: none !important;
     }
 }
+<<<<<<< HEAD
+=======
+
+/* Scrollbar Fix: Ensure it's visible on scrollable containers */
+.custom-scrollbar {
+    overflow-x: auto;
+}
+.custom-scrollbar::-webkit-scrollbar {
+    height: 8px;
+    display: block;
+}
+
+
+
+
+.floating-dropdown .list-group-item.text-primary {
+  background-color: #f8f9ff;
+  color: var(--primary-color) !important;
+  font-weight: 600;
+  text-align: center;
+}
+
+.floating-dropdown .list-group-item.text-primary:hover {
+  background-color: #eef2ff;
+}
+>>>>>>> main
