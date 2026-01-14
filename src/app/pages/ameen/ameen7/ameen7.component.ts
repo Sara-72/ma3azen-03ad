@@ -110,29 +110,59 @@ export class Ameen7Component implements OnInit {
           this.ledgerService.addLedgerEntry(ledgerEntry).subscribe(() => {
 
             /* 2️⃣ تحديث / إضافة في المخزن */
-            this.storeKeeperStockService
-              .getStock(permission.itemName, permission.category)
-              .subscribe({
-                next: stock => {
-                  const updatedStock = {
-                    ...stock,
-                    quantity: stock.quantity + permission.issuedQuantity
-                  };
-                  this.storeKeeperStockService.updateStock(stock.id, updatedStock).subscribe();
-                },
-                error: () => {
-                  const newStock = {
-                    itemName: permission.itemName,
-                    category: permission.category,
-                    storeType: permission.storeHouse,
-                    unit: permission.unit,
-                    quantity: permission.issuedQuantity,
-                    date: new Date().toISOString(),
-                    spendPermissionId: permission.id
-                  };
-                  this.storeKeeperStockService.addStock({ stock: newStock }).subscribe();
-                }
-              });
+            /* 2️⃣ تحديث / إضافة في المخزن مع check على الاسم + الوحدة + التاريخ */
+this.storeKeeperStockService.getAllStocks().subscribe(allStocks => {
+
+  const issueDateOnly =
+    new Date(permission.issueDate).toISOString().split('T')[0];
+
+  const existingStock = allStocks.find(stock =>
+    stock.itemName === permission.itemName &&
+    stock.unit === permission.unit &&
+    stock.storeType === permission.storeHouse &&
+    stock.date?.split('T')[0] === issueDateOnly
+  );
+
+  if (existingStock) {
+    // ✅ UPDATE
+    const updatedStock = {
+      itemName: existingStock.itemName,
+      category: existingStock.category,
+      storeType: existingStock.storeType,
+      unit: existingStock.unit,
+      quantity: existingStock.quantity + permission.issuedQuantity,
+      date: existingStock.date,
+      additionId: existingStock.additionId,
+      spendPermissionId: existingStock.spendPermissionId
+    };
+
+    this.storeKeeperStockService
+      .updateStock(existingStock.id, { stock: updatedStock })
+      .subscribe(() => {
+        console.log('✔ تم تحديث الكمية في المخزن');
+      });
+
+  } else {
+    // ➕ ADD
+    const newStock = {
+      itemName: permission.itemName,
+      category: permission.category,
+      storeType: permission.storeHouse,
+      unit: permission.unit,
+      quantity: permission.issuedQuantity,
+      date: permission.issueDate,
+      spendPermissionId: permission.id
+    };
+
+    this.storeKeeperStockService
+      .addStock({ stock: newStock })
+      .subscribe(() => {
+        console.log('✔ تم إضافة سجل جديد في المخزن');
+      });
+  }
+});
+
+
 
             /* 3️⃣ حذف السجل من جدول العهد */
             this.custodyAuditsService.getAllAudits().subscribe(audits => {
