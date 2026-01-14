@@ -464,8 +464,8 @@ onSubmitForm(form: FormGroup, fIndex: number) {
     category: formVal.category,
     managerSignature: formVal.managerSignature,
     storeHouse: formVal.category,
-    requestDate: new Date(formVal.requestDateGroup).toISOString(),
-    documentDate: new Date(formVal.regularDateGroup + 'T00:00:00').toISOString(),
+    requestDate: String(formVal.requestDateGroup).slice(0, 10),
+    documentDate: String(formVal.regularDateGroup).slice(0, 10),
     requestorName: formVal.requestorName,
     documentNumber: formVal.documentNumber
   };
