@@ -107,13 +107,21 @@ private loadLookupsFromStock(): void {
     // Category -> Items map
     this.categoryItemMap = {};
     stocks.forEach(s => {
-      if (!this.categoryItemMap[s.category]) {
-        this.categoryItemMap[s.category] = [];
-      }
-      if (!this.categoryItemMap[s.category].includes(s.itemName)) {
-        this.categoryItemMap[s.category].push(s.itemName);
-      }
-    });
+  if (!this.categoryItemMap[s.category]) {
+    this.categoryItemMap[s.category] = [];
+  }
+  if (!this.categoryItemMap[s.category].includes(s.itemName)) {
+    this.categoryItemMap[s.category].push(s.itemName);
+  }
+});
+
+// أضف "أخرى" لكل فئة
+Object.keys(this.categoryItemMap).forEach(cat => {
+  if (!this.categoryItemMap[cat].includes('أخرى')) {
+    this.categoryItemMap[cat].push('أخرى');
+  }
+});
+
 
     // Add "Other"
     this.categories.push('أخرى');
@@ -161,7 +169,7 @@ onItemChange(value: string, index: number) {
   if (value === 'أخرى') {
     this.isManualItem[index] = true;
 
-    // 🔥 أوقف validator الصنف
+    // السماح بإدخال أي صنف جديد
     row.get('item')?.clearValidators();
     row.get('item')?.updateValueAndValidity();
 
@@ -171,11 +179,12 @@ onItemChange(value: string, index: number) {
 
     row.get('item')?.setValidators([
       Validators.required,
-      this.itemExistsValidator(index)
+      this.itemExistsValidator(index) // للتحقق من الصنف ضمن الفئة إذا لم يكن "أخرى"
     ]);
     row.get('item')?.updateValueAndValidity();
   }
 }
+
 
 onUnitChange(value: string, index: number) {
   const row = this.tableData.at(index);
